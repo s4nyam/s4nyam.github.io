@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sanyam Jain</title>
+  <link rel="icon" href="path/to/favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+    }
+    
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 2px;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    p {
+      line-height: 1.6;
+    }
+    
+    .tab-container {
+      margin-bottom: 20px;
+    }
+    
+    .tab-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .tab-link {
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      text-decoration: none;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      margin: 5px;
+    }
+    
+    .tab-link.active {
+      background-color: #666;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .affiliation-placeholder {
+      text-align: center;
+    }
+    
+    .row-section {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    
+    .row-section:hover {
+      border: 1px solid #ccc;
+    }
+    
+    .row-section img {
+      max-width: 100%;
+      max-height: 350px;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .row-section p {
+      text-align: justify;
+    }
+    
+    .paper-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .paper-authors {
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .paper-abstract {
+      line-height: 1.4;
+    }
+    
+    .google-scholar-link {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #337ab7;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 3px;
+    }
+    
+    footer {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    footer p {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    /* Responsive Styles */
+    @media only screen and (max-width: 600px) {
+      main {
+        padding: 10px;
+      }
+      
+      .tab-links {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .tab-link {
+        margin: 5px 0;
+      }
+      
+      .affiliation-placeholder {
+        margin-top: 20px;
+      }
+    }
+  </style>
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabContent, tabLink;
+      
+      tabContent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = "none";
+      }
+      
+      tabLink = document.getElementsByClassName("tab-link");
+      for (i = 0; i < tabLink.length; i++) {
+        tabLink[i].className = tabLink[i].className.replace(" active", "");
+      }
+      
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    function openLinkInNewTab(url) {
+      var isSection = ["about", "publications", "projects", "affiliations", "experience", "contact"].includes(url);
+      if (!isSection) {
+        window.open(url, "_blank");
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Sanyam Jain</h1>
+  </header>
+  
+  <main>
+    <div class="tab-container">
+      <div class="tab-links">
+        <a href="#" class="tab-link active" onclick="openTab(event, 'about')">About Me</a>
+        <a href="#" class="tab-link" onclick="openTab(event, 'publications')">Publications</a>
+        <a href="#" class="tab-link" onclick="openTab(event, 'projects')">Projects</a>
+        <a href="#" class="tab-link" onclick="openTab(event, 'affiliations')">Affiliations</a>
+        <a href="#" class="tab-link" onclick="openTab(event, 'experience')">Experience</a>
+        <a href="#" class="tab-link" onclick="openTab(event, 'contact')">Contact Me</a>
+      </div>
+      
+      <div id="about" class="tab-content active">
+        <h2>About Me</h2>
+        <div class="row-section">
+          <img src="mine.jpg" alt="About Me Image">
+          <p>
+            I am currently a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belongs to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoy working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together study complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a
+
+> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called Banswara which lies in south Rajasthan.
+          </p>
+        </div>
+      </div>
+      
+      <div id="publications" class="tab-content">
+        <h2>Publications - <a href="https://scholar.google.com/citations?user=R9XAK2IAAAAJ&hl=en" class="google-scholar-link">Google Scholar</a></h2>
+       
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S. (2023). Adversarial Attack On Yolov5 For Traffic And Road Sign Detection. arXiv preprint arXiv:2306.06071.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S. (2023). DeepSeaNet: Improving Underwater Object Detection using EfficientDet. arXiv preprint arXiv:2306.06075.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S., & Shrestha, A. (2023). Capturing Emerging Complexity in Lenia. arXiv preprint arXiv:2305.09378.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S. (2023). CQural: A Novel CNN based Hybrid Architecture for Quantum Continual Machine Learning. arXiv preprint arXiv:2305.09738.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S. (2023). ADDSL: Hand Gesture Detection and Sign Language Recognition on Annotated Danish Sign Language. arXiv preprint arXiv:2305.09736.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S. (2023). RAMario: Experimental Approach to Reptile Algorithm--Reinforcement Learning for Mario. arXiv preprint arXiv:2305.09655.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S., Sharma, S., & Tomar, R. (2019). Integration of wit API with python coded terminal bot. In Emerging Technologies in Data Mining and Information Security: Proceedings of IEMIS 2018, Volume 3 (pp. 397-406). Springer Singapore.
+          </p>
+        </div>
+
+        <div class="row-section">
+          <p class="paper-abstract">
+            Jain, S., Gautam, R., Sharma, S., Tomar, R., & Choudhury, T. (2021). Four-Factor Authentication with Emerging Cybersecurity for Mobile Transactions. In Innovations in Cyber Physical Systems: Select Proceedings of ICICPS 2020 (pp. 391-399). Springer Singapore.
+          </p>
+        </div>
+      </div>
+      
+      <div id="projects" class="tab-content">
+        <h2>Projects</h2>
+        <div class="row-section">
+          <img src="path/to/projects-image.jpg" alt="Projects Image">
+          <p>
+            Explore my projects and web portals related to ALife, Evolution, Genetic Algorithms, and Cellular Automata.
+          </p>
+          <p>
+            Project Description: [Add project description here]
+          </p>
+          <p>
+            Project Link: [Add project link here]
+          </p>
+        </div>
+      </div>
+      
+      <div id="affiliations" class="tab-content">
+        <h2>Affiliations</h2>
+        <div class="affiliation-placeholder">
+          <img src="path/to/affiliation1.jpg" alt="Affiliation 1 Logo" width="50" height="50">
+          <img src="path/to/affiliation2.jpg" alt="Affiliation 2 Logo" width="50" height="50">
+        </div>
+      </div>
+      
+      <div id="experience" class="tab-content">
+        <h2>Experience</h2>
+        <p>
+          Here, you can find information about my professional experience.
+        </p>
+        <!-- Add your experience details here -->
+      </div>
+      
+      <div id="contact" class="tab-content">
+        <h2>Contact Me</h2>
+        <p>
+          You can reach me via email at <a href="mailto:yourname@example.com">yourname@example.com</a>. Connect with me on social media through the following profiles:
+        </p>
+        <!-- Add your contact details here -->
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <p>&copy; 2023 My Personal Webpage. All rights reserved.</p>
+  </footer>
+  <script>
+    var links = document.getElementsByTagName("a");
+    for (var i = 0; i < links.length; i++) {
+      var link = links[i];
+      var href = link.getAttribute("href");
+      if (href && href !== "#" && !href.includes("mailto:") && !href.includes("tel:")) {
+        var sectionNames = ["about", "publications", "projects", "affiliations", "experience", "contact"];
+        if (!sectionNames.includes(href)) {
+          link.setAttribute("target", "_blank");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
