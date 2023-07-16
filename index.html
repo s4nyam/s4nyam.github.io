@@ -84,6 +84,7 @@
     
     .row-section:hover {
       border: 1px solid #ccc;
+      cursor: pointer;
     }
     
     .row-section img {
@@ -151,6 +152,45 @@
         margin-top: 20px;
       }
     }
+    
+    .popup {
+      display: none;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 9999;
+    }
+    
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+    }
+    
+    .popup-content {
+      margin-bottom: 20px;
+    }
+    
+    .popup-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
   </style>
   <script>
     function openTab(evt, tabName) {
@@ -176,6 +216,29 @@
         window.open(url, "_blank");
       }
     }
+
+    function openPublicationPopup(title, authors, abstract) {
+      var popup = document.getElementById("publicationPopup");
+      var overlay = document.getElementById("publicationOverlay");
+      var popupTitle = document.getElementById("popupTitle");
+      var popupAuthors = document.getElementById("popupAuthors");
+      var popupAbstract = document.getElementById("popupAbstract");
+
+      popupTitle.textContent = title;
+      popupAuthors.textContent = authors;
+      popupAbstract.textContent = abstract;
+
+      popup.style.display = "block";
+      overlay.style.display = "block";
+    }
+
+    function closePublicationPopup() {
+      var popup = document.getElementById("publicationPopup");
+      var overlay = document.getElementById("publicationOverlay");
+
+      popup.style.display = "none";
+      overlay.style.display = "none";
+    }
   </script>
 </head>
 <body>
@@ -199,9 +262,7 @@
         <div class="row-section">
           <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/mine.JPG" alt="About Me Image">
           <p>
-            I am currently a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belongs to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoy working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together study complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a
-
-> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called Banswara which lies in south Rajasthan.
+            I am currently a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belongs to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoy working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together study complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called Banswara which lies in south Rajasthan.
           </p>
         </div>
       </div>
@@ -209,49 +270,49 @@
       <div id="publications" class="tab-content">
         <h2>Publications - <a href="https://scholar.google.com/citations?user=R9XAK2IAAAAJ&hl=en" class="google-scholar-link">Google Scholar</a></h2>
        
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('Adversarial Attack On Yolov5 For Traffic And Road Sign Detection', 'Jain, S.', 'Jain, S. (2023). Adversarial Attack On Yolov5 For Traffic And Road Sign Detection. arXiv preprint arXiv:2306.06071.')">
           <p class="paper-abstract">
             Jain, S. (2023). Adversarial Attack On Yolov5 For Traffic And Road Sign Detection. arXiv preprint arXiv:2306.06071.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('DeepSeaNet: Improving Underwater Object Detection using EfficientDet', 'Jain, S.', 'Jain, S. (2023). DeepSeaNet: Improving Underwater Object Detection using EfficientDet. arXiv preprint arXiv:2306.06075.')">
           <p class="paper-abstract">
             Jain, S. (2023). DeepSeaNet: Improving Underwater Object Detection using EfficientDet. arXiv preprint arXiv:2306.06075.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('Capturing Emerging Complexity in Lenia', 'Jain, S. & Shrestha, A.', 'Jain, S., & Shrestha, A. (2023). Capturing Emerging Complexity in Lenia. arXiv preprint arXiv:2305.09378.')">
           <p class="paper-abstract">
             Jain, S., & Shrestha, A. (2023). Capturing Emerging Complexity in Lenia. arXiv preprint arXiv:2305.09378.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('CQural: A Novel CNN based Hybrid Architecture for Quantum Continual Machine Learning', 'Jain, S.', 'Jain, S. (2023). CQural: A Novel CNN based Hybrid Architecture for Quantum Continual Machine Learning. arXiv preprint arXiv:2305.09738.')">
           <p class="paper-abstract">
             Jain, S. (2023). CQural: A Novel CNN based Hybrid Architecture for Quantum Continual Machine Learning. arXiv preprint arXiv:2305.09738.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('ADDSL: Hand Gesture Detection and Sign Language Recognition on Annotated Danish Sign Language', 'Jain, S.', 'Jain, S. (2023). ADDSL: Hand Gesture Detection and Sign Language Recognition on Annotated Danish Sign Language. arXiv preprint arXiv:2305.09736.')">
           <p class="paper-abstract">
             Jain, S. (2023). ADDSL: Hand Gesture Detection and Sign Language Recognition on Annotated Danish Sign Language. arXiv preprint arXiv:2305.09736.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('RAMario: Experimental Approach to Reptile Algorithm--Reinforcement Learning for Mario', 'Jain, S.', 'Jain, S. (2023). RAMario: Experimental Approach to Reptile Algorithm--Reinforcement Learning for Mario. arXiv preprint arXiv:2305.09655.')">
           <p class="paper-abstract">
             Jain, S. (2023). RAMario: Experimental Approach to Reptile Algorithm--Reinforcement Learning for Mario. arXiv preprint arXiv:2305.09655.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('Integration of wit API with python coded terminal bot', 'Jain, S., Sharma, S., & Tomar, R.', 'Jain, S., Sharma, S., & Tomar, R. (2019). Integration of wit API with python coded terminal bot. In Emerging Technologies in Data Mining and Information Security: Proceedings of IEMIS 2018, Volume 3 (pp. 397-406). Springer Singapore.')">
           <p class="paper-abstract">
             Jain, S., Sharma, S., & Tomar, R. (2019). Integration of wit API with python coded terminal bot. In Emerging Technologies in Data Mining and Information Security: Proceedings of IEMIS 2018, Volume 3 (pp. 397-406). Springer Singapore.
           </p>
         </div>
 
-        <div class="row-section">
+        <div class="row-section" onclick="openPublicationPopup('Four-Factor Authentication with Emerging Cybersecurity for Mobile Transactions', 'Jain, S., Gautam, R., Sharma, S., Tomar, R., & Choudhury, T.', 'Jain, S., Gautam, R., Sharma, S., Tomar, R., & Choudhury, T. (2021). Four-Factor Authentication with Emerging Cybersecurity for Mobile Transactions. In Innovations in Cyber Physical Systems: Select Proceedings of ICICPS 2020 (pp. 391-399). Springer Singapore.')">
           <p class="paper-abstract">
             Jain, S., Gautam, R., Sharma, S., Tomar, R., & Choudhury, T. (2021). Four-Factor Authentication with Emerging Cybersecurity for Mobile Transactions. In Innovations in Cyber Physical Systems: Select Proceedings of ICICPS 2020 (pp. 391-399). Springer Singapore.
           </p>
@@ -303,18 +364,16 @@
   <footer>
     <p>&copy; 2023 My Personal Webpage. All rights reserved.</p>
   </footer>
-  <script>
-    var links = document.getElementsByTagName("a");
-    for (var i = 0; i < links.length; i++) {
-      var link = links[i];
-      var href = link.getAttribute("href");
-      if (href && href !== "#" && !href.includes("mailto:") && !href.includes("tel:")) {
-        var sectionNames = ["about", "publications", "projects", "affiliations", "experience", "contact"];
-        if (!sectionNames.includes(href)) {
-          link.setAttribute("target", "_blank");
-        }
-      }
-    }
-  </script>
+  
+  <!-- Publication Popup -->
+  <div id="publicationPopup" class="popup">
+    <h2 class="popup-title" id="popupTitle"></h2>
+    <p class="popup-authors" id="popupAuthors"></p>
+    <div class="popup-content">
+      <p class="popup-abstract" id="popupAbstract"></p>
+    </div>
+    <span class="popup-close" onclick="closePublicationPopup()">X</span>
+  </div>
+  <div id="publicationOverlay" class="popup-overlay"></div>
 </body>
 </html>
