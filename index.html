@@ -359,7 +359,9 @@
 .education-section:hover {
   background-color: #eaeaea;
 }
-
+.education-section .read-more {
+    display: none;
+  }
 
 
   </style>
@@ -410,6 +412,18 @@
       popup.style.display = "none";
       overlay.style.display = "none";
     }
+      // JavaScript code to toggle "read more" section
+  document.addEventListener("DOMContentLoaded", function() {
+    const toggleButtons = document.querySelectorAll(".toggle-read-more");
+    toggleButtons.forEach(function(button) {
+      button.addEventListener("click", function(event) {
+        event.preventDefault();
+        const readMoreSection = this.previousElementSibling;
+        readMoreSection.style.display = readMoreSection.style.display === "none" ? "block" : "none";
+        this.textContent = this.textContent === "Read More" ? "Read Less" : "Read More";
+      });
+    });
+  });
   </script>
 </head>
 <body>
@@ -707,30 +721,35 @@
 
       <div id="education" class="tab-content">
         <h2>Education</h2>
-        
-        <div class="education-section">
-          <h3>Østfold University College, Norway</h3>
-          <p>Degree: Masters in Science</p>
-          <p>Major: Applied Computer Science</p>
-          <p>Year: 2022-2024</p>
-        </div>
-        
-        <div class="education-section">
-          <h3>Indian Institute of Technology, Jodhpur</h3>
-          <p>Degree: PhD (Dropped)</p>
-          <p>Major: Quantum Information and Computation with focused coursework on Deep Learning</p>
-          <p>Year: 2020 - 2022</p>
-          <p>Grade: 7.8/10, Activities and societies: Part of VANETS LABActivities and societies: Part of VANETS LAB, Courses: Machine Learning, Dr G. Harit AI 1, Dr D. Mishra Graph Theory and Applications, Dr A. Mishra Deep Learning, Dr M. Vatsa Dependable AI, Dr R. Singh (A- grade) Financial Engg., Dr V. Vijay (A- grade) Cryptography, Dr S. Sanadhya ML for Economics, Dr D. Brahma Adv Machine Learning, Dr M. Vatsa (A grade) Cryptography, Course Project Theoretical analysis of QKD protocol BB84 and experimenting related algorithms on qiskit, (Endsem) QKD protocols and Quantum attacks on blockchain. (Attacks on Bitcoin PoW and Attacks on Digital Signatures) ML2, Endsem Project - Analyzing and Improving the Image Quality of StyleGAN (StyleGAN2) CVPR 2020, HELEN EYE DATASET and Clothing Dataset (Fashion Dataset) ML2, Group Project - Random Multimodel Deep Learning for Classification (arXiv:1805.01890) 20NewsGroup and IMDB dataset & CIFAR-10, MNIST Dataset. Dependable AI - Study of Nature of Different Adversarial Attacks and Impact of Different Data Augmentation Techniques on Robustness </p>
-        </div>
-        <div class="education-section">
-          <h3>UPES, Dehradun, India</h3>
-          <p>Degree: BTech (Bachelor's in Technology)</p>
-          <p>Major: Computer Science Engineering</p>
-          <p>Year: 2015 - 2019</p>
-          <p>Grade: 77.50, Best Project award for Compariso - whatsapp bot to compare e-commerce prices. Top 10 in R.I.S.E. UPES under supervision of Dr. Ravi Tomar sir with project title: KidExa (Team KeyringCorp) Won Best project Award in Project Parliament (2018) college Minor Project 2 for Facial Recognition significance in cybersecurity. (Team KeyringCorp) Won Third Prize for Real-time Traffic Analysis – IBM ICE on campus Hackathon. (Team KeyringCorp) Won Second prize for 4FactorAuthentication in North India Cyber Security Hackathon at WIC Dehradun. (Team KeyringCorp) Developed Python Chatbot using wit NLP engine. (Wit.ai) Developed Automated Key logger using C. (Unix/Py) Studied Digital Logic, Data Structures and Algorithms, Java, Operating Systems, DBMS, Computer Networks, Theory of Computation, Discrete Maths, Information Retrieval and Search engines, Artificial Intelligence, Mobile Applications</p>
-        </div>
-        <!-- Add more education sections as needed -->
-        
+
+  <div class="education-section">
+    <h3>Østfold University College, Norway</h3>
+    <p>Degree: Masters in Science</p>
+    <p>Major: Applied Computer Science</p>
+    <p>Year: 2022-2024</p>
+    <p class="read-more">To be added</p>
+    <a href="#" class="toggle-read-more">Click for more!</a>
+  </div>
+
+  <div class="education-section">
+    <h3>Indian Institute of Technology, Jodhpur</h3>
+    <p>Degree: PhD (Dropped)</p>
+    <p>Major: Quantum Information and Computation with focused coursework on Deep Learning</p>
+    <p>Year: 2020 - 2022</p>
+    <p class="read-more">Grade: 7.8/10, Activities and societies: Part of VANETS LABActivities and societies: Part of VANETS LAB, Courses: Machine Learning, Dr G. Harit AI 1, Dr D. Mishra Graph Theory and Applications, Dr A. Mishra Deep Learning, Dr M. Vatsa Dependable AI, Dr R. Singh (A- grade) Financial Engg., Dr V. Vijay (A- grade) Cryptography, Dr S. Sanadhya ML for Economics, Dr D. Brahma Adv Machine Learning, Dr M. Vatsa (A grade) Cryptography, Course Project Theoretical analysis of QKD protocol BB84 and experimenting related algorithms on qiskit, (Endsem) QKD protocols and Quantum attacks on blockchain. (Attacks on Bitcoin PoW and Attacks on Digital Signatures) ML2, Endsem Project - Analyzing and Improving the Image Quality of StyleGAN (StyleGAN2) CVPR 2020, HELEN EYE DATASET and Clothing Dataset (Fashion Dataset) ML2, Group Project - Random Multimodel Deep Learning for Classification (arXiv:1805.01890) 20NewsGroup and IMDB dataset & CIFAR-10, MNIST Dataset. Dependable AI - Study of Nature of Different Adversarial Attacks and Impact of Different Data Augmentation Techniques on Robustness.</p>
+    <a href="#" class="toggle-read-more">Click for more!</a>
+  </div>
+
+  <div class="education-section">
+    <h3>UPES, Dehradun, India</h3>
+    <p>Degree: BTech (Bachelor's in Technology)</p>
+    <p>Major: Computer Science Engineering</p>
+    <p>Year: 2015 - 2019</p>
+    <p class="read-more">Grade: 77.50, Best Project award for Compariso - whatsapp bot to compare e-commerce prices. Top 10 in R.I.S.E. UPES under supervision of Dr. Ravi Tomar sir with project title: KidExa (Team KeyringCorp) Won Best project Award in Project Parliament (2018) college Minor Project 2 for Facial Recognition significance in cybersecurity. (Team KeyringCorp) Won Third Prize for Real-time Traffic Analysis – IBM ICE on campus Hackathon. (Team KeyringCorp) Won Second prize for 4FactorAuthentication in North India Cyber Security Hackathon at WIC Dehradun. (Team KeyringCorp) Developed Python Chatbot using wit NLP engine. (Wit.ai) Developed Automated Key logger using C. (Unix/Py) Studied Digital Logic, Data Structures and Algorithms, Java, Operating Systems, DBMS, Computer Networks, Theory of Computation, Discrete Maths, Information Retrieval and Search engines, Artificial Intelligence, Mobile Applications.</p>
+    <a href="#" class="toggle-read-more">Click for more!</a>
+  </div>
+  <!-- Add more education sections as needed -->
+
       </div>
       
 
