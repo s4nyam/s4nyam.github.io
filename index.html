@@ -431,6 +431,49 @@
   font-size: 14px;
   color: #777;
 }
+/* Add this CSS to your existing style section */
+
+.carousel-container {
+  position: relative;
+}
+
+.carousel {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-height: 400px; /* Adjust the max height as needed */
+  overflow: hidden;
+}
+
+.carousel img {
+  display: none;
+  width: 100%;
+  height: auto;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.prev-button,
+.next-button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.prev-button:hover,
+.next-button:hover {
+  background-color: #666;
+}
+
 
 
   </style>
@@ -493,6 +536,40 @@
       });
     });
   });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const carousel = document.querySelector(".carousel");
+    const prevButton = document.querySelector(".prev-button");
+    const nextButton = document.querySelector(".next-button");
+    let currentIndex = 0;
+    
+    const images = carousel.querySelectorAll("img");
+    const imageCount = images.length;
+    
+    function showImage(index) {
+      images.forEach((img, i) => {
+        img.style.display = i === index ? "block" : "none";
+      });
+    }
+    
+    function goToPreviousImage() {
+      currentIndex = (currentIndex - 1 + imageCount) % imageCount;
+      showImage(currentIndex);
+    }
+    
+    function goToNextImage() {
+      currentIndex = (currentIndex + 1) % imageCount;
+      showImage(currentIndex);
+    }
+    
+    prevButton.addEventListener("click", goToPreviousImage);
+    nextButton.addEventListener("click", goToNextImage);
+    
+    // Initial setup
+    showImage(currentIndex);
+    
+    setInterval(goToNextImage, 2000); // Switch images every 2 seconds
+  });
   </script>
 </head>
 <body>
@@ -515,7 +592,19 @@
       <div id="about" class="tab-content active">
         <h2>About Me</h2>
         <div class="row-section">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/mine.JPG" alt="About Me Image">
+          <!-- <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/mine.JPG" alt="About Me Image"> -->
+          <div class="carousel-container">
+            <div class="carousel">
+              <img src="https://picsum.photos/600/400?random=1" alt="Carousel Image 1">
+              <img src="https://picsum.photos/600/400?random=2" alt="Carousel Image 2">
+              <img src="https://picsum.photos/600/400?random=3" alt="Carousel Image 3">
+
+            </div>
+            <div class="carousel-controls">
+              <button class="prev-button">Previous</button>
+              <button class="next-button">Next</button>
+            </div>
+          </div>
           <p>
             I am currently a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belongs to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoy working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together study complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called Banswara which lies in south Rajasthan.
           </p>
