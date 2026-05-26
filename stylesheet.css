@@ -1,0 +1,108 @@
+a {
+  color: #1772d0;
+  text-decoration: none;
+}
+
+a:focus,
+a:hover {
+  color: #f09228;
+  text-decoration: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+body.sections-ready table[width="1000"] > tbody > tr > td > table {
+  display: none;
+}
+
+body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type {
+  display: table;
+}
+
+.section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid #e5e5e5;
+  backdrop-filter: blur(6px);
+}
+
+.section-nav-inner {
+  width: 1000px;
+  max-width: calc(100% - 40px);
+  margin: 0 auto;
+  padding: 14px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+}
+
+.section-nav-inner a {
+  color: #1772d0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.section-nav-inner a:hover,
+.section-nav-inner a:focus {
+  color: #f09228;
+}
+
+.section-nav-inner a.active {
+  color: #f09228;
+}
+
+#about,
+#publications,
+#experience,
+#projects,
+#education {
+  scroll-margin-top: 72px;
+}
+
+.customfsize {
+  font-size: 15px;
+}
+
+body,
+td,
+th,
+tr,
+p,
+a {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+}
+
+strong {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+}
+
+heading {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 25px;
+}
+
+papertitle {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+name {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 30px;
+}
+
+span.highlight {
+  background-color: #ffffd0;
+}

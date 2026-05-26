@@ -1,1388 +1,507 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>Sanyam Jain</title>
+  <link rel="stylesheet" target="_blank" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <meta name="viewport" content="width=500">
+  <link target="_blank" href="stylesheet.css" rel="stylesheet" type="text/css">
   <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/technologist-light-skin-tone_1f9d1-1f3fb-200d-1f4bb.png" type="image/x-icon">
-  <style>
-    .gallery-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .google-scholar-logo-container {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .scholar-logo {
-        max-width: 150px;
-        height: auto;
-    }
-
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-
-    .gallery-item {
-        text-align: center;
-    }
-
-    .gallery-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-
-    .gallery-title {
-        margin: 10px 0 0;
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
-    }
-    .google-scholar-logo-container {
-    text-align: center; /* Center the logo horizontally */
-    margin-top: 20px; /* Add some spacing above the logo */
-}
-
-.scholar-logo {
-    width: 100px; /* Adjust the width of the logo as needed */
-    height: auto; /* Maintain the aspect ratio */
-}
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f1f1f1;
-      margin: 0;
-      padding: 0;
-    }
-    
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    h1 {
-      margin: 0;
-      font-size: 30px;
-      letter-spacing: 2px;
-    }
-    
-    main {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    p {
-      line-height: 1.6;
-    }
-    
-    .tab-container {
-      margin-bottom: 20px;
-    }
-    
-    .tab-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    
-    .tab-link {
-      padding: 10px 20px;
-      background-color: #333;
-      color: #fff;
-      text-decoration: none;
-      border-top-left-radius: 5px;
-      border-top-right-radius: 5px;
-      margin: 5px;
-    }
-    
-    .tab-link.active {
-      background-color: #666;
-    }
-    
-    .tab-content {
-      display: none;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    .affiliation-placeholder {
-      text-align: center;
-    }
-    
-    .row-section {
-      margin-bottom: 20px;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    
-    .row-section:hover {
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-    
-    .row-section img {
-      max-width: 100%;
-      max-height: 350px;
-      display: block;
-      margin: 0 auto;
-    }
-    
-    .row-section p {
-      text-align: justify;
-    }
-    
-    .paper-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    
-    .paper-authors {
-      color: #666;
-      margin-bottom: 10px;
-    }
-    
-    .paper-abstract {
-      line-height: 1.4;
-    }
-    
-    .google-scholar-link {
-      display: inline-block;
-      padding: 5px 10px;
-      background-color: #337ab7;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 3px;
-    }
-    
-    footer {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    footer p {
-      margin: 0;
-      font-size: 14px;
-    }
-    
-    /* Responsive Styles */
-    @media only screen and (max-width: 600px) {
-      main {
-        padding: 10px;
-      }
-      
-      .tab-links {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .tab-link {
-        margin: 5px 0;
-      }
-      
-      .affiliation-placeholder {
-        margin-top: 20px;
-      }
-    }
-    
-    .popup {
-      display: none;
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      z-index: 9999;
-    }
-    
-    .popup-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 9998;
-    }
-    
-    .popup-content {
-      margin-bottom: 20px;
-    }
-    
-    .popup-title {
-      font-weight: normal;
-      margin-bottom: 5px;
-      font-size: 18px;
-    }
-    
-    .popup-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-    }
-
-  .projects-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.project-box {
-  width: 100%;
-  margin-bottom: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.project-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-.project-box img {
-  max-width: 100%;
-  max-height: 350px;
-  display: block;
-  margin: 0 auto;
-}
-
-.project-box p {
-  text-align: justify;
-}
-
-.project-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.project-description {
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.project-link {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: #337ab7;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 3px;
-}
-.publications-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .publication-box {
-    width: 100%;
-    margin-bottom: 20px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .publication-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  .publication-box p {
-    text-align: justify;
-  }
-
-  .publication-title {
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-
-  .publication-authors {
-    color: #666;
-    margin-bottom: 10px;
-  }
-
-  .publication-abstract {
-    line-height: 1.4;
-  }
- 
-  /* Add your CSS styles here */
-  .tab-content {
-      margin: 20px;
-    }
-    
-
-    
-    .experience-item {
-      margin-bottom: 20px;
-    }
-    
-    .experience-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    
-    .experience-duration {
-      color: #999;
-      margin-bottom: 5px;
-    }
-    
-    .experience-description {
-      margin-top: 5px;
-    }
- /* Add your CSS styles here */
- .tab-content {
-      margin: 20px;
-    }
-    
-
-    
-    .experience-item {
-      border: 2px solid #ccc;
-        padding: 10px;
-        margin-bottom: 20px;
-        transition: box-shadow 0.3s ease;
-    }
-    
-    .experience-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    
-    .experience-duration {
-      color: #999;
-      margin-bottom: 5px;
-    }
-    
-    .experience-description {
-      margin-top: 5px;
-    }
-    .experience-item:hover {
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      }
-
-      .education-section {
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-}
-
-.education-section h3 {
-  color: #333;
-  margin-top: 0;
-}
-
-.education-section p {
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.education-section:hover {
-  background-color: #eaeaea;
-}
-.education-section .read-more {
-    display: none;
-  }
-
-  #contact {
-  background-color: #f7f7f7;
-  padding: 20px;
-}
-
-#contact h2 {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-#contact p {
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.contact-links {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.contact-link {
-  color: #333;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  background-color: #fff;
-  border: 2px solid #777;
-  border-radius: 5px;
-  padding: 10px 15px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.contact-link:hover {
-  color: #999;
-  background-color: #f2f2f2;
-}
-.article-section {
-  display: flex;
-  align-items: center;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-}
-
-.article-section img {
-  max-width: 300px;
-  height: auto;
-  margin-right: 20px;
-}
-
-.article-content {
-  flex: 1;
-}
-
-.article-title {
-  font-size: 24px;
-  margin: 0;
-  color: #333;
-}
-
-.article-date {
-  font-size: 14px;
-  color: #777;
-}
-/* Add this CSS to your existing style section */
-
-.carousel-container {
-  position: relative;
-}
-
-.carousel {
-  display: block;
-  position: relative;
-  width: 100%;
-  max-height: 400px; /* Adjust the max height as needed */
-  overflow: hidden;
-}
-
-.carousel img {
-  display: none;
-  /* width: 100%; */
-  height: auto;
-}
-
-.carousel-controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.prev-button,
-.next-button {
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  margin: 0 5px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.prev-button:hover,
-.next-button:hover {
-  background-color: #666;
-}
-
-
-
-  </style>
-  <script>
-    function openTab(evt, tabName) {
-      var i, tabContent, tabLink;
-      
-      tabContent = document.getElementsByClassName("tab-content");
-      for (i = 0; i < tabContent.length; i++) {
-        tabContent[i].style.display = "none";
-      }
-      
-      tabLink = document.getElementsByClassName("tab-link");
-      for (i = 0; i < tabLink.length; i++) {
-        tabLink[i].className = tabLink[i].className.replace(" active", "");
-      }
-      
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.className += " active";
-    }
-
-    function openLinkInNewTab(url) {
-      var isSection = ["about", "publications", "projects", "affiliations", "experience", "contact"].includes(url);
-      if (!isSection) {
-        window.open(url, "_blank");
-      }
-    }
-
-    function openPublicationPopup(title, authors, abstract) {
-      var popup = document.getElementById("publicationPopup");
-      var overlay = document.getElementById("publicationOverlay");
-      var popupTitle = document.getElementById("popupTitle");
-      var popupAuthors = document.getElementById("popupAuthors");
-      var popupAbstract = document.getElementById("popupAbstract");
-
-      popupTitle.textContent = title;
-      popupAuthors.textContent = authors;
-      popupAbstract.textContent = abstract;
-
-      popup.style.display = "block";
-      overlay.style.display = "block";
-    }
-
-    function closePublicationPopup() {
-      var popup = document.getElementById("publicationPopup");
-      var overlay = document.getElementById("publicationOverlay");
-
-      popup.style.display = "none";
-      overlay.style.display = "none";
-    }
-      // JavaScript code to toggle "read more" section
-  document.addEventListener("DOMContentLoaded", function() {
-    const toggleButtons = document.querySelectorAll(".toggle-read-more");
-    toggleButtons.forEach(function(button) {
-      button.addEventListener("click", function(event) {
-        event.preventDefault();
-        const readMoreSection = this.previousElementSibling;
-        readMoreSection.style.display = readMoreSection.style.display === "none" ? "block" : "none";
-        this.textContent = this.textContent === "Read More" ? "Read Less" : "Read More";
-      });
-    });
-  });
-
-  document.addEventListener("DOMContentLoaded", function() {
-    const carousel = document.querySelector(".carousel");
-    const prevButton = document.querySelector(".prev-button");
-    const nextButton = document.querySelector(".next-button");
-    let currentIndex = 0;
-    
-    const images = carousel.querySelectorAll("img");
-    const imageCount = images.length;
-    
-    function showImage(index) {
-      images.forEach((img, i) => {
-        img.style.display = i === index ? "block" : "none";
-      });
-    }
-    
-    function goToPreviousImage() {
-      currentIndex = (currentIndex - 1 + imageCount) % imageCount;
-      showImage(currentIndex);
-    }
-    
-    function goToNextImage() {
-      currentIndex = (currentIndex + 1) % imageCount;
-      showImage(currentIndex);
-    }
-    
-    prevButton.addEventListener("click", goToPreviousImage);
-    nextButton.addEventListener("click", goToNextImage);
-    
-    // Initial setup
-    showImage(currentIndex);
-    
-    setInterval(goToNextImage, 5000); // Switch images every 2 seconds
-  });
-  </script>
-    <!-- Google Analytics, Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5XH2D1GVZH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-5XH2D1GVZH');
-    </script>
+  <title>Sanyam Jain</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+  <link target="_blank" href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" target="_blank" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 </head>
+
 <body>
-  <header>
-    <h1>Sanyam Jain</h1>
-    <h1>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_India.svg/800px-Flag_of_India.svg.png" alt="Flag of India" width="50" height="30" style="border: 1px solid #ccc; border-radius: 8px;" >
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Norway.svg/1200px-Flag_of_Norway.svg.png" alt="Flag of Norway" width="50" height="30" style="border: 1px solid #ccc; border-radius: 8px;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Flag_of_Denmark.svg/800px-Flag_of_Denmark.svg.png" alt="Flag of Denmark" width="50" height="30" style="border: 1px solid #ccc; border-radius: 8px;">
-      
-
-    </h1>
-  </header>
-  
-  <main>
-    <div class="tab-container">
-      <div class="tab-links">
-        <a href="#" class="tab-link active" onclick="openTab(event, 'about')">About</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'publications')">Publications</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'projects')">Projects</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'affiliations')">Affi.</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'experience')">Experience</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'education')">Education</a>
-        <a href="#" class="tab-link" onclick="openTab(event, 'contact')">Contact</a>
-      </div>
-      
-      <div id="about" class="tab-content active">
-        <h2>About Me</h2>
-        <div class="row-section">
-          <!-- <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/mine.JPG" alt="About Me Image"> -->
-          <div class="carousel-container">
-            <div class="carousel">
-                            
-              <img src="https://ia601308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5929.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5941.JPEG">
-              <img src="https://ia601308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5945.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5948.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5949.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5950.JPEG">
-              <img src="https://ia601308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5963.JPEG">
-              <img src="https://ia601308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5972.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5973.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5975.JPEG">
-              <img src="https://ia601308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5976.JPEG">
-              <img src="https://ia801308.us.archive.org/19/items/molsbjerg/molsbjerg/IMG_5983.JPEG">
-               <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/00E5A1CB-AE57-4398-B177-459969359F9E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/05A755B0-B093-4DB2-AE02-B66B1AAA59DA_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/07B58A24-8F8D-44A5-958A-BF1C538808D3_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/07B85C87-DD05-4A88-A55C-E705A186B730_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/0C129C90-1A6A-441C-9DAA-3400352F3DC3_4_5005_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/0D6326CF-DE12-45AF-AAB7-2992A6A6066B_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/10D22DA4-24EC-4CF4-B651-7CDA119F08B9_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/119343FD-5354-4C01-A4E9-C00349D3F9A8_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/161321E2-DF07-4CB9-9884-143658C2D7FD_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/161FAF31-6508-4207-89C0-2341FE560325_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/1B717177-D3A3-4374-A913-36CF4FDDDF3E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/21584579-3923-4596-AC1E-A51241CF78E7_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/25DD8F57-7023-4430-BD8F-CE07B7E2BD32_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/2757D558-8336-400C-8341-390527C26DDE_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/28C3736F-E3BC-4551-AD97-AF6C7ADD2AE1_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/2C1BED1B-A8E6-4E7B-AE78-E582BB9BC6F4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/30582CC6-AFDF-40AE-98E3-46956F6605B4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/332E028E-1580-4180-BCFB-6510DA234DB4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/338B6767-E381-4E7F-94DB-48FB4C2E4C7A.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/36013E7E-F4AA-4874-A758-81A83D3076EE_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/3BB36124-26A7-4F29-A1FA-D34ACA85712A_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/3D318F33-D9FB-4A91-8C72-0F73E998D30E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/406C1B62-C9FA-48A4-85ED-FB426C037FE8_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/4413EBFE-A3CF-41CC-9FC0-1F1AC75C149E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/45D23D0E-DF55-4810-AA19-B2524472660D_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/4FD8FD5A-59BB-4246-9C2D-1239EA440782_4_5005_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/53697F2E-B709-4B69-868A-FBCFF825F56F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/567654CC-42B3-4FC9-99E4-78E36CDF6CBC_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/578F5DEE-77BD-42AB-B954-A2CEFF6EEA16_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/58C190F5-5633-4E5D-9BA7-3DAFC4849D1E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/595D6B0D-875B-4702-A014-9690A530DC53_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/5E140648-8ECE-4B3F-AEC7-A0FC6B985A7B_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/6072C9B2-DA61-4591-B969-242A98D76429_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/61E06970-B1DF-450B-8B82-8E4CDDB1A073_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/635B48C0-9DD8-4375-976D-4AAC9380C24E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/68AD4764-D60F-4192-A880-BF7F74880B37_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/6B03CFE6-D838-4241-9123-1F3C96106254_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/6C78D2F1-DA1C-4392-8973-7CA3B1ECCD70_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/70EA3F18-3EEA-4CE7-8AAE-F12512C8484B_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/71744334-2194-4011-AD69-56FBC484A1DD_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/7205D087-51AD-4E6B-99A6-D721561418FF_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/74C4D0F3-E76E-4012-9A7F-7693F0C9FCF0_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/754E650A-EEE9-4548-BEA0-71D2BD5BB14D_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/75BA6810-B33A-45D5-B3B7-77892AC1EB9E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/76B8C770-0C5C-4461-B591-87F69E086991_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/80074FA1-8A0F-4DB1-8794-9CE96A960F1F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/8C96989F-0FE0-4F35-988A-7C625B35BE3D_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/8E60A65E-10E7-4A35-B464-848820ED529F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/905571FD-8C20-4E05-BF84-D230590A38C2_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/90F8AE3C-E2B6-4D69-A0DA-45AE8E4E9FBD_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/92B1FCF1-895E-43E6-9BEE-B73D25314018_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/939F9AFB-9B3E-4157-AABB-5062A126C4D9_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/9440AE57-CD51-474C-B1F8-FD31668AC516_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/950AA2B5-DAE0-496A-92E4-1C6B006E72F9_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/952A71DE-B072-46F6-A005-0E21A5327CAC_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/9BE46F48-5AFD-4E25-A890-D46F4D766870_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/9D568A89-83A9-4EE4-9BFA-501A183B11B4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/9F27DA00-E991-47EA-AB1E-0F7AB5D6B357_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A0AF9C51-E512-42C4-AAC4-055A2AA05287_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A1ACD457-2C91-481A-AA43-9EEEACA872C3_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A2D582E5-8AD3-48DE-A9C0-6CE081908C21_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A69DA554-EB00-4259-BA11-0747F89F1B7C_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A7D819FA-7A16-4EA8-BA07-F23ABD62BEDF_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A91FE1F1-D8F5-4BBA-8B69-50920E2F4420_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/A91FE1F1-D8F5-4BBA-8B69-50920E2F4420_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/AA953CFC-73A4-4604-9A0C-170FC67AD2B6_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/AD3E77EF-12B2-4455-8293-35B7628F4278_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/ADC0DED4-04C4-4C2B-8871-7460082E8F0B_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/B1DD8EDE-C2A3-46CD-B2EB-9F6AFCAAD99F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/B41AD0D0-604E-4CF7-9D18-B0883EB06601_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/B4457988-90FE-4B46-9CCC-CDA2D28A5AF4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/BACD915D-791E-45AE-9F3B-5293CD37931F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/BD001FB5-5994-428D-B53F-DECB5C826D62_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C10A8F4A-42FC-48CE-8100-A5AB78F63A6C_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C15E156F-2F0F-46A1-9250-2D8DAC2F07D7_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C1658EBC-BE58-4A70-8234-D28B7831E5B8_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C1CAF967-4D9A-4176-B641-515DA272BC01_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C27C1335-1AE7-4E9B-B0FD-B9D8AB8403AE_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C298AB82-C468-4A3E-86E0-8F272EFC0D68_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C63F4480-3771-4DFA-95F9-4B6D09764EDD_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/C95727D0-5B3F-4CD5-8F87-4CD9D82043E9_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/CAD63317-B0B5-4CAB-8423-9B1A5B7EF7D3_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/CE7A66A3-E003-4F3A-AEFB-3E59DE796D71_4_5005_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D0380B52-1948-4EA8-90FF-66F4CCBBC8DF_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D0535488-C90B-4F1E-83E6-21EC9CB9627B_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D1691996-CE9B-4071-9EA4-E4BC69691FE4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D178BB48-C85D-4E60-B053-DECC6B475850_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D2A27F40-911E-43BE-A2AC-6F591E9045D4_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/D60CCF24-89A6-4EC4-854B-6C90087C7FE0_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/DF58C651-15C9-4D81-93B4-8EE86E6ACF8E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/E0E3918F-0FE5-4AC6-8DC4-957FAC80FE7E_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/E4537274-C506-48CD-984A-DA7A88597C24_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/EA304604-DF82-4D0C-8A27-09D535B8E033_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/EFFC1B25-0AE3-4C1B-974C-F2A53724F755_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/F14AC342-2F53-4F2F-8E93-9E321F968E78_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/F3C0A3F3-0F48-47AA-A71B-2ED61C0AAB3F_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/F41CA23E-49B3-4ADF-A07F-54E8B1BCB6B6_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/FAE7A525-31A5-4C51-AB91-2BB739ED3DD3_1_201_a.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/FDAB953D-BB7F-49B0-80BB-DFE909BFB582_1_105_c.jpeg">
-                <img src="https://ia600906.us.archive.org/14/items/carousel_images_2025/caraousel_images_2025/FF524490-5642-4E19-90B4-AE3D057D9B50_1_105_c.jpeg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image1.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image10.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image100.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image101.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image102.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image103.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image104.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image11.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image12.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image13.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image14.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image15.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image16.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image17.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image18.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image19.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image2.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image20.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image21.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image22.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image23.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image24.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image25.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image26.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image27.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image28.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image29.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image30.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image31.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image32.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image33.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image34.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image35.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image36.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image37.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image38.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image39.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image4.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image40.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image41.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image42.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image43.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image44.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image45.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image47.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image48.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image49.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image5.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image50.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image51.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image53.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image54.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image55.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image56.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image57.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image58.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image59.jpg">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image6.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image60.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image61.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image62.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image63.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image64.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image65.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image66.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image67.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image68.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image69.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image7.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image70.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image71.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image72.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image73.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image74.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image75.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image76.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image77.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image78.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image79.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image8.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image80.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image81.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image82.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image83.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image84.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image86.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image87.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image88.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image89.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image9.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image90.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image92.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image93.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image94.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image95.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image96.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image97.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image98.JPG">
-              <img src="https://ia600408.us.archive.org/10/items/caraousel_images/caraousel_images/image99.JPG">
-            </div>
-            <div class="carousel-controls">
-              <button class="prev-button">Previous</button>
-              <button class="next-button">Next</button>
-            </div>
-          </div>
-          <p>
-            <!-- I am currently a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belongs to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoy working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together study complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called Banswara which lies in south Rajasthan. -->
-            <a href="https://www.au.dk/en/sanyam.jain@dent.au.dk">I am currently a PhD student</a> in Generative AI at Department of Dentistry and Oral Health (<a href="https://dent.au.dk/">IOOS</a>, <a href="https://digit.au.dk/research-projects/synthetic-dental-radiography-using-generative-artificial-intelligence">Project Page</a>) Aarhus University (<a href="https://www.au.dk/">au.dk</a>) 2024 to current with <a href="https://www.au.dk/en/ruben.pauwels@dent.au.dk">Prof. Ruben Pauwels</a>, <a href="https://www.tuni.fi/en/people/alexandros-iosifidis">Alexandros Iosifidis</a>, and <a href="https://www.au.dk/en/brunanf@aias.au.dk">Bruna Neves de Freitas</a>. I was also a summer intern at <a href="https://www.ntnu.no/gjovik">NTNU Norway</a> between May and June 2024 in Education Technology lab for Computer Vision and Large Visiom Models. I was previously a Master's student (2022-24) at <a href="https://www.hiof.no/">Østfold University College</a> and a summer Intern (2023) at <a href="https://www.oslomet.no/en/about/employee/stenic/">OsloMet University</a>, Norway. My research focus belonged to ALife, Evolution, Complexity and Artificial General Intelligence. I enjoyed working with Prof <a href="https://www.nichele.eu/">Stefano Nichele</a> (also supervisor) where we together studied complexity and emergent behaviour in discrete Cellular Automata, continuous CA (Lenia) and Neural CA. Some of my previous work and projects also determine my interest in Deep Learning for Computer Vision and Explainable AI. I finished my Junior Research Fellowship (and did not continue PhD) at Indian Institute of Technology (IIT) Jodhpur (2020-2022) where I studied Deep Learning, Classical ML, and Dependable AI taught by Dr. <a href="http://home.iitj.ac.in/~mvatsa/">Mayank Vatsa</a> and Dr. <a href="http://home.iitj.ac.in/~richa/">Richa Singh</a>. Conversely, I was also part of <a href="https://vanets-iitj.github.io/pages/people.html">VANETs lab</a> supervised by Prof <a href="https://research.iitj.ac.in/researcher/debasis-das-2">Debasis Das</a>, where my focus was to provide Machine Learning edge for the team. Moreover, I was part of <a href="https://iitj.ac.in/qic/">QIC group</a> at the IIT as well. I finished my early Computer Science Engineering (Bachelor's 2015-2019) degree from <a href="https://www.upes.ac.in/">UPES, Dehradun</a> at the foothills of Himalayas. Most of my guidance during bachelor's for which I am thankful, always to Dr <a href="https://www.ravitomar.in/">Ravi Tomar</a>. I belong to the central part of India, from a town called <a href="https://www.tourism.rajasthan.gov.in/banswara.html">Banswara</a> which lies in south Rajasthan.
-          </p>
-        </div>
-        <h4>
-        <a href="./CV.pdf" target="_blank">
-          <img src="https://cdn-icons-png.flaticon.com/512/3135/3135800.png" width="30px" alt="CV" style="vertical-align: middle;" />
-        </a>
-        &nbsp;
-        <a href="https://www.linkedin.com/in/s4nyam/" target="_blank">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/LinkedIn_icon_circle.svg/1200px-LinkedIn_icon_circle.svg.png" width="30px" alt="LinkedIn" style="vertical-align: middle;" />
-        </a>
-        &nbsp;
-        <a href="https://x.com/s4nyam" target="_blank">
-          <img src="https://freepnglogo.com/images/all_img/1691832581twitter-x-icon-png.png" width="30px" alt="Twitter" style="vertical-align: middle;" />
-        </a>
-        &nbsp;
-        <a href="https://github.com/s4nyam/" target="_blank">
-          <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="30px" alt="Github" style="vertical-align: middle;" />
-        </a>
-        &nbsp;
-        <a href="https://www.youtube.com/@SanyamJain001" target="_blank">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png" width="40px" alt="YouTube" style="vertical-align: middle;" />
-        </a>
-        <a href="https://discordapp.com/users/s4nyam" target="_blank">
-          <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo.png" width="50px" alt="Discord" style="vertical-align: middle;" />
-        </a>
-        <a href="https://wa.me/+4746213761" target="_blank">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png" width="40px" alt="Whatsapp" style="vertical-align: middle;" />
-        </a>
-        &nbsp;
-        <a href="https://www.instagram.com/denmarkiduniya/" target="_blank">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1024px-Instagram_icon.png" width="30px" alt="Instagram" style="vertical-align: middle;" />
-        </a>
-        
-      </h4>
-
-
-
-        <h4>Do Git! Go Green!</h4>
-        <img src="http://ghchart.rshah.org/s4nyam" alt="sanyam's Github chart" width="100%" />
-        
-      </div>
-      
-      <div id="publications" class="tab-content">
-        <div id="publications-gallery" class="gallery-container">
-          <h2>Recent Publications / Preprints (Check <a href="https://scholar.google.com/citations?user=R9XAK2IAAAAJ&hl=en">Google Scholar</a> for more)</h2>
-          
-          <div class="google-scholar-logo-container">
-            <a href="https://scholar.google.com/citations?user=R9XAK2IAAAAJ&hl=en" target="_blank" class="google-scholar-link">
-              <img src="scholarlogo.jpg" alt="Google Scholar" class="scholar-logo" width="20%"/>
-            </a>
-          </div>
-          <br/>
-          <div class="publications-container">
-            <div class="publication-box">
-              <div class="gallery-grid">
-                <!-- Publication 1 -->
-                 <div class="gallery-item">
-                  <img src="https://arxiv.org/html/2507.09227v1/x3.png" alt="PanoDiff Image" class="gallery-image"/>
-                  <p class="gallery-title">
-                    <span style="color: #e74c3c; font-weight: bold; margin-right: 8px; animation: blinker 1s linear infinite;">
-                      <img src="https://png.pngtree.com/png-vector/20220527/ourlarge/pngtree-new-red-tag-label-badge-png-image_4756845.png" alt="New" width="35" style="vertical-align: middle;"/>
-                    </span>
-                    <a href="https://arxiv.org/pdf/2507.09227">PanoDiff-SR</a> Synthesizing Dental Panoramic Radiographs using Diffusion and Super-resolution
-                  </p>
-                  <style>
-                  @keyframes blinker {
-                    50% { opacity: 0; }
-                  }
-                  </style>
-                </div>
-                <!-- Publication 2 -->
-                <div class="gallery-item">
-                  <img src="https://dl3.pushbulletusercontent.com/W3hvGsG2PchZNSRE0zlmXl160ivUlpiQ/Screenshot%202025-06-14%20at%205.52.31%E2%80%AFPM.png" alt="PanoGAN Image" class="gallery-image"/>
-                  <p class="gallery-title"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11856485/">PanoGAN</a> A Deep Generative Model for Panoramic Dental Radiographs</p>
-                </div>
-    
-                <!-- Publication 3 -->
-                <div class="gallery-item">
-                  <img src="https://dl3.pushbulletusercontent.com/GecK1WbuQ7F0UXWl8n25hfqnoTdfNLro/Screenshot%202025-06-14%20at%205.52.41%E2%80%AFPM.png" alt="lenia Image" class="gallery-image"/>
-                  <p class="gallery-title">Capturing Emerging Complexity in <a href="https://arxiv.org/pdf/2305.09378">Lenia</a></p>
-                </div>
-    
-                <!-- Publication 4 -->
-                <div class="gallery-item">
-                  <img src="https://dl3.pushbulletusercontent.com/Ffqi1PKos14489COvhpDuCQ3RoJOqcO6/Screenshot%202025-06-14%20at%205.53.03%E2%80%AFPM.png" alt="GradCAM Yolo Image" class="gallery-image"/>
-                  <p class="gallery-title"><a href="https://ieeexplore.ieee.org/abstract/document/10541282">GradCAM YOLO</a> - Adversarial Attacks on YOLOv5</p>
-                </div>
-    
-                <div class="gallery-item">
-                  <img src="https://dl3.pushbulletusercontent.com/utIG2iTl19yrjKfHzwwAFYp2tYYkWKEM/Screenshot%202025-06-14%20at%205.51.35%E2%80%AFPM.png" alt="DeepSeaNet" class="gallery-image"/>
-                  <p class="gallery-title"><a href="https://ieeexplore.ieee.org/abstract/document/10541265"> Deepseanet</a>: Improving underwater object detection using efficientdet</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div id="projects" class="tab-content">
-        <h2>Projects</h2>
-        <div class="projects-container">
-          <div class="project-box">
-            <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/mncaportalimage.jpg" alt="mnca image">
-            <p>
-              <span class="project-title">Frequency Histogram Coarse Graining and MNCA - Sanyam Jain, Stefano Nichele</span><br>
-              <span class="project-description">Studying Complexity and Emerging Behaviour in ECA, Discrete CA and 2D MNCA. Cellular automata and other discrete dynamical systems have long been studied as models of emergent complexity. We argue that being able to capture emergent complexity in AI systems may pave the way to open-ended evolution, a plausible path to reach artificial general intelligence. </span><br>
-              <a href="https://s4nyam.github.io/mncaportal/" target="_blank" class="project-link">MNCA Portal</a>
-              <a href="https://journals.uio.no/NMI/article/view/10458"  target="_blank" class="project-link">Paper Released!</a>
-              <br/><br/>
-              <img src="./nmilogo.png" alt="Logo" class="logo"> <!-- Add this line -->
-            </p>
-          </div>
-          
-         
-        </div>
-
-
-
-        <div class="projects-container">
-          <div class="project-box">
-            <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/lenia.png" alt="lenia image">
-            <p>
-              <span class="project-title">EvoLenia Portal - Sanyam Jain, Aarati Shrestha, and Stefano Nichele</span><br>
-              <span class="project-description">Capturing emerging complexity in Lenia using EC fitness based on VoT, AE and AEVoT. This work investigates the emergent complexity in Lenia, an artificial life platform that simulates ecosystems of digital creatures. Le- nia’s ecosystem consists of a continuous cellular automaton where simple artificial organisms can move, grow, and reproduce. Overall, this project aims at investigating the potential of Lenia as ecosystem for emergent complexity in open-ended artificial intelligence systems.</span><br>
-              <a href="https://s4nyam.github.io/evolenia/" target="_blank" class="project-link">Evo-Lenia Portal</a>
-              <a href="https://arxiv.org/pdf/2305.09378.pdf"  target="_blank" class="project-link">Paper</a>
-              <img src="./logo.jpg" alt="Logo" class="logo"> <!-- Add this line -->
-            </p>
-          </div>
-        </div>
-
-
-
-        <div class="projects-container">
-          <div class="project-box">
-            <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/deepseanet.jpg" alt="DeepSeaNet image">
-            <p>
-              <span class="project-title">DeepSeaNet Portal: Using EfficientDet object detection for Denmark's Brackish-Dataset</span><br>
-              <span class="project-description">The results indicate that modified EfficientDet achieved higher accuracy with five-fold cross validation than the other models with 88.54% IoU of feature maps.</span><br>
-              <a href="https://s4nyam.github.io/deepseanetportal/" target="_blank" class="project-link">DeepSeaNet Portal</a>
-              <a href="https://arxiv.org/pdf/2306.06075.pdf"  target="_blank" class="project-link">Paper</a>
-            </p>
-          </div>
-          
-         
-        </div>
-
-
-
-        <div class="projects-container">
-          <div class="project-box">
-            <img src="./table.jpg" alt="YOLOv5 Image">
-            <p>
-              <span class="project-title">Adversarial Attack On Yolov5 For Traffic And Road Sign Detection</span><br>
-              <span class="project-description">The paper investigates the impact of different types of attacks, including the Limited memory Broyden Fletcher Goldfarb Shanno (L-BFGS), the Fast Gradient Sign Method (FGSM) attack, the Carlini and Wagner (C&W) attack, the Basic Iterative Method (BIM) attack, the Projected Gradient Descent (PGD) attack, One Pixel Attack, and the Universal Adversarial Perturbations attack on the accuracy of YOLOv5 in detecting traffic and road signs.</span><br>
-              <a href="https://github.com/s4nyam/gradcam-yolo"  target="_blank" class="project-link">GitHub Repository</a>
-              <a href="https://arxiv.org/pdf/2306.06071.pdf"  target="_blank" class="project-link">Paper</a>
-              <img src="./nora.png" alt="Logo" class="logo" width="30%"> <!-- Add this line -->
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      
-      
-
-
-
-
-
-      <div id="affiliations" class="tab-content">
-        <h2>Affiliations and Media Reach</h2>
-        <div class="affiliation-placeholder">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Logo_Klinikum_der_Universit%C3%A4t_M%C3%BCnchen_inv.png" alt="LMU" width="270" height="80">
-          <br/>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Aarhus_University_logo.svg/2560px-Aarhus_University_logo.svg.png" alt="Aarhus University" width="270" height="120">
-          <br>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/oslomet.png" alt=" 1 Logo" width="60" height="50">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/hiof.png" alt=" 1 Logo" width="240" height="50">
-          <br/>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/iitj.png" alt=" 2 Logo" width="300" height="50">
-          <br/>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/iitjqic.png" alt=" 1 Logo" width="300" height="50">
-          <br/>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/vanets%20lab.png" alt=" 2 Logo" width="300" height="50">
-          <br/>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/upes.png" alt=" 2 Logo" width="100" height="50">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/upesacm.png" alt=" 1 Logo" width="80" height="50">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/fiserv.png" alt=" 2 Logo" width="120" height="50">
-          <br/>
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/iitindor.png" alt=" 2 Logo" width="80" height="50">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/nora.png" alt=" 2 Logo" width="120" height="50">
-          <img src="https://raw.githubusercontent.com/s4nyam/s4nyam.github.io/main/gate.jpg" alt=" 2 Logo" width="100" height="50">
-        </div>
-        <!-- <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7074122232138018816" height="399" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
-        <br/>
-        <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7073072815398170624" height="356" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
-        <br/>
-        <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:6998428971512041472" height="356" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe> -->
-      
-       <br/>
-       <h4><a href="./conf_reports.pdf" target="_blank">Conference Reports!</a></h4>
-       <div class="article-section">
-        <img src="affiliation_images/nora-ai-annual-conf.jpg" alt="Article Image">
-        <div class="article-content">
-          <h1 class="article-title"><a href="https://www.linkedin.com/pulse/keynotes-talks-summary-nora-ai-annual-conference-2023-sanyam-jain/" target="_blank">Keynotes and Talks Summary: NORA AI Annual Conference 2023, Tromsø, Norway
-          </a> </h1>
-          <p class="article-date">Published on June 12, 2023 (Funding by HiØ)</p>
-        </div>
-      </div>
-      <br/>
-
-      <div class="article-section">
-       <img src="affiliation_images/neuro-ai-workshop.jpg" alt="Article Image">
-       <div class="article-content">
-         <h1 class="article-title"><a href="https://www.linkedin.com/pulse/neuro-ai-workshop-troms%C3%B8-june-4-2023-sanyam-jain/" target="_blank">NEURO AI Workshop, Tromsø, June 4, 2023
-
-         </a> </h1>
-         <p class="article-date">Published on June 10, 2023 (Funding by HiØ)</p>
-       </div>
-     </div>
-     <br/>
-
-      <div class="article-section">
-       <img src="affiliation_images/nora-ai-oslo.png" alt="Article Image">
-       <div class="article-content">
-         <h1 class="article-title"><a href="https://www.linkedin.com/pulse/nora-ai-meet-2022-short-summary-day-1-keynote-sanyam-jain/" target="_blank">NORA-AI Meet 2022, Short Summary of Day 1 Keynote
-
-         </a> </h1>
-         <p class="article-date">Published on November 16, 2022 (Funding by HiØ)</p>
-       </div>
-     </div>
-
-
-     <div class="article-section">
-      <img src="affiliation_images/wivace.jpg" alt="Article Image">
-      <div class="article-content">
-        <h1 class="article-title"><a href="https://s4nyam.github.io/evolenia/wivace.html" target="_blank">WIVACE 2023, 17th Workshop on ALife and Evolutionary Computation, Ca'Foscari, Venice, Italy with ECLT.
-
-        </a> </h1>
-        <p class="article-date">Published on September 11, 2023 (Funding by HiØ)</p>
-      </div>
+  <div class="section-nav">
+    <div class="section-nav-inner">
+      <a href="#about">About</a>
+      <a href="#publications">Publications</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
     </div>
-
-
-    <div class="article-section">
-      <img src="affiliation_images/icapai-halden.jpg" alt="Article Image">
-      <div class="article-content">
-        <h1 class="article-title"><a href="https://www.linkedin.com/pulse/icapai-2024-halden-norway-16th-april-sanyam-jain-is9xe/" target="_blank">ICAPAI 2024, Halden AI Week, Conference
-
-        </a> </h1>
-        <p class="article-date">Published on May 7, 2024 (Funding by HiØ)</p>
-      </div>
-    </div>
-
-        </div>
-       
-
-
-
-
-
-
-
-      <div id="experience" class="tab-content">
-        <h2>Academic and Professional Experience</h2>
-        <p>
-          Here, you can find information about my professional experience.
-        </p>
-        <!-- Add your experience details here -->
-      <div class="experience-item">
-        <div class="experience-title">Research Asst. Summer Internship - OsloMet</div>
-        <div class="experience-duration">July 2023 - current</div>
-        <div class="experience-description">
-          Continuing research with Stefano Nichele
-        </div>
-      </div>
-      <div class="experience-item">
-        <div class="experience-title">Research Asst. - Part Time - Østfold University College</div>
-        <div class="experience-duration">September 2022 - June 2023</div>
-        <div class="experience-description">
-          - Studying and Analyzing Complexity in Discrete Cellular Automata (1D and 2D) using Evolutionary Algorithm
-          <br/>
-          - Capturing Emerging Complexity in Lenia
-        </div>
-      </div>
-
-
-      <div class="experience-item">
-        <div class="experience-title">Teaching Assistant, Machine Learning - Winter 2022 - IIT Jodhpur</div>
-        <div class="experience-duration">January 2022 - May 2022</div>
-        <div class="experience-description">
-          Course Instructor: Dr. Richa Singh, IIT Jodhpur Skills: Machine Learning
-          </div>
-        </div>
-
-
-        <div class="experience-item">
-          <div class="experience-title">Teaching Assistant, Foundations of Quantum Information and Computation - Trimester 3 - IIT Jodhpur</div>
-          <div class="experience-duration">August 2021 - December 2021</div>
-          <div class="experience-description">
-            Course Instructors: Dr. Subhashish Banerjee, IIT Jodhpur Dr. Atul Kumar, IIT Jodhpur Dr. V. Narayan, IIT Jodhpur
-            </div>
-          </div>
-  
-  
-
-      <div class="experience-item">
-        <div class="experience-title">Research Asst. - Full Time - IIT Jodhpur</div>
-        <div class="experience-duration">September 2020 - June 2022</div>
-        <div class="experience-description">
-          - Course work Machine Learning (by Dr. Gaurav Harit), Deep Learning (by Dr. Mayank Vatsa), Dependable AI (by Dr. Richa Singh), Cryptography (by Dr. Somitra Sanadhya)
-          <br/>
-          - Part of VANETs Lab supervised by Dr. Debasis Das.
-          </div>
-        </div>
-
-
-
-
-        <div class="experience-item">
-          <div class="experience-title">Amazon Alexa Specialist - Conversational AI - <a href="https://keyringcorp.in">KeyringCorp</a></div>
-          <div class="experience-duration">2019 - 2020</div>
-          <div class="experience-description">
-            Proudly, an AWS Activate startup founders portfolio for 10 years. Building Great Experiences for Kids using Voice-Driven AI, VUI, and Alexa skills. Conversational AI, Voice User Experience, Interactive Alexa skills, 100k+ customers worldwide, Helping businesses and institutions to design and develop their custom Alexa Skills and Google Actions.
-            </div>
-          </div>
-
-
-          <div class="experience-item">
-            <div class="experience-title"> RPA UiPath Consultant </div>
-            <div class="experience-duration">2019 - 2020</div>
-            <div class="experience-description">
-              RPA UiPath Advanced Certified, Level 1,2 and 3, UiRPA, UiARD 1. RPA UiPath Learning Plan and Package 2. RPA UiPath Advanced Certification guidance 3. Helping Startups to setup RPA Automation in their daily working flow. 4. Helping Professional with hands on experience to UiPath RPA Studio.
-              </div>
-            </div>
-  
-
-          <div class="experience-item">
-            <div class="experience-title"> Software Eng Intern - YellowAnt Inc </div>
-            <div class="experience-duration">May 2018 - July 2018</div>
-            <div class="experience-description">
-              Built CRM platforms using Django and REST APIs. OAuth for Sugar CRM, Zoho CRM and FreshSales.
-              </div>
-            </div>
-
-
-          <div class="experience-item">
-            <div class="experience-title"> Remote Intern - IBM Watson </div>
-            <div class="experience-duration">May 2018 - July 2018</div>
-            <div class="experience-description">
-              Studying Watson API.
-              </div>
-            </div>
-
-      </div>
-
-
-
-
-
-
-      <div id="education" class="tab-content">
-        <h2>Education</h2>
-
-  <div class="education-section">
-    <h3>Aarhus University, Denmark</h3>
-    <p>Degree: PhD</p>
-    <p>Major: Generative AI for Health in Dentistry and Imaging</p>
-    <p>Year: 2024-current</p>
-    <p class="read-more"></p>
-    <a href="#" class="toggle-read-more">Click for more!</a>
-  </div>        
-  <div class="education-section">
-    <h3>Østfold University College, Norway</h3>
-    <p>Degree: Masters in Science</p>
-    <p>Major: Applied Computer Science</p>
-    <p>Year: 2022-2024</p>
-    <p class="read-more">Currently maintaining 4.4/5 - Stduying Machine Learning specialisation with CPS. Projects for the courses adv. ML and Applied CS project includes "DeepSeaNet" and "Complexity in Lenia" which can be found in publications section as part of preprint.</p>
-    <a href="#" class="toggle-read-more">Click for more!</a>
   </div>
 
-  <div class="education-section">
-    <h3>Indian Institute of Technology, Jodhpur</h3>
-    <p>Degree: PhD (Dropped)</p>
-    <p>Major: Quantum Information and Computation with focused coursework on Deep Learning</p>
-    <p>Year: 2020 - 2022</p>
-    <p class="read-more">Grade: 7.8/10, Activities and societies: Part of VANETS LABActivities and societies: Part of VANETS LAB, Courses: Machine Learning, Dr G. Harit AI 1, Dr D. Mishra Graph Theory and Applications, Dr A. Mishra Deep Learning, Dr M. Vatsa Dependable AI, Dr R. Singh (A- grade) Financial Engg., Dr V. Vijay (A- grade) Cryptography, Dr S. Sanadhya ML for Economics, Dr D. Brahma Adv Machine Learning, Dr M. Vatsa (A grade) Cryptography, Course Project Theoretical analysis of QKD protocol BB84 and experimenting related algorithms on qiskit, (Endsem) QKD protocols and Quantum attacks on blockchain. (Attacks on Bitcoin PoW and Attacks on Digital Signatures) ML2, Endsem Project - Analyzing and Improving the Image Quality of StyleGAN (StyleGAN2) CVPR 2020, HELEN EYE DATASET and Clothing Dataset (Fashion Dataset) ML2, Group Project - Random Multimodel Deep Learning for Classification (arXiv:1805.01890) 20NewsGroup and IMDB dataset & CIFAR-10, MNIST Dataset. Dependable AI - Study of Nature of Different Adversarial Attacks and Impact of Different Data Augmentation Techniques on Robustness.</p>
-    <a href="#" class="toggle-read-more">Click for more!</a>
-  </div>
+  <table width="1000" border="0" align="center" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td id="about" style="padding:2.5%;width:60%;vertical-align:middle">
+              <p align="center">
+                <name style="font-size:50px;">Sanyam Jain</name>
+              </p>
 
-  <div class="education-section">
-    <h3>UPES, Dehradun, India</h3>
-    <p>Degree: BTech (Bachelor's in Technology)</p>
-    <p>Major: Computer Science Engineering</p>
-    <p>Year: 2015 - 2019</p>
-    <p class="read-more">Grade: 77.50, Best Project award for Compariso - whatsapp bot to compare e-commerce prices. Top 10 in R.I.S.E. UPES under supervision of Dr. Ravi Tomar sir with project title: KidExa (Team KeyringCorp) Won Best project Award in Project Parliament (2018) college Minor Project 2 for Facial Recognition significance in cybersecurity. (Team KeyringCorp) Won Third Prize for Real-time Traffic Analysis – IBM ICE on campus Hackathon. (Team KeyringCorp) Won Second prize for 4FactorAuthentication in North India Cyber Security Hackathon at WIC Dehradun. (Team KeyringCorp) Developed Python Chatbot using wit NLP engine. (Wit.ai) Developed Automated Key logger using C. (Unix/Py) Studied Digital Logic, Data Structures and Algorithms, Java, Operating Systems, DBMS, Computer Networks, Theory of Computation, Discrete Maths, Information Retrieval and Search engines, Artificial Intelligence, Mobile Applications.</p>
-    <a href="#" class="toggle-read-more">Click for more!</a>
-  </div>
-  <!-- Add more education sections as needed -->
+              <p>I am a PhD student in Generative AI at the
+              <a target="_blank" href="https://dent.au.dk/">Department of Dentistry and Oral Health</a>,
+              <a target="_blank" href="https://www.au.dk/">Aarhus University</a>,
+              Denmark (2024 - present), working with
+              <a target="_blank" href="https://pure.au.dk/portal/en/persons/ruben.pauwels%40dent.au.dk">Prof. Ruben Pauwels</a>,
+              <a target="_blank" href="https://www.tuni.fi/en/people/alexandros-iosifidis">Prof. Alexandros Iosifidis</a>, and
+              <a target="_blank" href="https://pure.au.dk/portal/en/persons/brunanf%40aias.au.dk">Dr. Bruna Neves de Freitas</a>.
+              My PhD project is on
+              <a target="_blank" href="https://digit.au.dk/research-projects/synthetic-dental-radiography-using-generative-artificial-intelligence">Synthetic Dental Radiography using Generative AI</a>.</p>
 
-      </div>
-      
+              <p>Previously, I completed my MSc in Applied Computer Science (2022 - 2024) at
+              <a target="_blank" href="https://www.hiof.no/">Ostfold University College</a>, Norway, advised by
+              <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>,
+              where I worked on Artificial Life, Cellular Automata, and emergent complexity in Lenia.
+              I was also a Summer Intern at
+              <a target="_blank" href="https://www.ntnu.no/gjovik">NTNU Gjovik</a> (2024) and
+              <a target="_blank" href="https://www.oslomet.no/">OsloMet</a> (2023).
+              Earlier, I was a Junior Research Fellow at
+              <a target="_blank" href="https://iitj.ac.in/">IIT Jodhpur</a> (2020 - 2022),
+              part of the VANETs Lab and the QIC group, and I received my BTech in Computer Science from
+              <a target="_blank" href="https://www.upes.ac.in/">UPES Dehradun</a> (2015 - 2019).</p>
 
-      <div id="contact" class="tab-content">
-        <h2>Contact Me</h2>
-        <p>
-          You can reach me via email at <a href="mailto:sanyamjaincs@gmail.com">sanyamjaincs@gmail.com</a>. Connect with me on social media through the following profiles:
-        </p>
-        <!-- Add your contact details here -->
-        <div class="contact-links">
-          <a class="contact-link" href="https://github.com/s4nyam">GitHub</a>
-          <a class="contact-link" href="https://twitter.com/s4nyam">Twitter</a>
-          <a class="contact-link" href="https://www.linkedin.com/in/s4nyam/">LinkedIn</a>
-          <a class="contact-link" href="https://www.youtube.com/@SanyamJain001">YouTube</a>
-          <!-- <a class="contact-link" href="https://www.instagram.com/sanyam.no/">Instagram</a> -->
-        </div>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Ready to serve customers! Our poster presented by <a href="https://twitter.com/s4nyam?ref_src=twsrc%5Etfw">@s4nyam</a> <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a> <a href="https://twitter.com/hashtag/NordicAIMeet2023?src=hash&amp;ref_src=twsrc%5Etfw">#NordicAIMeet2023</a> <a href="https://t.co/J0tzVaT2Tg">https://t.co/J0tzVaT2Tg</a> <a href="https://t.co/EL44fTbANF">pic.twitter.com/EL44fTbANF</a></p>&mdash; Stefano Nichele (@stenichele) <a href="https://twitter.com/stenichele/status/1708926238645956754?ref_src=twsrc%5Etfw">October 2, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Shared some ideas, discussion, and conversation about ALife, Complexity and OpenEndedness over Conference dinner with Shin (linkedin below)😊<a href="https://twitter.com/hashtag/NORDICAIMEET?src=hash&amp;ref_src=twsrc%5Etfw">#NORDICAIMEET</a> <a href="https://twitter.com/NORAdotAI?ref_src=twsrc%5Etfw">@NORAdotAI</a> <a href="https://twitter.com/AiCentreDK?ref_src=twsrc%5Etfw">@AiCentreDK</a> <a href="https://t.co/BCLNjWpd9c">https://t.co/BCLNjWpd9c</a> <a href="https://t.co/RKe4hNLQIf">pic.twitter.com/RKe4hNLQIf</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1708915797429514548?ref_src=twsrc%5Etfw">October 2, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">.<a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a> is well represented at <a href="https://twitter.com/NORAdotAI?ref_src=twsrc%5Etfw">@NORAdotAI</a> <a href="https://twitter.com/hashtag/NORDICAIMEET2023?src=hash&amp;ref_src=twsrc%5Etfw">#NORDICAIMEET2023</a> with <a href="https://twitter.com/s4nyam?ref_src=twsrc%5Etfw">@s4nyam</a> <a href="https://t.co/Td6eTg5fCH">https://t.co/Td6eTg5fCH</a></p>&mdash; Stefano Nichele (@stenichele) <a href="https://twitter.com/stenichele/status/1708783458816872931?ref_src=twsrc%5Etfw">October 2, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Hello Venice😍 <a href="https://twitter.com/hashtag/WIVACE2023?src=hash&amp;ref_src=twsrc%5Etfw">#WIVACE2023</a> <a href="https://t.co/YxbmGQMtXz">https://t.co/YxbmGQMtXz</a> <a href="https://t.co/rSPhQZqo95">pic.twitter.com/rSPhQZqo95</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1699099445424525434?ref_src=twsrc%5Etfw">September 5, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">A nice work from <a href="https://twitter.com/Michielstock?ref_src=twsrc%5Etfw">@Michielstock</a> on “How to make everything: open-endedness in synthetic biology” at <a href="https://twitter.com/hashtag/WIVACE2023?src=hash&amp;ref_src=twsrc%5Etfw">#WIVACE2023</a> <a href="https://twitter.com/CaFoscari?ref_src=twsrc%5Etfw">@CaFoscari</a> 👏 <a href="https://t.co/bLmWjTUWvN">pic.twitter.com/bLmWjTUWvN</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1700126012195983625?ref_src=twsrc%5Etfw">September 8, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Right now, <a href="https://twitter.com/s4nyam?ref_src=twsrc%5Etfw">@s4nyam</a> presenting in <a href="https://twitter.com/hashtag/Wivace2034?src=hash&amp;ref_src=twsrc%5Etfw">#Wivace2034</a> his work on the AEVoT algorithm <a href="https://t.co/ujUUfxadTe">pic.twitter.com/ujUUfxadTe</a></p>&mdash; JJ Merelo (@jjmerelo) <a href="https://twitter.com/jjmerelo/status/1699776269649617109?ref_src=twsrc%5Etfw">September 7, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Ready for poster presentation at <a href="https://twitter.com/NORAdotAI?ref_src=twsrc%5Etfw">@NORAdotAI</a> NORDIC AI MEET 2023, Copenhagen <br>- with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a>, Aarati, <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a> <a href="https://twitter.com/hashtag/NORA?src=hash&amp;ref_src=twsrc%5Etfw">#NORA</a> <a href="https://twitter.com/hashtag/Lenia?src=hash&amp;ref_src=twsrc%5Etfw">#Lenia</a> <a href="https://twitter.com/hashtag/CellularAutomata?src=hash&amp;ref_src=twsrc%5Etfw">#CellularAutomata</a> <a href="https://t.co/8eqjd0y2OK">pic.twitter.com/8eqjd0y2OK</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1706275781972836508?ref_src=twsrc%5Etfw">September 25, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
+              <p>My research interests include Representation Learning, Generative Models, Computer Vision,
+              and Medical Imaging, with current focus on diffusion models for dental radiography.</p>
 
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">A good sunny day from Halden, Norway 🌞 <a href="https://t.co/Ds6BkgeCmH">pic.twitter.com/Ds6BkgeCmH</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1701868483057795541?ref_src=twsrc%5Etfw">September 13, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                <p align=center>
+                  <a target="_blank" href="mailto:sanyam.jain@dent.au.dk"><i class="fa fa-envelope"></i> Email</a> &nbsp;/&nbsp;
+                  <a target="_blank" href="CV.pdf"><i class="fa fa-file-pdf-o"></i> CV</a> &nbsp;/&nbsp;
+                  <a target="_blank" href="https://www.linkedin.com/in/s4nyam/"><i class="fa fa-linkedin"></i> LinkedIn</a> &nbsp;/&nbsp;
+                  <a target="_blank" href="https://github.com/s4nyam"><i class="fa fa-github"></i> GitHub</a> &nbsp;/&nbsp;
+                  <a target="_blank" href="https://scholar.google.com/citations?user=R9XAK2IAAAAJ&hl=en"><font size="3">Google Scholar</font></a> &nbsp;/&nbsp;
+                  <a target="_blank" href="https://x.com/s4nyam"><i class="fa fa-twitter"></i> Twitter</a>
+                </p>
+              <br>
+              <h4>Water Your Repo, Grow Your Greens!</h4>
+              <img src="https://ghchart.rshah.org/s4nyam" alt="Sanyam's Github chart" width="100%" />
 
-        
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">A step towards sexual reproduction between 🐠 and 🦎 with a single egg, in an extension of <a href="https://twitter.com/sina_lana?ref_src=twsrc%5Etfw">@sina_lana</a>’s work. Also trying to increase training steps and updating perception model with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> <a href="https://twitter.com/hashtag/NeuralCA?src=hash&amp;ref_src=twsrc%5Etfw">#NeuralCA</a> <a href="https://t.co/cmS1MGWm1f">pic.twitter.com/cmS1MGWm1f</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1691406205254529024?ref_src=twsrc%5Etfw">August 15, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">We are approaching this multi scale complexity (as degree of hierarchy) with coarse graining, which seems to approximate the &quot;filtered&quot; space-time diagrams<br><br>Work done with <a href="https://twitter.com/s4nyam?ref_src=twsrc%5Etfw">@s4nyam</a>, a portal to visualise coarse grained computations for 1D and 2D CA coming soon :) <br><br>6/n, n=6</p>&mdash; Stefano Nichele (@stenichele) <a href="https://twitter.com/stenichele/status/1687098978754789376?ref_src=twsrc%5Etfw">August 3, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">While studying EC these days, I came across some functions and their simulations:<br>- Ackley Function<br>- Himmelblau&#39;s Function<br>- Rastrigin Function<br>- Rosenbrock Function<br>A thread 🧵<a href="https://twitter.com/hashtag/EvolutionaryComputation?src=hash&amp;ref_src=twsrc%5Etfw">#EvolutionaryComputation</a><br>Tried to solve those complex functions using <a href="https://twitter.com/hashtag/GeneticAlgorithm?src=hash&amp;ref_src=twsrc%5Etfw">#GeneticAlgorithm</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1694779927856328828?ref_src=twsrc%5Etfw">August 24, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="https://t.co/7biiR7y2oq">https://t.co/7biiR7y2oq</a><br>A simple EC based optimisation for f(x) = sin(x).cos(x) <a href="https://t.co/LwaJdGcNe6">pic.twitter.com/LwaJdGcNe6</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1693630531081060426?ref_src=twsrc%5Etfw">August 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>        
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Returning from lab and this view 🌠 <a href="https://t.co/UqAHEIDMDZ">pic.twitter.com/UqAHEIDMDZ</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1688680663824650240?ref_src=twsrc%5Etfw">August 7, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Happy to share that our work with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> and Aarati has been accepted at WIVACE 2023. <a href="https://t.co/NDWgVK8h3q">https://t.co/NDWgVK8h3q</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1681319505535070208?ref_src=twsrc%5Etfw">July 18, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">How to capture emerging complexity 🌀 in a 2D grid continuous cellular automata (Lenia) system using Genetic Algorithm 🧬 ? <br><br>arXiv: <a href="https://t.co/403mHYQ9XQ">https://t.co/403mHYQ9XQ</a> 📝 with Aarati and supervision of <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> at <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a> <br><br>A thread 🧵</p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1660235194157203458?ref_src=twsrc%5Etfw">May 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Tried Hexagonal CA inspired from (Moore &amp; Reile, 2004) <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> <a href="https://twitter.com/cisne_hug?ref_src=twsrc%5Etfw">@cisne_hug</a> <br><br>The Simulation still uses known Replicator B/S[1,3,5,7]<br><br>Code: <a href="https://t.co/be6WiurMfD">https://t.co/be6WiurMfD</a> <a href="https://t.co/xM9tEzQYCA">pic.twitter.com/xM9tEzQYCA</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1673240874921127936?ref_src=twsrc%5Etfw">June 26, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Mutating new creatures and complexity for <a href="https://twitter.com/hashtag/NAIM2023?src=hash&amp;ref_src=twsrc%5Etfw">#NAIM2023</a>, Denmark with the Lenia project. <a href="https://twitter.com/hashtag/GeneticAlgorithm?src=hash&amp;ref_src=twsrc%5Etfw">#GeneticAlgorithm</a> <a href="https://twitter.com/hashtag/Lenia?src=hash&amp;ref_src=twsrc%5Etfw">#Lenia</a> <a href="https://twitter.com/hashtag/CellularAutomata?src=hash&amp;ref_src=twsrc%5Etfw">#CellularAutomata</a> with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> and Aarati<br><br>ref: <a href="https://t.co/403mHYQ9XQ">https://t.co/403mHYQ9XQ</a> <a href="https://t.co/nAg8fDXpBu">pic.twitter.com/nAg8fDXpBu</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1671553532653076487?ref_src=twsrc%5Etfw">June 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Check out my latest article: Keynotes and Talks Summary: NORA AI Annual Conference 2023, Tromsø, Norway <a href="https://t.co/zIkowQUREp">https://t.co/zIkowQUREp</a> from <a href="https://twitter.com/NORAdotAI?ref_src=twsrc%5Etfw">@NORAdotAI</a> <br><br>with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> and <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1668356776180211717?ref_src=twsrc%5Etfw">June 12, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Preprints for the both the projects are live, have a look at them:<br><br>For Applied CS Project: <a href="https://t.co/403mHYQ9XQ">https://t.co/403mHYQ9XQ</a><br><br>For Adv ML Project: <a href="https://t.co/dvn7rXKqyu">https://t.co/dvn7rXKqyu</a> <a href="https://t.co/kAgUz1cEWu">https://t.co/kAgUz1cEWu</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1668163028523597824?ref_src=twsrc%5Etfw">June 12, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Check out my latest article: NEURO AI Workshop, Tromsø, June 4, 2023 <a href="https://t.co/4HsZtq4cyM">https://t.co/4HsZtq4cyM</a><a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1667307320072650752?ref_src=twsrc%5Etfw">June 9, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Ready with the poster for NORA 2023 Tromsø conference🚀 with <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> and Aarati.<a href="https://twitter.com/NORAdotAI?ref_src=twsrc%5Etfw">@NORAdotAI</a> <a href="https://t.co/hL4qHkx6ZP">pic.twitter.com/hL4qHkx6ZP</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1663472049711460352?ref_src=twsrc%5Etfw">May 30, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Lenia Kernel (K): Work as n’hood. Kernels 🎇 are blurred and handcrafted using gaussian smoothening function. Weighted importance to n’boring pixels and gradually reduced importance to distant pixels. Simply put, this is something that slides over space 🌐 to perform Convolution. <a href="https://t.co/ew6tbc0gHQ">pic.twitter.com/ew6tbc0gHQ</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1660235219763380227?ref_src=twsrc%5Etfw">May 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">We tested five-fold validation for these experiments to validate and understand it was not just a lucky case to get such fitness plot: <a href="https://t.co/7Fv6QICMNF">pic.twitter.com/7Fv6QICMNF</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1660236976031772673?ref_src=twsrc%5Etfw">May 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Finally ⭐, we initialised population with only known kernel and tested using AEVoT fitness for 500 generations and EC was able to find right set of perturbations using AEVoT fitness such that we were able to evolve a very interesting behaviour. Check arXiv preprint for details. <a href="https://t.co/GZ36oJsn7Q">pic.twitter.com/GZ36oJsn7Q</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1660237023146393600?ref_src=twsrc%5Etfw">May 21, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">To understand the importance of Gaussian Function in K, here is an intuitive animation that shows varying mu and sigma to develop a kernel. Note that sigma increases the spread of the peaks while mu displaces the peak. <a href="https://t.co/yfgb2ab3Bm">pic.twitter.com/yfgb2ab3Bm</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1660705508083236864?ref_src=twsrc%5Etfw">May 22, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Had a chance to witness Norway constitution day and the parade, on the 17th may. 🇳🇴 <a href="https://t.co/WopbAcsbTC">pic.twitter.com/WopbAcsbTC</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1658809438826819586?ref_src=twsrc%5Etfw">May 17, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">An Evolutionary Computation EvoLenia run for 500 generations on default growth function and a handcrafted kernel shows a ring forming bacteria. Amazed by the robustness of Lenia behaviour, while mutating kernel variation based fitness. <br><br>Part of project supervised by <a href="https://twitter.com/stenichele?ref_src=twsrc%5Etfw">@stenichele</a> <a href="https://t.co/jLvl5E10s2">pic.twitter.com/jLvl5E10s2</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1655672132406222850?ref_src=twsrc%5Etfw">May 8, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="https://twitter.com/s4nyam?ref_src=twsrc%5Etfw">@s4nyam</a> from <a href="https://twitter.com/hiofnorge?ref_src=twsrc%5Etfw">@hiofnorge</a> presenting SVM at the edge <a href="https://twitter.com/hashtag/ICAPAI2023?src=hash&amp;ref_src=twsrc%5Etfw">#ICAPAI2023</a> <a href="https://t.co/jUrrnRrfWJ">pic.twitter.com/jUrrnRrfWJ</a></p>&mdash; Stefano Nichele (@stenichele) <a href="https://twitter.com/stenichele/status/1653365536292470784?ref_src=twsrc%5Etfw">May 2, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        <br/>
-        <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Do we really need to kill our old plumber a million times for the princess?<br><br>How about cheating, training and reaching only the Warp Zones in the game?<a href="https://twitter.com/hashtag/GymSuperMarioBros?src=hash&amp;ref_src=twsrc%5Etfw">#GymSuperMarioBros</a> <a href="https://twitter.com/hashtag/AGI?src=hash&amp;ref_src=twsrc%5Etfw">#AGI</a> <a href="https://t.co/UPwSfMkAt9">pic.twitter.com/UPwSfMkAt9</a></p>&mdash; Sanyam Jain (@s4nyam) <a href="https://twitter.com/s4nyam/status/1645190480718700545?ref_src=twsrc%5Etfw">April 9, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-      
-      </div>
-      
+            </td>
+            <td width="150%">
+              <img width="100%" style="border-radius: 10%;" src="my.jpg">
+            </td>
+          <tr>
+        </table>
 
+        <!-- publications -->
+        <table id="publications" style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <tr>
+            <td style="padding: 20px; width: 100%; vertical-align: middle;">
+              <heading style="font-size:25px;">Publications</heading>
+            </td>
+          </tr>
+        </table>
 
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img width="100%" src="https://arxiv.org/html/2507.09227v1/x3.png" alt="PanoDiff-SR">
+            </td>
+            <td valign="middle" width="65%">
+              <a target="_blank" href="https://arxiv.org/abs/2507.09227">
+                <papertitle>PanoDiff-SR: Synthesizing Dental Panoramic Radiographs using Diffusion and Super-resolution</papertitle>
+              </a>
+              <br>
+              <strong>S Jain</strong>, S Pedersen, R Pauwels
+              <br>
+              <em><b>arXiv Preprint, 2025</b></em>
+              <br>
+              <a target="_blank" href="https://arxiv.org/abs/2507.09227">paper</a>
+              <p>Proposes a two-stage pipeline combining a latent diffusion model with super-resolution
+              to synthesize high-resolution panoramic dental radiographs, addressing data scarcity
+              in dental imaging while preserving anatomical fidelity.</p>
+            </td>
+          </tr>
+        </table>
 
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img width="100%" src="https://dl3.pushbulletusercontent.com/W3hvGsG2PchZNSRE0zlmXl160ivUlpiQ/Screenshot%202025-06-14%20at%205.52.31%E2%80%AFPM.png" alt="PanoGAN">
+            </td>
+            <td valign="middle" width="65%">
+              <a target="_blank" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11856485/">
+                <papertitle>Pano-GAN: A Deep Generative Model for Panoramic Dental Radiographs</papertitle>
+              </a>
+              <br>
+              S Pedersen, <strong>S Jain</strong>, M Chavez, V Ladehoff, B N de Freitas, R Pauwels
+              <br>
+              <em><b>Journal of Imaging, 11(2), 41, 2025</b></em>
+              <br>
+              <a target="_blank" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11856485/">paper</a>
+              <p>Develops a generative adversarial network for synthesizing panoramic dental
+              radiographs, evaluated for clinical realism by dental experts. The work demonstrates
+              the potential of GAN-based synthesis for augmenting limited medical imaging datasets.</p>
+            </td>
+          </tr>
+        </table>
 
-      
-    </div>
-  </main>
-  
-  <footer>
-    <p>&copy; 2025 My Personal Webpage. All rights reserved.</p>
-  </footer>
-  
-  <!-- Publication Popup -->
-  <div id="publicationPopup" class="popup">
-    <h2 class="popup-title" id="popupTitle"></h2>
-    <p class="popup-authors" id="popupAuthors"></p>
-    <div class="popup-content">
-      <p class="popup-abstract" id="popupAbstract"></p>
-    </div>
-    <span class="popup-close" onclick="closePublicationPopup()">X</span>
-  </div>
-  <div id="publicationOverlay" class="popup-overlay"></div>
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img width="100%" src="deepseanet.jpg" alt="DeepSeaNet">
+            </td>
+            <td valign="middle" width="65%">
+              <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541265">
+                <papertitle>DeepSeaNet: Improving Underwater Object Detection using EfficientDet</papertitle>
+              </a>
+              <br>
+              <strong>S Jain</strong>
+              <br>
+              <em><b>4th International Conference on Applied Artificial Intelligence (ICAPAI), 2024</b></em>
+              <br>
+              <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541265">paper</a> |
+              <a target="_blank" href="https://s4nyam.github.io/deepseanetportal/">portal</a>
+              <p>Investigates underwater object detection on Denmark's Brackish dataset using a
+              modified EfficientDet. The proposed approach achieves 88.54% IoU with five-fold
+              cross-validation, outperforming prior baselines on the dataset.</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img width="100%" src="table.jpg" alt="GradCAM YOLO">
+            </td>
+            <td valign="middle" width="65%">
+              <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541282">
+                <papertitle>Adversarial Attack on YOLOv5 for Traffic and Road Sign Detection</papertitle>
+              </a>
+              <br>
+              <strong>S Jain</strong>
+              <br>
+              <em><b>4th International Conference on Applied Artificial Intelligence (ICAPAI), 2024</b></em>
+              <br>
+              <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541282">paper</a> |
+              <a target="_blank" href="https://github.com/s4nyam/gradcam-yolo">code</a>
+              <p>Studies the robustness of YOLOv5 on traffic sign detection under a range of
+              adversarial attacks including L-BFGS, FGSM, C&amp;W, BIM, PGD, One Pixel Attack,
+              and Universal Adversarial Perturbations, and analyzes their effect on detection accuracy.</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img width="100%" src="lenia.png" alt="Lenia">
+            </td>
+            <td valign="middle" width="65%">
+              <a target="_blank" href="https://arxiv.org/pdf/2305.09378">
+                <papertitle>Capturing Emerging Complexity in Lenia</papertitle>
+              </a>
+              <br>
+              <strong>S Jain</strong>, A Shrestha, S Nichele
+              <br>
+              <em><b>Italian Workshop on Artificial Life and Evolutionary Computation (WIVACE), 2023</b></em>
+              <br>
+              <a target="_blank" href="https://arxiv.org/pdf/2305.09378">paper</a> |
+              <a target="_blank" href="https://s4nyam.github.io/evolenia/">portal</a>
+              <p>Explores emergent complexity in Lenia, a continuous cellular automaton, using
+              evolutionary fitness measures based on Variance over Time (VoT), Autoencoder
+              reconstruction (AE), and a combined AEVoT criterion to discover novel life-like patterns.</p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Selected Experiences -->
+        <table id="experience" width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading>Selected Experiences</heading>
+              <hr>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.au.dk/">
+                <img width="90%" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Aarhus_University_logo.svg/3840px-Aarhus_University_logo.svg.png" alt="Aarhus University">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>PhD Student, Department of Dentistry and Oral Health, Aarhus University</papertitle>
+              <br>
+              Supervisors:
+                <a target="_blank" href="https://pure.au.dk/portal/en/persons/ruben.pauwels%40dent.au.dk">Prof. Ruben Pauwels</a>,
+                <a target="_blank" href="https://www.tuni.fi/en/people/alexandros-iosifidis">Prof. Alexandros Iosifidis</a>,
+                <a target="_blank" href="https://pure.au.dk/portal/en/persons/brunanf%40aias.au.dk">Dr. Bruna Neves de Freitas</a>
+              <br>
+              Aug 2024 - Present
+              <p>Working on Synthetic Dental Radiography using Generative AI - building diffusion
+              and GAN-based models for panoramic dental radiograph synthesis, super-resolution,
+              and downstream clinical evaluation.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.ntnu.no/gjovik">
+                <img width="90%" src="https://www.ntnu.edu/o/ntnu-theme/images/ntnu-logo-web-v1.svg" alt="NTNU">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Summer Research Intern, NTNU Gjovik</papertitle>
+              <br>
+              May 2024 - Jun 2024
+              <p>Research internship in the Education Technology Lab on Computer Vision and Large
+              Vision Models for educational applications.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.oslomet.no/">
+                <img width="60%" src="oslomet.png" alt="OsloMet">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Summer Research Intern, OsloMet</papertitle>
+              <br>
+              Supervisor:
+                <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
+              <br>
+              Jul 2023 - Sep 2023
+              <p>Continued research on artificial life, evolutionary computation, and emergent
+              complexity in continuous cellular automata (Lenia) and Neural CA.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.hiof.no/">
+                <img width="100%" src="hiof.png" alt="HiOf">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Graduate Researcher, Ostfold University College</papertitle>
+              <br>
+              Supervisor:
+                <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
+              <br>
+              Sep 2022 - Jun 2024
+              <p>MSc research on complexity in discrete and continuous cellular automata using
+              evolutionary algorithms; led to multiple publications on Lenia and underwater
+              object detection.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://iitj.ac.in/">
+                <img width="100%" src="iitj.png" alt="IIT Jodhpur">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Junior Research Fellow, IIT Jodhpur</papertitle>
+              <br>
+              Coursework with
+                <a target="_blank" href="http://home.iitj.ac.in/~mvatsa/">Dr. Mayank Vatsa</a>,
+                <a target="_blank" href="http://home.iitj.ac.in/~richa/">Dr. Richa Singh</a>;
+              part of
+                <a target="_blank" href="https://vanets-iitj.github.io/">VANETs Lab</a>
+              under <a target="_blank" href="https://research.iitj.ac.in/researcher/debasis-das-2">Dr. Debasis Das</a>
+              <br>
+              Sep 2020 - Jun 2022
+              <p>Research in Machine Learning, Deep Learning, and Dependable AI. Teaching Assistant
+              for Machine Learning (Winter 2022) and Foundations of Quantum Information and
+              Computation (Trimester 3, 2021).</p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Projects -->
+        <table id="projects" width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading>Selected Projects</heading>
+              <hr>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellpadding="20">
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>EvoLenia Portal</papertitle>
+              (
+                <a target="_blank" href="https://s4nyam.github.io/evolenia/">portal</a> |
+                <a target="_blank" href="https://arxiv.org/pdf/2305.09378.pdf">paper</a>
+              )
+              <br>
+              <p>Interactive portal for exploring emergent creatures discovered in the Lenia
+              cellular automaton via evolutionary search. Built with HTML/JS to visualize
+              evolution runs, fitness landscapes, and discovered patterns.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>DeepSeaNet Portal</papertitle>
+              (
+                <a target="_blank" href="https://s4nyam.github.io/deepseanetportal/">portal</a> |
+                <a target="_blank" href="https://arxiv.org/pdf/2306.06075.pdf">paper</a>
+              )
+              <br>
+              <p>Project page for DeepSeaNet, presenting underwater object detection results on
+              Denmark's Brackish dataset using EfficientDet with cross-validation and qualitative
+              comparisons across baselines.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>MNCA Portal - Frequency Histogram Coarse Graining</papertitle>
+              (
+                <a target="_blank" href="https://s4nyam.github.io/mncaportal/">portal</a> |
+                <a target="_blank" href="https://journals.uio.no/NMI/article/view/10458">paper</a>
+              )
+              <br>
+              <p>Studies complexity and emergent behaviour in elementary CA, discrete CA, and 2D
+              Multi-Neighborhood Cellular Automata, with a frequency histogram based coarse-graining
+              method to characterize pattern formation.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>GradCAM YOLO</papertitle>
+              (
+                <a target="_blank" href="https://github.com/s4nyam/gradcam-yolo">code</a>
+              )
+              <br>
+              <p>Implementation of Grad-CAM visualizations for YOLOv5 and analysis of how
+              several adversarial attacks (FGSM, PGD, BIM, C&amp;W, One Pixel, UAP) shift
+              the network's attention on traffic and road sign detection.</p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Education -->
+        <table id="education" width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading>Education</heading>
+              <hr/>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" align="center" border="0" cellpadding="20">
+
+          <tr>
+            <td width="100%" valign="center">
+              <strong>PhD in Generative AI (Dentistry and Oral Health)</strong>
+              <br>
+              (2024 - Present) Aarhus University, Denmark
+              <br>
+              Project: Synthetic Dental Radiography using Generative Artificial Intelligence
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <strong>MSc in Applied Computer Science</strong>
+              <br>
+              (2022 - 2024) Ostfold University College, Norway
+              <br>
+              Specialization: Machine Learning with Cyber-Physical Systems. Grade: 4.4 / 5.
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <strong>BTech in Computer Science and Engineering</strong>
+              <br>
+              (2015 - 2019) University of Petroleum and Energy Studies (UPES), Dehradun, India
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Footer -->
+        <table width="100%" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td class="customfsize" align="right">
+              Base template inspired by <a class="customfsize" target="_blank" href="https://nitkannen.github.io/">Nithish Kannen</a>, thanks!
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+    (function () {
+      const sectionNames = ['about', 'publications', 'experience', 'projects', 'education'];
+      const rootCell = document.querySelector('table[width="1000"] > tbody > tr > td');
+      const contentTables = rootCell
+        ? Array.from(rootCell.children).filter((element) => element.tagName === 'TABLE')
+        : [];
+
+      document.body.classList.add('sections-ready');
+
+      function safeIndex(selector, fallbackIndex) {
+        const idx = contentTables.indexOf(document.querySelector(selector));
+        return idx >= 0 ? idx : fallbackIndex;
+      }
+
+      const publicationsStart = safeIndex('table#publications', contentTables.length);
+      const experienceStart = safeIndex('table#experience', contentTables.length);
+      const projectsStart = safeIndex('table#projects', contentTables.length);
+      const educationStart = safeIndex('table#education', contentTables.length);
+
+      const sectionEndIndexes = {
+        about: publicationsStart,
+        publications: experienceStart,
+        experience: projectsStart,
+        projects: educationStart,
+        education: contentTables.length,
+      };
+
+      function getSelectedSection() {
+        const hash = window.location.hash.replace('#', '');
+        return sectionNames.includes(hash) ? hash : 'about';
+      }
+
+      function showSection(sectionName) {
+        const selectedSection = sectionNames.includes(sectionName) ? sectionName : 'about';
+        const startIndex = selectedSection === 'about'
+          ? 0
+          : safeIndex(`table#${selectedSection}`, 0);
+        const endIndex = sectionEndIndexes[selectedSection];
+
+        contentTables.forEach((table, index) => {
+          table.style.display = index >= startIndex && index < endIndex ? 'table' : 'none';
+        });
+
+        document.querySelectorAll('.section-nav-inner a').forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${selectedSection}`);
+        });
+      }
+
+      document.querySelectorAll('.section-nav-inner a').forEach((link) => {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          const targetSection = this.getAttribute('href').slice(1);
+
+          if (!sectionNames.includes(targetSection)) {
+            return;
+          }
+
+          history.replaceState(null, '', `#${targetSection}`);
+          showSection(targetSection);
+          window.scrollTo(0, 0);
+        });
+      });
+
+      window.addEventListener('hashchange', function () {
+        showSection(getSelectedSection());
+      });
+
+      showSection(getSelectedSection());
+    })();
+  </script>
 </body>
 </html>
