@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSeaNet &mdash; Improving Underwater Object Detection using EfficientDet</title>
+  <meta name="description" content="DeepSeaNet (ICAPAI 2024, IEEE): a comparative study of EfficientDet, YOLOv3/v4/v5/v8 and Detectron2 for detecting fish, crabs, shrimp, jellyfish and starfish in murky brackish water, with a proposed BiSkFPN neck, adversarial learning and class activation maps.">
+  <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/tropical-fish_1f420.png" type="image/png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DeepSeaNet: Improving Underwater Object Detection using EfficientDet">
+  <meta property="og:description" content="Seeing fish, crabs and starfish through brackish water: one-stage detectors on the Brackish dataset, explained interactively.">
+  <meta property="og:url" content="https://s4nyam.github.io/deepseanet/">
+  <meta property="og:image" content="https://s4nyam.github.io/deepseanet/assets/img/og_card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="style.css?v=1" rel="stylesheet">
+
+  <script>
+    // Resolve the theme before paint. Shares the 'theme' key with the main site and /brain2vlm.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) { }
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme',
+        (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <a class="home" href="https://s4nyam.github.io/">Sanyam Jain</a>
+      <span class="crumb">/ deepseanet</span>
+      <span class="spacer"></span>
+      <nav id="topnav">
+        <a href="#problem">Problem</a>
+        <a href="#dataset">Dataset</a>
+        <a href="#model">Model</a>
+        <a href="#results">Results</a>
+        <a href="#runs">Runs</a>
+        <a href="#explain">Robustness</a>
+        <a href="#notes">Notes</a>
+        <a href="#code">Code</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch colour theme">
+        <span class="t-dark">Dark</span><span class="t-light">Light</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================ HERO ============================ -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="venue"><span class="tick"></span>ICAPAI 2024, IEEE &nbsp;&mdash;&nbsp; Halden, Norway</span>
+
+      <h1 class="title">DeepSeaNet</h1>
+      <p class="subtitle">Improving underwater object detection using EfficientDet</p>
+
+      <p class="authors"><b>Sanyam Jain</b></p>
+      <p class="affil">Department of Computer Science and Communication, &Oslash;stfold University College, Halden, Norway</p>
+
+      <div class="links">
+        <a href="https://doi.org/10.1109/ICAPAI61893.2024.10541265" target="_blank" rel="noopener">
+          <svg viewBox="0 0 384 512"><path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/></svg>
+          Paper (IEEE)
+        </a>
+        <a href="https://arxiv.org/abs/2306.06075" target="_blank" rel="noopener">
+          <svg viewBox="0 0 512 512"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm64 96h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H128c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 128H384c17.7 0 32 14.3 32 32s-14.3 32-32 32H128c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 96H320c17.7 0 32 14.3 32 32s-14.3 32-32 32H128c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
+          arXiv
+        </a>
+        <a href="https://github.com/s4nyam/efficientdet-advml" target="_blank" rel="noopener">
+          <svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+          Code
+        </a>
+        <a href="#code">
+          <svg viewBox="0 0 448 512"><path d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V216zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H320c-35.3 0-64-28.7-64-64V216z"/></svg>
+          BibTeX
+        </a>
+      </div>
+
+      <div class="triptych">
+        <figure class="tri tri-ed">
+          <div class="frame"><img id="heroEd" src="assets/frames/ed_00.jpg" alt="Brackish test frame with EfficientDet-Lite0 detections"></div>
+          <figcaption><span style="color:var(--effdet)">EfficientDet-Lite0</span><span class="sub">3.2 M params</span></figcaption>
+        </figure>
+        <figure class="tri tri-v5">
+          <div class="frame"><img id="heroV5" src="assets/frames/v5_00.jpg" alt="Brackish test frame with YOLOv5s detections"></div>
+          <figcaption><span style="color:var(--yolov5)">YOLOv5s</span><span class="sub">7.0 M params</span></figcaption>
+        </figure>
+        <figure class="tri tri-v8">
+          <div class="frame"><img id="heroV8" src="assets/frames/v8_00.jpg" alt="The same frame with YOLOv8s detections"></div>
+          <figcaption><span style="color:var(--yolov8)">YOLOv8s</span><span class="sub">11.1 M params</span></figcaption>
+        </figure>
+      </div>
+      <div class="tri-foot">
+        <button class="btn" id="heroPlay" type="button">Pause</button>
+        <span>Frames from nine metres under Limfjorden, Denmark. Every box is a prediction saved by a detector trained in this
+          project; the two YOLO panels show the same held-out test frame.</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================ 1 PROBLEM ============================ -->
+  <section id="problem">
+    <div class="wrap">
+      <h2><span class="num">1</span>Why underwater detection is hard</h2>
+      <p class="lede">Seawater is a hostile lens. It absorbs light, scatters it back into the camera and fills the frame
+        with drifting particles. A detector has to find a shrimp a few dozen pixels wide in that.</p>
+
+      <p>Automated monitoring of marine life is how we count populations, notice invasive species, check the effect of
+        fishing and pollution, and keep ships off the seabed. Cameras are cheap; people watching the footage are not. The
+        catch is the footage itself. Brackish water carries silt and plankton, visibility changes with the tide and the
+        weather, and a stationary camera sees the same rock, rope and calibration board for months while the animals it
+        is meant to watch appear small, blurred and half-hidden.</p>
+
+      <p>The paper calls this a <em>natural adversarial environment</em>: the corruption is not crafted by an attacker,
+        but it degrades a network in much the same way. Try it on real frames from the dataset.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Water conditions playground</h3>
+          <span class="badge illus">Illustration</span>
+          <span class="hint">Pick a frame, then move the sliders or try a preset.</span>
+        </div>
+
+        <div class="water">
+          <div>
+            <canvas id="waterCanvas" width="960" height="540" aria-label="Brackish frame with simulated water conditions"></canvas>
+            <div class="thumbrow" id="waterThumbs">
+              <button type="button" data-raw="crab" aria-pressed="true"><img src="assets/raw/crab.jpg" alt="Crab frame"></button>
+              <button type="button" data-raw="school" aria-pressed="false"><img src="assets/raw/school.jpg" alt="Fish school frame"></button>
+              <button type="button" data-raw="bigfish" aria-pressed="false"><img src="assets/raw/bigfish.jpg" alt="Big fish frame"></button>
+              <button type="button" data-raw="seabed" aria-pressed="false"><img src="assets/raw/seabed.jpg" alt="Seabed frame"></button>
+            </div>
+          </div>
+          <div>
+            <div class="controls" style="margin-bottom:8px">
+              <div class="switch" role="group" aria-label="Water presets" id="waterPresets">
+                <button type="button" data-preset="clear" aria-pressed="false">Clearer</button>
+                <button type="button" data-preset="asis" aria-pressed="true">As recorded</button>
+                <button type="button" data-preset="silt" aria-pressed="false">Silt storm</button>
+                <button type="button" data-preset="night" aria-pressed="false">Dusk</button>
+              </div>
+            </div>
+            <div class="slider"><label for="wTurb">Turbidity</label><input type="range" id="wTurb" min="0" max="100" value="0"><output id="oTurb">0</output></div>
+            <div class="slider"><label for="wSnow">Marine snow</label><input type="range" id="wSnow" min="0" max="100" value="0"><output id="oSnow">0</output></div>
+            <div class="slider"><label for="wLight">Light falloff</label><input type="range" id="wLight" min="0" max="100" value="0"><output id="oLight">0</output></div>
+            <div class="slider"><label for="wNoise">Sensor noise</label><input type="range" id="wNoise" min="0" max="100" value="0"><output id="oNoise">0</output></div>
+            <div class="slider"><label for="wEnh">Contrast stretch</label><input type="range" id="wEnh" min="0" max="100" value="0"><output id="oEnh">0</output></div>
+
+            <div class="readout" style="margin-top:12px">
+              <div class="kicker">What the network receives</div>
+              <div class="barrow meter">
+                <div class="barlabel"><span>RMS contrast of the frame</span><span class="barval" id="wContrast">&ndash;</span></div>
+                <div class="bartrack"><div class="barfill" id="wContrastBar"></div><div class="barfill ghost" id="wContrastGhost"></div></div>
+              </div>
+              <p class="note" id="wNote" style="margin-top:8px">Dashed outline: the frame as recorded. The number is the standard
+                deviation of luminance, a simple proxy for how much edge information survives.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">The effects are simple image operations for intuition, not a physical model of light in water.
+        The frames themselves are unedited Brackish frames.</p>
+
+      <div class="takeaways">
+        <div class="takeaway">
+          <span class="statnum">Low contrast</span>
+          <p>Turbidity pulls every pixel towards the colour of the water. Edges and textures, the cues a CNN relies on,
+            fade first.</p>
+        </div>
+        <div class="takeaway">
+          <span class="statnum">Tiny, moving targets</span>
+          <p>Small fish and shrimp cover a few dozen pixels and move between frames. They are the hardest classes for
+            every detector trained here.</p>
+        </div>
+        <div class="takeaway">
+          <span class="statnum">Real time</span>
+          <p>Monitoring runs on continuous video, often on the edge. That rules out slow two-stage detectors and favours
+            compact one-stage models.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 2 DATASET ============================ -->
+  <section id="dataset">
+    <div class="wrap">
+      <h2><span class="num">2</span>The Brackish dataset</h2>
+      <p class="lede">Three cameras bolted to a pillar of the Limfjord bridge between Aalborg and N&oslash;rresundby,
+        nine metres below the surface, recorded by Aalborg University and annotated frame by frame.</p>
+
+      <p>The Brackish dataset (Pedersen et al., CVPR Workshops 2019) was filmed in real, murky coastal water rather than
+        on a clear reef or in an aquarium, and its authors release 14,518 annotated frames. Videos are filed into folders by
+        what they mostly show, and every frame carries bounding boxes for six object classes.</p>
+
+      <div class="tiles">
+        <div class="tile"><span class="statnum">15,084</span><span class="lab">frames extracted at 960&times;540 and paired with label files</span><div class="src">logged in 0_Dataset</div></div>
+        <div class="tile"><span class="statnum">10,995</span><span class="lab">frames left after dropping those with no box</span><div class="src">logged in 0_Dataset</div></div>
+        <div class="tile"><span class="statnum">6</span><span class="lab">object classes, from shrimp to large fish</span><div class="src">Brackish annotations</div></div>
+        <div class="tile"><span class="statnum">70 : 20 : 10</span><span class="lab">train, validation and test split in the released Roboflow version</span><div class="src">paper Table 2</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>What is in the frames</h3>
+          <span class="hint">Switch between the three ways the data is counted.</span>
+        </div>
+        <div class="controls">
+          <div class="switch" role="group" aria-label="Choose a count" id="classSwitch">
+            <button type="button" data-view="v8" aria-pressed="true">Boxes per class, validation</button>
+            <button type="button" data-view="v5" aria-pressed="false">Boxes per class, YOLOv5 split</button>
+            <button type="button" data-view="paper" aria-pressed="false">Frames per video category</button>
+          </div>
+        </div>
+        <div class="two">
+          <div id="classBars"></div>
+          <div class="readout">
+            <div class="kicker" id="classKicker"></div>
+            <p class="verdict" id="classVerdict"></p>
+            <p id="classBody"></p>
+            <p class="note" id="classSrc"></p>
+          </div>
+        </div>
+      </div>
+
+      <h3>From raw video to training data</h3>
+      <p>Every detector in this project consumes the same frames, but each toolkit wants its labels in a different file
+        format. Step through the preprocessing, then drag the box to see what a single annotation looks like on disk.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Preprocessing and annotation formats</h3>
+          <span class="hint">Click a step. Drag the box, or its corner handle.</span>
+        </div>
+        <div class="two even">
+          <ol class="steplist" id="prepSteps">
+            <li aria-current="true">Download the Kaggle release: AVI videos filed by category, with YOLO label files.<span class="log">archive.zip, unpacked to dataset/videos/&lt;category&gt;/</span></li>
+            <li>Extract every frame with ffmpeg, scaled to 960&times;540 with bicubic resampling.<span class="log">ffmpeg -i {name}.avi -vf scale=960:540 -sws_flags bicubic {name}-%04d.jpg</span></li>
+            <li>Match frames to label files by name and rename both to a running index.<span class="log">15,084 images and 15,084 label files</span></li>
+            <li>Convert PNG to JPG with ImageMagick.<span class="log">mogrify -path images -format jpg *.png</span></li>
+            <li>Remove frames whose label file is empty.<span class="log">10,995 images remain</span></li>
+            <li>Normalise box coordinates to the 0&ndash;1 range and shift class ids to start at 0.<span class="log">normalize_yolo_coords(), class_map</span></li>
+            <li>Split, then export per toolkit: YOLO text, COCO JSON or Pascal VOC XML.<span class="log">Roboflow export: 7,000 / 2,000 / 1,000</span></li>
+          </ol>
+          <div>
+            <div class="annot" id="annot">
+              <img src="assets/raw/crab.jpg" alt="Crab frame for the annotation demo" draggable="false">
+              <div class="crossx" id="annCx"></div><div class="crossy" id="annCy"></div>
+              <div class="box" id="annBox"><span class="tag">crab</span><span class="grip" id="annGrip"></span></div>
+            </div>
+            <div class="controls" style="margin:10px 0 0">
+              <span class="ctl-label">Format</span>
+              <div class="switch" role="group" aria-label="Annotation format" id="fmtSwitch">
+                <button type="button" data-fmt="yolo" aria-pressed="true">YOLO txt</button>
+                <button type="button" data-fmt="coco" aria-pressed="false">COCO JSON</button>
+                <button type="button" data-fmt="voc" aria-pressed="false">Pascal VOC</button>
+              </div>
+            </div>
+            <pre class="code" id="fmtOut"></pre>
+            <p class="note" id="fmtNote" style="margin-top:6px"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 3 MODEL ============================ -->
+  <section id="model">
+    <div class="wrap">
+      <h2><span class="num">3</span>Anatomy of the detector</h2>
+      <p class="lede">A one-stage detector is three parts: a backbone that sees, a neck that mixes scales, a head that
+        decides. DeepSeaNet keeps EfficientDet's recipe and proposes changes to each part.</p>
+
+      <div class="panel stepper">
+        <div class="panel-head">
+          <h3>From a frame to a box</h3>
+          <span class="hint">Step through it, or click a block.</span>
+        </div>
+
+        <svg viewBox="0 0 920 220" role="img" aria-label="Detector pipeline: frame, backbone, neck, head, detections">
+          <defs>
+            <marker id="parw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--rule-strong)"></path>
+            </marker>
+          </defs>
+
+          <g class="stage" data-step="0" tabindex="0" role="button" aria-label="Stage 1, input frame">
+            <rect class="stagebox" x="6" y="50" width="160" height="120"></rect>
+            <image href="assets/raw/crab.jpg" x="18" y="62" width="136" height="76" preserveAspectRatio="xMidYMid slice"></image>
+            <text class="stagelabel" x="18" y="158">Frame</text>
+            <text class="stagesub" x="64" y="158">960 &times; 540</text>
+          </g>
+          <path d="M170,110 L196,110" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="1" tabindex="0" role="button" aria-label="Stage 2, backbone">
+            <rect class="stagebox" x="200" y="50" width="160" height="120"></rect>
+            <text class="stagelabel" x="214" y="74">Backbone</text>
+            <text class="stagesub" x="214" y="90">EfficientNet, MBConv</text>
+            <g id="bbBars"></g>
+            <text class="stagesub" x="214" y="160">P3 &hellip; P7 feature maps</text>
+          </g>
+          <path d="M364,110 L390,110" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="2" tabindex="0" role="button" aria-label="Stage 3, neck">
+            <rect class="stagebox" x="394" y="50" width="160" height="120"></rect>
+            <text class="stagelabel" x="408" y="74">Neck</text>
+            <text class="stagesub" x="408" y="90">BiFPN &rarr; BiSkFPN</text>
+            <g id="neckMini"></g>
+          </g>
+          <path d="M558,110 L584,110" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="3" tabindex="0" role="button" aria-label="Stage 4, head">
+            <rect class="stagebox" x="588" y="50" width="160" height="120"></rect>
+            <text class="stagelabel" x="602" y="74">Head</text>
+            <rect x="602" y="86" width="132" height="30" fill="none" stroke="var(--effdet)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="610" y="105">class net: which species</text>
+            <rect x="602" y="124" width="132" height="30" fill="none" stroke="var(--yolov8)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="610" y="143">box net: where, how big</text>
+          </g>
+          <path d="M752,110 L778,110" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="4" tabindex="0" role="button" aria-label="Stage 5, detections">
+            <rect class="stagebox" x="782" y="50" width="132" height="120"></rect>
+            <image href="assets/frames/ed_05.jpg" x="794" y="62" width="108" height="61" preserveAspectRatio="xMidYMid slice"></image>
+            <text class="stagelabel" x="794" y="146">Detections</text>
+            <text class="stagesub" x="794" y="160">after NMS</text>
+          </g>
+
+          <text class="axistext" x="6" y="30" id="pipeCount">Stage 1 of 5</text>
+        </svg>
+
+        <div class="steptext">
+          <div class="stepname" id="stepName"></div>
+          <p id="stepBody"></p>
+        </div>
+        <div class="stepnav">
+          <button class="btn" id="stepPrev" type="button">Back</button>
+          <button class="btn primary" id="stepNext" type="button">Next stage</button>
+          <span class="note" id="stepChange"></span>
+        </div>
+      </div>
+
+      <figure class="fig">
+        <img src="assets/img/fig1_overview.png" alt="Figure 1 of the paper: EfficientNet backbone, BiSkFPN bottleneck and prediction head">
+        <figcaption><b>Figure 1 of the paper.</b> The proposed pipeline: backbone features at several scales, the BiSkFPN
+          bottleneck that fuses them, and fully connected class and box networks at the head.</figcaption>
+      </figure>
+
+      <!-- neck explorer -->
+      <h3>The neck: how scales talk to each other</h3>
+      <p>A small shrimp is only visible in the high-resolution P3 map; a large fish fills the coarse P7 map. The neck
+        decides how information flows between them. Each design below adds paths the previous one lacked. Hover an output
+        node to light up every input it can draw from.</p>
+
+      <div class="panel neck" id="neckPanel">
+        <div class="panel-head">
+          <h3>Feature pyramid explorer</h3>
+          <span class="hint">Choose a design, then hover or tap a node in the right-hand column.</span>
+        </div>
+        <div class="controls">
+          <div class="switch" role="group" aria-label="Choose a neck design" id="neckSwitch">
+            <button type="button" data-neck="fpn" aria-pressed="false">FPN</button>
+            <button type="button" data-neck="panet" aria-pressed="false">PANet</button>
+            <button type="button" data-neck="bifpn" aria-pressed="true">BiFPN</button>
+            <button type="button" data-neck="biskfpn" aria-pressed="false">BiSkFPN, proposed</button>
+          </div>
+        </div>
+        <div class="two">
+          <svg id="neckSvg" viewBox="0 0 560 360" role="img" aria-label="Feature pyramid graph"></svg>
+          <div class="readout">
+            <div class="kicker" id="neckKicker"></div>
+            <p class="verdict" id="neckVerdict"></p>
+            <p id="neckBody"></p>
+            <div class="eq" id="neckEq"></div>
+            <p class="note" id="neckTrace">Hover an output node to trace it.</p>
+          </div>
+        </div>
+        <div class="legend" id="neckLegend"></div>
+      </div>
+
+      <div class="two even">
+        <figure class="fig">
+          <img src="assets/img/fig2_bifpn.png" alt="Figure 2 of the paper: BiFPN feature fusion">
+          <figcaption><b>Figure 2.</b> BiFPN, the neck of the original EfficientDet, repeated as stacked layers.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="assets/img/fig7_biskfpn.png" alt="Figure 7 of the paper: proposed BiSkFPN bottleneck">
+          <figcaption><b>Figure 7.</b> The proposed BiSkFPN, with deconvolutional feature maps and skip connections.</figcaption>
+        </figure>
+      </div>
+
+      <!-- MBConv + swish -->
+      <h3>The backbone: doing more with fewer weights</h3>
+      <p>EfficientNet replaces ordinary convolutions with mobile inverted bottleneck blocks (MBConv). A 1&times;1 conv
+        expands the channels, a depthwise conv filters each channel on its own, and another 1&times;1 conv projects back
+        down. The paper also argues for the Swish activation over ReLU. Both choices are easy to feel with numbers.</p>
+
+      <div class="two even">
+        <div class="panel">
+          <div class="panel-head"><h3>MBConv parameter counter</h3></div>
+          <div class="slider"><label for="mbC">Input channels</label><input type="range" id="mbC" min="16" max="320" step="8" value="80"><output id="oC">80</output></div>
+          <div class="slider"><label for="mbOut">Output channels</label><input type="range" id="mbOut" min="16" max="320" step="8" value="80"><output id="oOut">80</output></div>
+          <div class="slider"><label for="mbT">Expansion t</label><input type="range" id="mbT" min="1" max="6" step="1" value="6"><output id="oT">6</output></div>
+          <div class="slider"><label for="mbK">Kernel k</label><input type="range" id="mbK" min="3" max="5" step="2" value="3"><output id="oK">3</output></div>
+          <div id="mbBars" style="margin-top:12px"></div>
+          <p class="note" id="mbNote"></p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Swish against ReLU</h3>
+          </div>
+          <div class="controls" style="margin-bottom:6px">
+            <div class="switch" role="group" aria-label="Function or derivative" id="swSwitch">
+              <button type="button" data-sw="f" aria-pressed="true">f(x)</button>
+              <button type="button" data-sw="d" aria-pressed="false">f&prime;(x)</button>
+            </div>
+          </div>
+          <div class="chartbox">
+            <svg id="swSvg" viewBox="0 0 420 260" role="img" aria-label="Swish and ReLU curves"></svg>
+            <div class="tip" id="swTip"></div>
+          </div>
+          <div class="slider"><label for="swB">&beta;</label><input type="range" id="swB" min="0.1" max="5" step="0.05" value="1"><output id="oB">1.00</output></div>
+          <p class="note" id="swNote">Swish(x) = x &middot; &sigma;(&beta;x). It dips slightly below zero and has a non-zero gradient
+            for negative inputs, so weak, noisy activations are damped rather than cut to zero.</p>
+        </div>
+      </div>
+
+      <!-- head + loss -->
+      <h3>The head: one loss, three pulls</h3>
+      <p>For every anchor box the class network predicts species probabilities and the box network predicts offsets.
+        Training minimises a weighted sum: a classification term, a box regression term weighted by &alpha;, and an
+        &#8467;<sub>2</sub> penalty on the weights. The paper writes it as</p>
+      <div class="eq">L = L_cls + &alpha;&middot;L_box + &beta;&middot;L_reg        L_box = (1/N) &Sigma;&#7522; &Sigma;&#11388;&#8712;{x,y,w,h} smoothL1(t&#11388; &minus; t&#770;&#11388;)</div>
+      <p>The EfficientDet-Lite0 run in the repository logged each of those terms for all 350 epochs, so the balance can
+        be read straight off the training log. In that implementation &alpha;&nbsp;=&nbsp;50 and &beta;&nbsp;=&nbsp;1.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Where the training loss comes from</h3>
+          <span class="badge repo">Repository log</span>
+          <span class="hint">Hover for values. Drag &alpha; to reweight the logged terms.</span>
+        </div>
+        <div class="chartbox">
+          <svg id="lossSvg" viewBox="0 0 860 300" role="img" aria-label="Stacked training loss components over 350 epochs"></svg>
+          <div class="tip" id="lossTip"></div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--effdet)"></i>classification L_cls</span>
+          <span><i class="swatch" style="background:var(--yolov8)"></i>box &alpha;&middot;L_box</span>
+          <span><i class="swatch" style="background:var(--old)"></i>weight decay &beta;&middot;L_reg</span>
+        </div>
+        <div class="slider" style="max-width:520px;margin-top:10px"><label for="lossA">Box weight &alpha;</label><input type="range" id="lossA" min="0" max="150" step="1" value="50"><output id="oA">50</output></div>
+        <p class="note" id="lossNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 4 REPORTED RESULTS ============================ -->
+  <section id="results">
+    <div class="wrap">
+      <h2><span class="num">4</span>Results reported in the paper</h2>
+      <p class="lede">Six detectors, one dataset, five repetitions each. This section shows the paper's own tables;
+        the next one shows what the committed runs in the repository logged.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>mAP over five runs</h3>
+          <span class="badge paper">Paper, Table 5</span>
+          <span class="hint">Each dot is one run. Hover for the value.</span>
+        </div>
+        <div class="controls">
+          <span class="ctl-label">Axis</span>
+          <div class="switch" role="group" aria-label="Axis range" id="t5Switch">
+            <button type="button" data-range="full" aria-pressed="true">0&ndash;100</button>
+            <button type="button" data-range="zoom" aria-pressed="false">Zoom to 92&ndash;100</button>
+          </div>
+        </div>
+        <div class="chartbox">
+          <svg id="t5Svg" viewBox="0 0 860 300" role="img" aria-label="Dot plot of five mAP runs per model"></svg>
+          <div class="tip" id="t5Tip"></div>
+        </div>
+        <p class="note" id="t5Note" style="margin-top:8px"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Class-wise mAP</h3>
+          <span class="badge paper">Paper, Table 6</span>
+          <span class="hint">Click a column header to sort.</span>
+        </div>
+        <div class="tablewrap">
+          <table class="data heat" id="t6"></table>
+        </div>
+        <p class="note">Column names follow the paper, which labels classes by Brackish video category. Darker cells mean
+          higher mAP. See the notes in section 7 on how this table relates to Table 5.</p>
+      </div>
+
+      <div class="tiles" style="grid-template-columns:repeat(3,1fr)">
+        <div class="tile"><span class="statnum">98.63%</span><span class="lab">mAP reported for EfficientDet with adversarial learning</span><div class="src">paper, abstract</div></div>
+        <div class="tile"><span class="statnum">98.04%</span><span class="lab">mAP reported for YOLOv5 with adversarial learning</span><div class="src">paper, abstract</div></div>
+        <div class="tile"><span class="statnum">350</span><span class="lab">training epochs for every model, weight decay 5&times;10<sup>&minus;4</sup></span><div class="src">paper, Table 4</div></div>
+      </div>
+
+      <details class="more">
+        <summary>Experimental setup (paper, Table 4)</summary>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Setting</th><th>YOLOv5</th><th>EfficientDet</th><th>Detectron2</th></tr></thead>
+            <tbody>
+              <tr><td>Epochs</td><td>350</td><td>350</td><td>350</td></tr>
+              <tr><td>Backbone</td><td>CSP-Darknet53</td><td>EfficientNet</td><td>ResNet</td></tr>
+              <tr><td>Neck</td><td>PANet</td><td>BiFPN</td><td>RPN + FPN</td></tr>
+              <tr><td>Head</td><td>YOLOv3-like</td><td>YOLOv3-like</td><td>RPN + RCNN</td></tr>
+              <tr><td>Train / val / test</td><td>7000 / 2000 / 1000</td><td>7000 / 2000 / 1000</td><td>7000 / 2000 / 1000</td></tr>
+              <tr><td>Annotations</td><td>YOLO TXT</td><td>COCO JSON</td><td>COCO JSON</td></tr>
+              <tr><td>Optimiser</td><td>SGD, lr 0.1</td><td>SGD + Adam, adaptive</td><td>SGD + Adam, adaptive</td></tr>
+              <tr><td>Activation</td><td>Leaky ReLU</td><td>Swish (neck), Leaky ReLU (head)</td><td>Sigmoid (box), softmax (class)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Hardware listed in the paper: AWS EC2 p3dn instance, NVIDIA V100 GPUs, 96 vCPUs, 31.2 USD per hour.</p>
+      </details>
+
+      <h3>Where the design choices came from</h3>
+      <p>The related-work study reviews five EfficientDet variants built for other hard imaging domains. Each contributed
+        an idea, or a warning, for water.</p>
+      <div class="cards">
+        <div class="card"><h4>Oil tanks from orbit</h4><p>Attention and residual deformable 3D convolutions damp cloud and haze noise in remote sensing.</p><p><span class="num">100</span> mAP &middot; Xu et al., 2022</p></div>
+        <div class="card"><h4>Crop circles in the desert</h4><p>YOLOv5 against EfficientDet: EfficientDet scores higher, YOLOv5 generalises to more examples.</p><p><span class="num">91</span> mAP &middot; Mekhalfi et al., 2021</p></div>
+        <div class="card"><h4>Ultrasonic defects</h4><p>Anchor aspect ratios found by K-means with Jaccard distance for extreme box shapes.</p><p><span class="num">89.65</span> mAP &middot; Medak et al., 2021</p></div>
+        <div class="card"><h4>Military ships</h4><p>Multilayer attention with deep feature fusion to separate ship types in optical imagery.</p><p><span class="num">97.05</span> mAP &middot; Qin et al., 2021</p></div>
+        <div class="card"><h4>Clothing landmarks</h4><p>Compound-scaled EfficientDet that detects garments and landmarks in 42 ms per image.</p><p><span class="num">68.6</span> mAP &middot; Kim et al., 2021</p></div>
+      </div>
+      <figure class="fig">
+        <img src="assets/img/fig12_workflow.png" alt="Figure 12 of the paper: data, train and infer workflow">
+        <figcaption><b>The Data &rarr; Train &rarr; Infer workflow</b> followed for every detector, from the final report.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ 5 RUNS ============================ -->
+  <section id="runs">
+    <div class="wrap">
+      <h2><span class="num">5</span>What the committed runs show</h2>
+      <p class="lede">The repository keeps one training run per detector, with logs, weights and saved predictions.
+        Everything in this section is parsed from those files.</p>
+
+      <div class="tablewrap">
+        <table class="data">
+          <thead><tr><th>Run</th><th>Toolkit</th><th>Data</th><th>Input</th><th>Schedule</th><th>Params</th><th>AP@0.5</th><th>AP@[.5:.95]</th></tr></thead>
+          <tbody>
+            <tr><td><i class="mdot" style="background:var(--effdet)"></i>EfficientDet-Lite0</td><td>TFLite Model Maker</td><td>Roboflow, test 1,000</td><td>320&sup2;</td><td>350 ep, batch 64</td><td>3.24 M</td><td>0.898</td><td>0.601</td></tr>
+            <tr><td><i class="mdot" style="background:var(--yolov5)"></i>YOLOv5s</td><td>Ultralytics YOLOv5</td><td>own split, val 1,506</td><td>416</td><td>100 ep, batch 16</td><td>7.04 M</td><td>0.976</td><td>0.748</td></tr>
+            <tr><td><i class="mdot" style="background:var(--yolov8)"></i>YOLOv8s</td><td>Ultralytics 8.0.20</td><td>Roboflow, val 2,000</td><td>800</td><td>100 ep, batch 16</td><td>11.13 M</td><td>0.988</td><td>0.836</td></tr>
+            <tr><td><i class="mdot" style="background:var(--d2)"></i>Faster R-CNN X101-FPN</td><td>Detectron2</td><td>Roboflow, test</td><td>default</td><td>300 iter, batch 4</td><td>&mdash;</td><td>0.433</td><td>0.204</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Splits and input sizes differ between runs, so compare shapes and orders of magnitude rather than third
+        decimals. The EfficientDet-Lite0 row is the float model; the exported TFLite file scores 0.863 and 0.561. YOLO rows are
+        the validation scores at the last epoch of the committed run.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Validation accuracy during training</h3>
+          <span class="badge repo">Repository logs</span>
+          <span class="hint">Hover to read all runs at one epoch. Click a legend entry to hide a run.</span>
+        </div>
+        <div class="controls">
+          <span class="ctl-label">Metric</span>
+          <div class="switch" role="group" aria-label="Choose a metric" id="curveSwitch">
+            <button type="button" data-metric="map50" aria-pressed="true">AP@0.5</button>
+            <button type="button" data-metric="map" aria-pressed="false">AP@[.5:.95]</button>
+            <button type="button" data-metric="precision" aria-pressed="false">Precision</button>
+            <button type="button" data-metric="recall" aria-pressed="false">Recall</button>
+          </div>
+        </div>
+        <div class="chartbox">
+          <svg id="curveSvg" viewBox="0 0 860 330" role="img" aria-label="Validation metric per epoch for three detectors"></svg>
+          <div class="tip" id="curveTip"></div>
+        </div>
+        <div class="legend" id="curveLegend">
+          <button type="button" data-run="effdet" aria-pressed="true"><i class="swatch line" style="background:var(--effdet)"></i>EfficientDet-Lite0, every 5 epochs</button>
+          <button type="button" data-run="yolov5" aria-pressed="true"><i class="swatch line" style="background:var(--yolov5)"></i>YOLOv5s</button>
+          <button type="button" data-run="yolov8" aria-pressed="true"><i class="swatch line" style="background:var(--yolov8)"></i>YOLOv8s</button>
+        </div>
+        <p class="note" id="curveNote" style="margin-top:10px"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Which animals are hard</h3>
+          <span class="badge repo">Repository logs</span>
+          <span class="hint">AP@[.5:.95] per class. Hover a dot.</span>
+        </div>
+        <div class="chartbox">
+          <svg id="pcSvg" viewBox="0 0 860 290" role="img" aria-label="Per-class average precision for four detectors"></svg>
+          <div class="tip" id="pcTip"></div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--effdet);border-radius:50%"></i>EfficientDet-Lite0</span>
+          <span><i class="swatch" style="background:var(--yolov5);border-radius:50%"></i>YOLOv5s</span>
+          <span><i class="swatch" style="background:var(--yolov8);border-radius:50%"></i>YOLOv8s, 25-epoch notebook run</span>
+          <span><i class="swatch" style="background:transparent;border:2.5px solid var(--d2);border-radius:50%"></i>Detectron2 (hollow)</span>
+        </div>
+        <p class="note" style="margin-top:10px">All four detectors find starfish, which rarely move on the seabed, the
+          easiest class. For the three one-stage detectors small fish, which swim through the frame in groups, are the
+          hardest; the short Detectron2 run struggles most with shrimp. The strict metric averages over IoU thresholds from
+          0.5 to 0.95, so it rewards tight boxes rather than rough hits. The committed 100-epoch YOLOv8s run saved per-class results
+          only as plots, so its dots come from the shorter 25-epoch run whose validation table is printed in the notebook.</p>
+      </div>
+
+      <h3>Look at the predictions</h3>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>YOLOv5s against YOLOv8s on the same frame</h3>
+          <span class="hint">Pick a frame, then drag across it. Arrow keys step through frames.</span>
+        </div>
+        <div class="det">
+          <div>
+            <div class="thumbs" id="detThumbs"></div>
+            <div class="classkey" id="classKey"></div>
+            <p class="note" style="margin-top:8px">The two toolkits number classes differently: YOLOv5 from 0, the Roboflow export
+              used for YOLOv8 from 1. The order is the same.</p>
+          </div>
+          <div>
+            <div class="compare" id="compare">
+              <img class="layer" id="cmpV8" src="assets/frames/v8_00.jpg" alt="YOLOv8s predictions" draggable="false">
+              <div class="over" id="cmpOver"><img id="cmpV5" src="assets/frames/v5_00.jpg" alt="YOLOv5s predictions" draggable="false"></div>
+              <span class="tag l">YOLOv5s</span><span class="tag r">YOLOv8s</span>
+              <div class="handle" id="cmpHandle" style="left:50%" role="slider" tabindex="0" aria-label="Compare YOLOv5s and YOLOv8s" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><div class="knob">&#8596;</div></div>
+            </div>
+            <p class="note" id="detLine" style="margin-top:8px"></p>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="panel-head" style="margin-bottom:4px"><h3 style="font-size:16px">EfficientDet-Lite0 on ten Brackish frames</h3><span class="hint">Click to enlarge. Labels read class id and confidence.</span></div>
+          <div class="strip" id="edStrip"></div>
+        </div>
+      </div>
+
+      <div class="panel diag">
+        <div class="panel-head">
+          <h3>Diagnostics saved with each YOLO run</h3>
+          <span class="hint">Click an image to enlarge.</span>
+        </div>
+        <div class="controls">
+          <div class="switch" role="group" aria-label="Run" id="diagRun">
+            <button type="button" data-run="v5" aria-pressed="true">YOLOv5s</button>
+            <button type="button" data-run="v8" aria-pressed="false">YOLOv8s</button>
+          </div>
+          <div class="switch" role="group" aria-label="Plot" id="diagPlot">
+            <button type="button" data-plot="confusion" aria-pressed="true">Confusion matrix</button>
+            <button type="button" data-plot="pr" aria-pressed="false">Precision&ndash;recall</button>
+            <button type="button" data-plot="valpred" aria-pressed="false">Validation batch</button>
+          </div>
+        </div>
+        <img id="diagImg" src="assets/runs/v5_confusion.jpg" alt="Diagnostic plot">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 6 ROBUSTNESS + CAM ============================ -->
+  <section id="explain">
+    <div class="wrap">
+      <h2><span class="num">6</span>Perturbations and explanations</h2>
+      <p class="lede">Two further ideas in the paper: train on deliberately perturbed frames so the model shrugs off noise,
+        and open the black box to check it looks at the animal, not the water.</p>
+
+      <h3>Universal adversarial perturbations</h3>
+      <p>A universal adversarial perturbation (UAP, Moosavi-Dezfooli et al., 2017) is a single, image-agnostic noise
+        pattern, small enough to be nearly invisible, that pushes a network towards wrong predictions on most inputs.
+        The paper adds UAP noise to training frames in a curriculum, a form of adversarial learning, and reports 98.63%
+        mAP for EfficientDet and 98.04% for YOLOv5 trained this way.</p>
+      <p>The key word is <em>universal</em>: the same pattern is added to every frame. The panel below shows what that
+        means at different strengths.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>One pattern, every frame</h3>
+          <span class="badge illus">Illustration</span>
+          <span class="hint">Drag the strength. The pattern is random, not optimised against any model.</span>
+        </div>
+        <div class="uapgrid">
+          <figure><canvas id="uapA" width="480" height="270"></canvas><figcaption>crab frame + &delta;</figcaption></figure>
+          <figure><canvas id="uapB" width="480" height="270"></canvas><figcaption>fish school + the same &delta;</figcaption></figure>
+          <figure><canvas id="uapN" width="480" height="270"></canvas><figcaption id="uapNcap">&delta; itself, amplified</figcaption></figure>
+        </div>
+        <div class="slider" style="max-width:560px;margin-top:12px"><label for="uapEps">Strength &xi;</label><input type="range" id="uapEps" min="0" max="32" step="1" value="8"><output id="oEps">8/255</output></div>
+        <p class="note" id="uapNote"></p>
+      </div>
+
+      <h3>Where does the detector look?</h3>
+      <p>Class activation maps colour each pixel by how much it drives the network's output. GradCAM++, the method the
+        paper describes, weights the last convolutional feature maps by positive gradients of the class score:</p>
+      <div class="eq">L&#7580;(x, y) = ReLU( &Sigma;&#8342; &alpha;&#8342;&#7580; &middot; A&#8342;(x, y) )</div>
+      <p>The CAM notebooks in the repository use EigenCAM from <code>pytorch-grad-cam</code>, which needs no gradients:
+        it projects the activations of one layer onto their first principal component. The maps below are the images
+        those notebooks saved.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Class activation map viewer</h3>
+          <span class="badge repo">Repository notebooks</span>
+          <span class="hint">Choose a frame and a notebook, then slide between the detections and the map.</span>
+        </div>
+        <div class="two">
+          <div>
+            <div class="camview" id="camView">
+              <img id="camDet" src="assets/cam/crab_hi_det.jpg" alt="Detections">
+              <img id="camMap" src="assets/cam/crab_hi_cam.jpg" alt="Class activation map" style="opacity:.5">
+            </div>
+            <div class="slider" style="margin-top:10px"><label for="camMix">Detections &harr; map</label><input type="range" id="camMix" min="0" max="100" value="50"><output id="oMix">50%</output></div>
+          </div>
+          <div>
+            <div class="controls" style="flex-direction:column;align-items:flex-start;gap:10px">
+              <div class="switch" role="group" aria-label="Frame" id="camFrame">
+                <button type="button" data-frame="crab" aria-pressed="true">Crab</button>
+                <button type="button" data-frame="school" aria-pressed="false">Fish school</button>
+              </div>
+              <div class="switch" role="group" aria-label="Notebook" id="camNb">
+                <button type="button" data-nb="hi" aria-pressed="true">Notebook A, conf &ge; 0.8</button>
+                <button type="button" data-nb="lo" aria-pressed="false">Notebook B, conf &ge; 0.2</button>
+              </div>
+              <div class="switch" role="group" aria-label="Map" id="camKind">
+                <button type="button" data-kind="cam" aria-pressed="true">Whole-image map</button>
+                <button type="button" data-kind="box" aria-pressed="false">Map inside boxes</button>
+              </div>
+            </div>
+            <div class="readout">
+              <div class="kicker" id="camKicker"></div>
+              <p id="camBody"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 7 NOTES ============================ -->
+  <section id="notes">
+    <div class="wrap">
+      <h2><span class="num">7</span>Reproducibility and limitations</h2>
+      <p class="lede">What a reader should know before building on these numbers.</p>
+
+      <h3>Paper and repository side by side</h3>
+      <div class="tablewrap">
+        <table class="data">
+          <thead><tr><th>Detector</th><th>Paper, Table 5 mean</th><th>Committed run, AP@0.5</th><th>Committed run setup</th></tr></thead>
+          <tbody>
+            <tr><td><i class="mdot" style="background:var(--effdet)"></i>EfficientDet</td><td>98.6 &plusmn; 1.0</td><td>89.8 (test), 86.3 as TFLite</td><td>EfficientDet-Lite0, TFLite Model Maker, 350 epochs</td></tr>
+            <tr><td><i class="mdot" style="background:var(--yolov8)"></i>YOLOv8</td><td>98.2 &plusmn; 0.17</td><td>98.8 (val)</td><td>YOLOv8s, 100 epochs, 800 px</td></tr>
+            <tr><td><i class="mdot" style="background:var(--yolov5)"></i>YOLOv5</td><td>97.6 &plusmn; 0.61</td><td>97.6 (val)</td><td>YOLOv5s, 100 epochs, 416 px</td></tr>
+            <tr><td><i class="mdot" style="background:var(--d2)"></i>Detectron2</td><td>95.2 &plusmn; 1.4</td><td>43.3 (test)</td><td>Faster R-CNN X101-FPN, 300 iterations</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <p><b>Scope of the repository.</b></p>
+        <ul>
+          <li>Each detector has a single committed run. The five repetitions behind Table 5 are not in the repository.</li>
+          <li>The EfficientDet notebook trains the stock <code>efficientdet_lite0</code> specification from TFLite Model Maker.
+            Code for the BiSkFPN neck, the Swish changes, UAP generation and adversarial training is not included.</li>
+          <li>The four CAM notebooks load YOLOv5-format checkpoints through <code>torch.hub</code> and run EigenCAM. They differ in
+            the checkpoint they download and the confidence threshold, not in detector architecture.</li>
+          <li>Table 6's Detectron2 row (28.1, 14.5, 8.6, 3.8, 26.1, 40.6) closely matches the per-class COCO AP@[.5:.95] logged in
+            <code>4_Detectron2.ipynb</code> for classes 1&ndash;6 (28.8, 14.6, 8.6, 3.9, 25.7, 40.7), while Table 5 reports 95.2 for the same model.
+            The two tables therefore do not report one consistent metric.</li>
+          <li>The paper and its Table 3 name classes after video folders (fish-school, fish-small&hellip;). The boxes use six object
+            classes: fish, small fish, crab, shrimp, jellyfish and starfish.</li>
+        </ul>
+      </div>
+
+      <h3>Limitations that apply to any result on this data</h3>
+      <p><b>Neighbouring frames leak.</b> Frames are cut from continuous video, and consecutive frames are nearly identical.
+        A random split puts near-duplicates into both training and test sets, which inflates every score. Splitting by
+        video would give a harder and more honest estimate.</p>
+      <p><b>AP@0.5 is near its ceiling.</b> Several detectors pass 0.97, where differences shrink to noise. The stricter
+        AP@[.5:.95], and per-class numbers for the rare shrimp and jellyfish classes, separate models far better.</p>
+      <p><b>One site, one camera.</b> Every frame comes from the same fixed rig in Limfjorden. Nothing here shows transfer to
+        other water, depths, lighting or cameras.</p>
+      <p><b>Classes are imbalanced.</b> Shrimp and jellyfish together make up only 3&ndash;4% of the validation boxes. A single mean hides how
+        a model does on exactly the animals that are hardest to monitor.</p>
+    </div>
+  </section>
+
+  <!-- ============================ 8 CODE + CITE ============================ -->
+  <section id="code">
+    <div class="wrap">
+      <h2><span class="num">8</span>Code and citation</h2>
+      <p class="lede">Every experiment is a notebook that runs top to bottom on Google Colab or AWS SageMaker.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Repository map</h3>
+          <span class="hint">Pick a folder.</span>
+        </div>
+        <div class="tree">
+          <ul id="treeList"></ul>
+          <div class="readout">
+            <div class="kicker" id="treeKicker"></div>
+            <p id="treeBody"></p>
+            <pre class="code" id="treeCmd" style="min-height:0"></pre>
+          </div>
+        </div>
+      </div>
+      <p><a href="https://github.com/s4nyam/efficientdet-advml" target="_blank" rel="noopener">github.com/s4nyam/efficientdet-advml</a></p>
+
+      <h3>Cite this work</h3>
+      <pre class="bib" id="bibtex">@inproceedings{Jain2024DeepSeaNet,
+  author    = {Jain, Sanyam},
+  title     = {DeepSeaNet: Improving Underwater Object Detection using EfficientDet},
+  booktitle = {2024 4th International Conference on Applied Artificial Intelligence (ICAPAI)},
+  year      = {2024},
+  pages     = {1--11},
+  address   = {Halden, Norway},
+  publisher = {IEEE},
+  doi       = {10.1109/ICAPAI61893.2024.10541265}
+}</pre>
+      <div class="copyrow">
+        <button class="btn" id="copyBib" type="button">Copy BibTeX</button>
+        <span class="copied" id="copiedMsg">Copied</span>
+        <span class="note">Preprint: <a href="https://arxiv.org/abs/2306.06075" target="_blank" rel="noopener">arXiv:2306.06075</a></span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p><b>Data.</b> Brackish dataset by Malte Pedersen, Joakim Bruslund Haurum, Rikke Gade and Thomas B. Moeslund,
+        Aalborg University: <em>Detection of Marine Animals in a New Underwater Dataset with Varying Visibility</em>,
+        CVPR Workshops 2019. Distributed on
+        <a href="https://www.kaggle.com/datasets/aalborguniversity/brackish-dataset" target="_blank" rel="noopener">Kaggle</a> and
+        <a href="https://universe.roboflow.com/brad-dwyer/brackish-underwater" target="_blank" rel="noopener">Roboflow Universe</a>.</p>
+      <p><b>Tools.</b>
+        <a href="https://github.com/google/automl/tree/master/efficientdet" target="_blank" rel="noopener">EfficientDet</a> via
+        <a href="https://www.tensorflow.org/lite/models/modify/model_maker" target="_blank" rel="noopener">TFLite Model Maker</a>,
+        <a href="https://github.com/ultralytics/yolov5" target="_blank" rel="noopener">YOLOv5</a>,
+        <a href="https://github.com/ultralytics/ultralytics" target="_blank" rel="noopener">Ultralytics YOLOv8</a>,
+        <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noopener">Detectron2</a> and
+        <a href="https://github.com/jacobgil/pytorch-grad-cam" target="_blank" rel="noopener">pytorch-grad-cam</a>.</p>
+      <p><b>Acknowledgements.</b> This project was completed in the Advanced Machine Learning course at &Oslash;stfold
+        University College, taught by Prof. Ripon. Thanks to Perparim Mustafa for access to the local HPC at Hi&Oslash;.</p>
+      <p>
+        <a href="https://doi.org/10.1109/ICAPAI61893.2024.10541265" target="_blank" rel="noopener">Paper</a> &nbsp;&middot;&nbsp;
+        <a href="https://arxiv.org/abs/2306.06075" target="_blank" rel="noopener">arXiv</a> &nbsp;&middot;&nbsp;
+        <a href="https://github.com/s4nyam/efficientdet-advml" target="_blank" rel="noopener">Code</a> &nbsp;&middot;&nbsp;
+        <a href="https://s4nyam.github.io/">Sanyam Jain</a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+
+  <script src="assets/data/data.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+
+</html>
