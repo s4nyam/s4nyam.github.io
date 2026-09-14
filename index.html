@@ -8,9 +8,22 @@
   <link target="_blank" href="stylesheet.css" rel="stylesheet" type="text/css">
   <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/technologist-light-skin-tone_1f9d1-1f3fb-200d-1f4bb.png" type="image/x-icon">
   <title>Sanyam Jain</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="color-scheme" content="light dark">
   <link target="_blank" href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" target="_blank" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <!-- Resolve the theme before the body paints, so there is no white flash
+       for dark-mode visitors. Saved choice wins; otherwise follow the OS. -->
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) { /* storage blocked */ }
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 
 <body>
@@ -20,8 +33,13 @@
       <a href="#news">News</a>
       <a href="#publications">Publications</a>
       <a href="#experience">Experience</a>
+      <a href="#teaching">Teaching</a>
       <a href="#projects">Projects</a>
       <a href="#education">Education</a>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch colour theme">
+        <span class="theme-light-face"><i class="fa fa-moon-o"></i>Dark</span>
+        <span class="theme-dark-face"><i class="fa fa-sun-o"></i>Light</span>
+      </button>
     </div>
   </div>
 
@@ -46,7 +64,7 @@
               <a target="_blank" href="https://digit.au.dk/research-projects/synthetic-dental-radiography-using-generative-artificial-intelligence">Synthetic Dental Radiography using Generative AI</a>.</p>
 
               <p>Previously, I completed my MSc in Applied Computer Science (2022 - 2024) at
-              <a target="_blank" href="https://www.hiof.no/">Ostfold University College</a>, Norway, advised by
+              <a target="_blank" href="https://www.hiof.no/">Østfold University of Applied Sciences</a>, Norway, advised by
               <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>,
               where I worked on Artificial Life, Cellular Automata, and emergent complexity in Lenia.
               I was also a Summer Intern at
@@ -70,7 +88,7 @@
                 </p>
               <br>
               <h4>Water Your Repo, Grow Your Greens!</h4>
-              <img src="https://ghchart.rshah.org/s4nyam" alt="Sanyam's Github chart" width="100%" />
+              <img class="ghchart" src="https://ghchart.rshah.org/s4nyam" alt="Sanyam's Github chart" width="100%" />
 
             </td>
             <td width="150%">
@@ -89,7 +107,7 @@
             <span class="news-tag tag-talk">[Talk]</span>     green
             <span class="news-tag tag-conf">[Conference]</span> purple
             <span class="news-tag tag-role">[New Role]</span> blue
-          Then the sentence, with any links as normal <a target="_blank" href="...">text</a>.
+          Then the sentence, with any links as normal <a target="_blank" href="URL">text</a>.
         -->
         <table id="news" style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
           <tr>
@@ -258,7 +276,7 @@
         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
           <tr>
             <td width="35%">
-              <img width="100%" src="https://arxiv.org/html/2507.09227v1/x3.png" alt="PanoDiff-SR">
+              <img class="figure" width="100%" src="https://arxiv.org/html/2507.09227v1/x3.png" alt="PanoDiff-SR">
             </td>
             <td valign="middle" width="65%">
               <a target="_blank" href="https://arxiv.org/abs/2507.09227">
@@ -280,7 +298,7 @@
         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
           <tr>
             <td width="35%">
-              <img width="100%" src="https://dl3.pushbulletusercontent.com/W3hvGsG2PchZNSRE0zlmXl160ivUlpiQ/Screenshot%202025-06-14%20at%205.52.31%E2%80%AFPM.png" alt="PanoGAN">
+              <img class="figure" width="100%" src="https://dl3.pushbulletusercontent.com/W3hvGsG2PchZNSRE0zlmXl160ivUlpiQ/Screenshot%202025-06-14%20at%205.52.31%E2%80%AFPM.png" alt="PanoGAN">
             </td>
             <td valign="middle" width="65%">
               <a target="_blank" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11856485/">
@@ -302,7 +320,7 @@
         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
           <tr>
             <td width="35%">
-              <img width="100%" src="deepseanet.jpg" alt="DeepSeaNet">
+              <img class="figure" width="100%" src="deepseanet.jpg" alt="DeepSeaNet">
             </td>
             <td valign="middle" width="65%">
               <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541265">
@@ -325,7 +343,7 @@
         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
           <tr>
             <td width="35%">
-              <img width="100%" src="table.jpg" alt="GradCAM YOLO">
+              <img class="figure" width="100%" src="table.jpg" alt="GradCAM YOLO">
             </td>
             <td valign="middle" width="65%">
               <a target="_blank" href="https://ieeexplore.ieee.org/abstract/document/10541282">
@@ -348,7 +366,7 @@
         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
           <tr>
             <td width="35%">
-              <img width="100%" src="lenia.png" alt="Lenia">
+              <img class="figure" width="100%" src="lenia.png" alt="Lenia">
             </td>
             <td valign="middle" width="65%">
               <a target="_blank" href="https://arxiv.org/pdf/2305.09378">
@@ -383,7 +401,7 @@
           <tr>
             <td width="25%" align="center">
               <a target="_blank" href="https://www.au.dk/">
-                <img width="90%" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Aarhus_University_logo.svg/3840px-Aarhus_University_logo.svg.png" alt="Aarhus University">
+                <img class="logo" width="90%" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Aarhus_University_logo.svg/3840px-Aarhus_University_logo.svg.png" alt="Aarhus University">
               </a>
             </td>
             <td width="75%" valign="center">
@@ -394,73 +412,92 @@
                 <a target="_blank" href="https://www.tuni.fi/en/people/alexandros-iosifidis">Prof. Alexandros Iosifidis</a>,
                 <a target="_blank" href="https://pure.au.dk/portal/en/persons/brunanf%40aias.au.dk">Dr. Bruna Neves de Freitas</a>
               <br>
-              Aug 2024 - Present
-              <p>Working on Synthetic Dental Radiography using Generative AI - building diffusion
-              and GAN-based models for panoramic dental radiograph synthesis, super-resolution,
-              and downstream clinical evaluation.</p>
+              Sep 2024 - Present &middot; Aarhus, Denmark
+              <p>AI in Health at the School of Dentistry (Tandl&aelig;geskolen), part of the IOOS Intelligent
+              Systems &ndash; ML Group. Working on Synthetic Dental Radiography using Generative AI: diffusion
+              and GAN-based models for panoramic radiograph synthesis, super-resolution, simulation of rare
+              anatomies, and downstream clinical evaluation.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.tuni.fi/en" class="logo-text">Tampere<br>University</a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Visiting PhD Student, Tampere University</papertitle>
+              <br>
+              With <a target="_blank" href="https://www.tuni.fi/en/people/alexandros-iosifidis">Prof. Alexandros Iosifidis</a>
+              <br>
+              Feb 2026 - Apr 2026 &middot; Tampere, Finland
+              <p>Three-month research stay investigating model robustness for lifelong learning, alongside
+              an invited talk at the University of Jyv&auml;skyl&auml;.</p>
             </td>
           </tr>
 
           <tr>
             <td width="25%" align="center">
               <a target="_blank" href="https://www.ntnu.no/gjovik">
-                <img width="90%" src="https://www.ntnu.edu/o/ntnu-theme/images/ntnu-logo-web-v1.svg" alt="NTNU">
+                <img class="logo" width="90%" src="https://www.ntnu.edu/o/ntnu-theme/images/ntnu-logo-web-v1.svg" alt="NTNU">
               </a>
             </td>
             <td width="75%" valign="center">
-              <papertitle>Summer Research Intern, NTNU Gjovik</papertitle>
+              <papertitle>Summer Research Intern, NTNU</papertitle>
               <br>
-              May 2024 - Jun 2024
-              <p>Research internship in the Education Technology Lab on Computer Vision and Large
-              Vision Models for educational applications.</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td width="25%" align="center">
-              <a target="_blank" href="https://www.oslomet.no/">
-                <img width="60%" src="oslomet.png" alt="OsloMet">
-              </a>
-            </td>
-            <td width="75%" valign="center">
-              <papertitle>Summer Research Intern, OsloMet</papertitle>
+              Educational Technology Research Laboratory, Department of Computer Science
               <br>
-              Supervisor:
-                <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
-              <br>
-              Jul 2023 - Sep 2023
-              <p>Continued research on artificial life, evolutionary computation, and emergent
-              complexity in continuous cellular automata (Lenia) and Neural CA.</p>
+              Jul 2024 - Aug 2024 &middot; Remote
+              <p>Computer Vision and Vision-Language Models for educational applications, with
+              Dr. Vijeta Sharma and Prof. Deepti Mishra. Led to a short paper at VISAPP 2025 on
+              how frequently pretrained VLMs fail on fine-grained action recognition.</p>
             </td>
           </tr>
 
           <tr>
             <td width="25%" align="center">
               <a target="_blank" href="https://www.hiof.no/">
-                <img width="100%" src="hiof.png" alt="HiOf">
+                <img class="logo" width="100%" src="hiof.png" alt="Østfold University of Applied Sciences">
               </a>
             </td>
             <td width="75%" valign="center">
-              <papertitle>Graduate Researcher, Ostfold University College</papertitle>
+              <papertitle>Research Assistant (Forskningsassistent), &Oslash;stfold University of Applied Sciences</papertitle>
               <br>
               Supervisor:
                 <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
               <br>
-              Sep 2022 - Jun 2024
-              <p>MSc research on complexity in discrete and continuous cellular automata using
-              evolutionary algorithms; led to multiple publications on Lenia and underwater
-              object detection.</p>
+              Oct 2022 - Jun 2023 and Mar 2024 - Jun 2024 &middot; Halden, Norway
+              <p>Open-endedness, Artificial General Intelligence and biologically inspired AI paradigms.
+              Research across discrete and continuous cellular automata using evolutionary computation,
+              alongside the MSc programme.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="25%" align="center">
+              <a target="_blank" href="https://www.oslomet.no/">
+                <img class="logo" width="60%" src="oslomet.png" alt="OsloMet">
+              </a>
+            </td>
+            <td width="75%" valign="center">
+              <papertitle>Research Assistant, TKD/IT, OsloMet &ndash; Oslo Metropolitan University</papertitle>
+              <br>
+              Supervisor:
+                <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
+              <br>
+              Jun 2023 - Aug 2023 (full-time), Sep 2023 - Mar 2024 (part-time) &middot; Oslo, Norway
+              <p>Studying and analysing complexity in discrete cellular automata and capturing emergent
+              behaviour using evolutionary computation, extending into Lenia and Neural CA.</p>
             </td>
           </tr>
 
           <tr>
             <td width="25%" align="center">
               <a target="_blank" href="https://iitj.ac.in/">
-                <img width="100%" src="iitj.png" alt="IIT Jodhpur">
+                <img class="logo" width="100%" src="iitj.png" alt="IIT Jodhpur">
               </a>
             </td>
             <td width="75%" valign="center">
-              <papertitle>Junior Research Fellow, IIT Jodhpur</papertitle>
+              <papertitle>Junior Research Fellow and Teaching Assistant, IIT Jodhpur</papertitle>
               <br>
               Coursework with
                 <a target="_blank" href="http://home.iitj.ac.in/~mvatsa/">Dr. Mayank Vatsa</a>,
@@ -469,14 +506,101 @@
                 <a target="_blank" href="https://vanets-iitj.github.io/">VANETs Lab</a>
               under <a target="_blank" href="https://research.iitj.ac.in/researcher/debasis-das-2">Dr. Debasis Das</a>
               <br>
-              Sep 2020 - Jun 2022
-              <p>Research in Machine Learning, Deep Learning, and Dependable AI. Teaching Assistant
-              for Machine Learning (Winter 2022) and Foundations of Quantum Information and
-              Computation (Trimester 3, 2021).</p>
+              Aug 2020 - Jul 2022 &middot; Jodhpur, India
+              <p>Fellowship awarded through GATE 2020. Research in Machine Learning, Deep Learning,
+              Generative Adversarial Networks and Explainable / Dependable AI, in the Quantum
+              Information and Computation group.</p>
             </td>
           </tr>
 
         </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading style="font-size:20px;">Earlier Industry Experience</heading>
+              <ul class="compact-list">
+                <li><strong>Alexa Developer</strong>, Keyring Corp (AWS Activate startup), 2019 - Aug 2020, Mumbai, India.
+                Voice-driven AI and conversational interfaces; published Alexa skills reaching 100k+ users,
+                and custom Alexa Skills / Google Actions for businesses.</li>
+                <li><strong>RPA Consultant</strong> (self-employed), Feb 2019 - Jul 2020, India.
+                UiPath Advanced Certified (UiRPA, UiARD); built learning plans, certification guidance
+                and RPA automation setups for startups and professionals.</li>
+                <li><strong>Data Analysis Trainee</strong>, Fiserv, Jul 2019 - Sep 2019, Bengaluru, India.
+                Campus placement from UPES Dehradun.</li>
+                <li><strong>Software Engineering Intern</strong>, YellowAnt, May 2018 - Jul 2018, Bangalore, India.</li>
+                <li><strong>Remote Intern</strong>, IBM Watson Offline, May 2018 - Jul 2018.</li>
+                <li><strong>Technical Team Lead</strong>, UPES ACM Student Chapter, Oct 2016 - Sep 2017, Dehradun, India.</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Teaching and Mentoring -->
+        <table id="teaching" width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading>Teaching &amp; Mentoring</heading>
+              <hr>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellpadding="20">
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>Teaching Assistant, IIT Jodhpur</papertitle>
+              <div class="subrole">
+                <span class="subrole-title">Machine Learning</span> &middot; Winter 2022 (Jan 2022 - May 2022)
+                <br>
+                Course instructor: <a target="_blank" href="http://home.iitj.ac.in/~richa/">Dr. Richa Singh</a>
+                <p>Prepared assignments and quizzes covering decision trees, information gain,
+                Bayesian inference and model evaluation.</p>
+              </div>
+              <div class="subrole">
+                <span class="subrole-title">Foundations of Quantum Information and Computation</span> &middot; Aug 2021 - Dec 2021
+                <br>
+                Course instructors: Dr. Subhashish Banerjee, Dr. Atul Kumar, Dr. V. Narayan
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>Invited Lecture, IIT Roorkee</papertitle>
+              <br>
+              International Women's Day Workshop, Department of Computer Science and Engineering &middot; March 2025
+              <p>Guest speaker on <em>PhD in AI</em>, hosted by Prof. Sugata Gangopadhyay and sponsored by
+              the Ministry of Electronics and Information Technology (MeitY), Government of India.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>Research Mentoring</papertitle>
+              <p>I supervise and collaborate with students on medical-imaging and generative-modelling
+              projects, from framing the research question through experiments to manuscript preparation.
+              Recent work includes
+              <a target="_blank" href="https://github.com/adarsh-crafts/Brain2VLM">Brain2VLM</a> and
+              <a target="_blank" href="https://arxiv.org/abs/2512.17585">SkinGenBench</a> with
+              N A Adarsh Pritam, master's theses on medical image segmentation, and mentoring at
+              <a target="_blank" href="https://www.iitr.ac.in/">IIT Roorkee</a> on machine learning
+              fundamentals, GANs and diffusion models.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>Outreach</papertitle>
+              <p>Mentored students on emerging directions in Machine Learning and AI at the Career
+              Development Cell, <a target="_blank" href="https://www.iitdh.ac.in/">IIT Dharwad</a> (Aug 2024),
+              and wrote up conference summaries from ICAPAI 2024 for the wider community.</p>
+            </td>
+          </tr>
+
+        </table>
+
 
         <!-- Projects -->
         <table id="projects" width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
@@ -556,6 +680,7 @@
             </td>
           </tr>
         </table>
+
         <table width="100%" align="center" border="0" cellpadding="20">
 
           <tr>
@@ -572,9 +697,35 @@
             <td width="100%" valign="center">
               <strong>MSc in Applied Computer Science</strong>
               <br>
-              (2022 - 2024) Ostfold University College, Norway
+              (Aug 2022 - Jun 2024) &Oslash;stfold University of Applied Sciences, Halden, Norway &middot; Grade 8.32 / 10
               <br>
-              Specialization: Machine Learning with Cyber-Physical Systems. Grade: 4.4 / 5.
+              Thesis: <em>AI Generating Algorithms with Self-Organizing Neural Cellular Automata</em>,
+              supervised by <a target="_blank" href="https://www.nichele.eu/">Prof. Stefano Nichele</a>
+              <ul class="compact-list">
+                <li>Coursework: Scientific Methods in Computer Science; Machine Learning
+                (Roland Olsson, Stefano Nichele); Applied Computer Science Project (A);
+                Advanced Topics in Machine Learning (A); Evolutionary Computation (A).</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <strong>Direct PhD Programme, Quantum Information and Computation (discontinued)</strong>
+              <br>
+              (Aug 2020 - Jul 2022) Indian Institute of Technology Jodhpur, India &middot; Grade 7.8 / 10
+              <br>
+              Admitted through GATE 2020; left to take up the MSc in Norway.
+              <ul class="compact-list">
+                <li>Coursework: Machine Learning (Dr. G. Harit); Advanced Machine Learning (Dr. M. Vatsa, A);
+                Deep Learning (Dr. M. Vatsa); Dependable AI (Dr. R. Singh, A-); Artificial Intelligence
+                (Dr. D. Mishra); Graph Theory and Applications (Dr. A. Mishra); Cryptography
+                (Dr. S. Sanadhya); Financial Engineering (Dr. V. Vijay, A-); ML for Economics (Dr. D. Brahma).</li>
+                <li>Course projects: theoretical analysis of the BB84 QKD protocol and quantum attacks on
+                blockchain (Qiskit); analysing and improving StyleGAN2 image quality on the HELEN Eye and
+                Fashion datasets; Random Multimodel Deep Learning for classification; study of adversarial
+                attacks and the effect of data augmentation on robustness.</li>
+              </ul>
             </td>
           </tr>
 
@@ -582,11 +733,50 @@
             <td width="100%" valign="center">
               <strong>BTech in Computer Science and Engineering</strong>
               <br>
-              (2015 - 2019) University of Petroleum and Energy Studies (UPES), Dehradun, India
+              (2015 - 2019) University of Petroleum and Energy Studies (UPES), Dehradun, India &middot; Grade 7.75 / 10
+              <ul class="compact-list">
+                <li>Best Project award for <em>Compariso</em>, a WhatsApp bot for comparing e-commerce prices.</li>
+                <li>Best Project award, Project Parliament 2018, for facial recognition in cybersecurity.</li>
+                <li>Top 10 in R.I.S.E. UPES with <em>KidExa</em>, supervised by Dr. Ravi Tomar.</li>
+                <li>Second prize, North India Cyber Security Hackathon (WIC Dehradun), for 4FactorAuthentication.</li>
+                <li>Third prize, IBM ICE campus hackathon, for real-time traffic analysis.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td width="100%" valign="center">
+              <strong>Danish, Module 3 (Danskuddannelse 3)</strong>
+              <br>
+              (Oct 2024 - Present) A2B Sprogskole, Aarhus, Denmark
+              <br>
+              Modules passed: Du3.1 (Jun 2025), Du3.2 (Dec 2025), Du3.3 (Aug 2026).
             </td>
           </tr>
 
         </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td>
+              <heading style="font-size:20px;">Certifications</heading>
+              <ul class="compact-list">
+                <li><strong>IBM Generative AI Engineering Specialization</strong> &middot; IBM, 2026.
+                Sixteen-course programme covering generative AI foundations and applications, LLM
+                architecture and data preparation, language modelling with transformers, fine-tuning
+                and advanced fine-tuning for LLMs, RAG and LangChain, AI agents, deep learning with
+                Keras, and Python for data science.</li>
+                <li><strong>Graduate Aptitude Test in Engineering (GATE 2020)</strong> &middot; IIT Delhi, 2020.</li>
+                <li><strong>NVIDIA DLI</strong> &middot; Building Transformer-Based Natural Language Processing
+                Applications (2021); Fundamentals of Deep Learning (2021).</li>
+                <li><strong>Automation Anywhere Certified Advanced RPA Professional</strong> (Automation 360), 2022.</li>
+                <li><strong>UiPath RPA</strong> &middot; UiPath, 2019.</li>
+                <li><strong>Second Position, Cyber Security Hackathon</strong> &middot; Learning Links Foundation, 2018.</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+
 
         <!-- Footer -->
         <table width="100%" border="0" cellspacing="0" cellpadding="20">
@@ -602,7 +792,7 @@
 
   <script>
     (function () {
-      const sectionNames = ['about', 'news', 'publications', 'experience', 'projects', 'education'];
+      const sectionNames = ['about', 'news', 'publications', 'experience', 'teaching', 'projects', 'education'];
       const rootCell = document.querySelector('table[width="1000"] > tbody > tr > td');
       const contentTables = rootCell
         ? Array.from(rootCell.children).filter((element) => element.tagName === 'TABLE')
@@ -617,6 +807,7 @@
 
       const publicationsStart = safeIndex('table#publications', contentTables.length);
       const experienceStart = safeIndex('table#experience', contentTables.length);
+      const teachingStart = safeIndex('table#teaching', contentTables.length);
       const projectsStart = safeIndex('table#projects', contentTables.length);
       const educationStart = safeIndex('table#education', contentTables.length);
 
@@ -626,7 +817,8 @@
         about: publicationsStart,
         news: publicationsStart,
         publications: experienceStart,
-        experience: projectsStart,
+        experience: teachingStart,
+        teaching: projectsStart,
         projects: educationStart,
         education: contentTables.length,
       };
@@ -672,6 +864,59 @@
       });
 
       showSection(getSelectedSection());
+    })();
+  </script>
+
+  <script>
+    // Theme toggle. The initial value is already resolved by the inline
+    // script in <head>; this only handles user switching and persistence.
+    (function () {
+      const root = document.documentElement;
+      const button = document.getElementById('themeToggle');
+      const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      let userChose = false;
+
+      try {
+        userChose = localStorage.getItem('theme') === 'dark' || localStorage.getItem('theme') === 'light';
+      } catch (e) {
+        userChose = false;
+      }
+
+      function apply(theme) {
+        root.setAttribute('data-theme', theme);
+        if (button) {
+          button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        }
+      }
+
+      if (button) {
+        button.addEventListener('click', function () {
+          const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          userChose = true;
+          apply(next);
+          try {
+            localStorage.setItem('theme', next);
+          } catch (e) {
+            // Storage unavailable (private mode); the choice still applies
+            // for this page view, it just will not be remembered.
+          }
+        });
+        button.setAttribute('aria-pressed', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
+      }
+
+      // Follow the OS if the visitor has never picked a theme here.
+      if (media) {
+        const onChange = function (event) {
+          if (!userChose) {
+            apply(event.matches ? 'dark' : 'light');
+          }
+        };
+        if (media.addEventListener) {
+          media.addEventListener('change', onChange);
+        } else if (media.addListener) {
+          media.addListener(onChange);
+        }
+      }
     })();
   </script>
 </body>

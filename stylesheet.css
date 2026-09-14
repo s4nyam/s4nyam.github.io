@@ -1,13 +1,56 @@
-a {
-  color: #1772d0;
-  text-decoration: none;
+/* ==========================================================
+   Theme tokens
+   Light is the default. [data-theme="dark"] on <html> flips
+   every colour below; nothing else in the page hardcodes one.
+   ========================================================== */
+
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --link: #1772d0;
+  --link-hover: #f09228;
+  --border: #e5e5e5;
+  --nav-bg: rgba(255, 255, 255, 0.97);
+  --panel-bg: transparent;
+  --chip-bg: transparent;
+  --scroll-track: #f4f4f4;
+  --scroll-thumb: #bdbdbd;
+  --scroll-thumb-hover: #9c9c9c;
+  --highlight: #ffffd0;
+
+  --news-date: #c0392b;
+  --tag-paper: #d98e04;
+  --tag-talk: #2e8b57;
+  --tag-conf: #7d3cb5;
+  --tag-role: #1772d0;
+  --tag-outreach: #0f8a8a;
 }
 
-a:focus,
-a:hover {
-  color: #f09228;
-  text-decoration: none;
+[data-theme="dark"] {
+  --bg: #15171c;
+  --text: #e3e5e8;
+  --link: #6bb4f5;
+  --link-hover: #ffb35c;
+  --border: #2c313a;
+  --nav-bg: rgba(21, 23, 28, 0.96);
+  --panel-bg: #1b1e24;
+  --chip-bg: #f2f2f2;
+  --scroll-track: #22262e;
+  --scroll-thumb: #4a515d;
+  --scroll-thumb-hover: #626a78;
+  --highlight: #4a4420;
+
+  --news-date: #ff8177;
+  --tag-paper: #f0b429;
+  --tag-talk: #5fd37c;
+  --tag-conf: #c08cf5;
+  --tag-role: #6bb4f5;
+  --tag-outreach: #4dd0c4;
 }
+
+/* ==========================================================
+   Base
+   ========================================================== */
 
 html {
   scroll-behavior: smooth;
@@ -15,7 +58,99 @@ html {
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
+
+body,
+td,
+th,
+tr,
+p,
+a,
+li,
+ul {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+}
+
+body,
+td,
+th,
+tr,
+p,
+li {
+  color: var(--text);
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:focus,
+a:hover {
+  color: var(--link-hover);
+  text-decoration: none;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+strong {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+  color: var(--text);
+}
+
+heading {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 25px;
+  color: var(--text);
+}
+
+papertitle {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+name {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 30px;
+  color: var(--text);
+}
+
+span.highlight {
+  background-color: var(--highlight);
+}
+
+.customfsize {
+  font-size: 15px;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+/* Institution logos and the contribution chart keep a light plate in dark
+   mode - most of these marks are dark ink on transparency and would
+   otherwise vanish against the background. */
+[data-theme="dark"] .logo,
+[data-theme="dark"] .figure,
+[data-theme="dark"] .ghchart {
+  background: var(--chip-bg);
+  border-radius: 6px;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   Section switcher
+   ========================================================== */
 
 body.sections-ready table[width="1000"] > tbody > tr > td > table {
   display: none;
@@ -29,8 +164,8 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.97);
-  border-bottom: 1px solid #e5e5e5;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(6px);
 }
 
@@ -41,46 +176,95 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
   padding: 14px 0;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: 18px;
 }
 
 .section-nav-inner a {
-  color: #1772d0;
+  color: var(--link);
   font-size: 15px;
   font-weight: 700;
 }
 
 .section-nav-inner a:hover,
 .section-nav-inner a:focus {
-  color: #f09228;
+  color: var(--link-hover);
 }
 
 .section-nav-inner a.active {
-  color: #f09228;
+  color: var(--link-hover);
 }
 
 #about,
 #news,
 #publications,
 #experience,
+#teaching,
 #projects,
 #education {
   scroll-margin-top: 72px;
 }
 
-/* ==========================
+/* ==========================================================
+   Theme toggle
+   ========================================================== */
+
+.theme-toggle {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--link);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus {
+  color: var(--link-hover);
+  border-color: var(--link-hover);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--link-hover);
+  outline-offset: 2px;
+}
+
+.theme-toggle .fa {
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+/* Show the face for the theme you would switch TO. */
+.theme-dark-face {
+  display: none;
+}
+
+[data-theme="dark"] .theme-dark-face {
+  display: inline;
+}
+
+[data-theme="dark"] .theme-light-face {
+  display: none;
+}
+
+/* ==========================================================
    News / Updates section
-   ========================== */
+   ========================================================== */
 
 .news-box {
   max-height: 420px;          /* ~5 items visible, rest scrolls */
   overflow-y: scroll;
   padding-right: 10px;        /* keeps text clear of the scrollbar */
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--panel-bg);
   scrollbar-width: auto;
-  scrollbar-color: #bdbdbd #f4f4f4;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
 }
 
 .news-box ul {
@@ -98,7 +282,7 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
 }
 
 .news-date {
-  color: #c0392b;
+  color: var(--news-date);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -109,23 +293,23 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
 }
 
 .tag-paper {
-  color: #d98e04;
+  color: var(--tag-paper);
 }
 
 .tag-talk {
-  color: #2e8b57;
+  color: var(--tag-talk);
 }
 
 .tag-conf {
-  color: #7d3cb5;
+  color: var(--tag-conf);
 }
 
 .tag-role {
-  color: #1772d0;
+  color: var(--tag-role);
 }
 
 .tag-outreach {
-  color: #0f8a8a;
+  color: var(--tag-outreach);
 }
 
 /* Always-visible scrollbar (WebKit) */
@@ -135,53 +319,51 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
 }
 
 .news-box::-webkit-scrollbar-track {
-  background: #f4f4f4;
+  background: var(--scroll-track);
 }
 
 .news-box::-webkit-scrollbar-thumb {
-  background: #bdbdbd;
+  background: var(--scroll-thumb);
   border-radius: 4px;
 }
 
 .news-box::-webkit-scrollbar-thumb:hover {
-  background: #9c9c9c;
+  background: var(--scroll-thumb-hover);
 }
 
-.customfsize {
-  font-size: 15px;
+/* ==========================================================
+   Compact list blocks (coursework, certifications, sub-roles)
+   ========================================================== */
+
+.compact-list {
+  margin: 6px 0 0 0;
+  padding-left: 20px;
 }
 
-body,
-td,
-th,
-tr,
-p,
-a {
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 15px;
+.compact-list li {
+  margin-bottom: 5px;
+  line-height: 1.45;
 }
 
-strong {
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 15px;
+.subrole {
+  margin-top: 12px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
 }
 
-heading {
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 25px;
-}
-
-papertitle {
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 15px;
+.subrole-title {
   font-weight: 700;
 }
 
-name {
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 30px;
-}
-
-span.highlight {
-  background-color: #ffffd0;
+/* Text stand-in for an institution without a local logo file.
+   Drop a logo image into the repo and swap this out if you prefer. */
+.logo-text {
+  display: inline-block;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: center;
 }
