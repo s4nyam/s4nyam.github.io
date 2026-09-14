@@ -61,11 +61,90 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
 }
 
 #about,
+#news,
 #publications,
 #experience,
 #projects,
 #education {
   scroll-margin-top: 72px;
+}
+
+/* ==========================
+   News / Updates section
+   ========================== */
+
+.news-box {
+  max-height: 420px;          /* ~5 items visible, rest scrolls */
+  overflow-y: scroll;
+  padding-right: 10px;        /* keeps text clear of the scrollbar */
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  scrollbar-width: auto;
+  scrollbar-color: #bdbdbd #f4f4f4;
+}
+
+.news-box ul {
+  margin: 10px 0;
+  padding-left: 22px;
+}
+
+.news-box li {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.news-box li:last-child {
+  margin-bottom: 4px;
+}
+
+.news-date {
+  color: #c0392b;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.news-tag {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tag-paper {
+  color: #d98e04;
+}
+
+.tag-talk {
+  color: #2e8b57;
+}
+
+.tag-conf {
+  color: #7d3cb5;
+}
+
+.tag-role {
+  color: #1772d0;
+}
+
+.tag-outreach {
+  color: #0f8a8a;
+}
+
+/* Always-visible scrollbar (WebKit) */
+
+.news-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.news-box::-webkit-scrollbar-track {
+  background: #f4f4f4;
+}
+
+.news-box::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
+  border-radius: 4px;
+}
+
+.news-box::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
 }
 
 .customfsize {
