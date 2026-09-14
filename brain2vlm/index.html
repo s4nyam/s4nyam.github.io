@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain2VLM &mdash; Hierarchical Alignment Between Cortical Representations and Vision-Language Latent Spaces</title>
+  <meta name="description" content="Brain2VLM (MARS2 Workshop, ECCV 2026): brain-to-latent alignment is hierarchical. Early visual cortex maps almost linearly to diffusion latents, higher visual areas need a nonlinear map to CLIP space.">
+  <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/brain_1f9e0.png" type="image/png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Brain2VLM: Hierarchical Alignment Between Cortical Representations and Vision-Language Latent Spaces">
+  <meta property="og:description" content="Not one map. Early visual cortex is close to linear for structure; higher visual areas need a nonlinear map for meaning.">
+  <meta property="og:url" content="https://s4nyam.github.io/brain2vlm/">
+  <meta property="og:image" content="https://s4nyam.github.io/brain2vlm/assets/img/reconstructions_compressed.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+
+  <script>
+    // Resolve the theme before paint so dark-mode visitors get no white flash.
+    // Shares the 'theme' key with the main site, so a choice made there carries over.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) { }
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme',
+        (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <a class="home" href="https://s4nyam.github.io/">Sanyam Jain</a>
+      <span class="crumb">/ brain2vlm</span>
+      <span class="spacer"></span>
+      <nav>
+        <a href="#idea">Idea</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#reconstructions">Reconstructions</a>
+        <a href="#decoder">Decoder</a>
+        <a href="#latents">Latent space</a>
+        <a href="#numbers">Numbers</a>
+        <a href="#cite">Cite</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch colour theme">
+        <span class="t-dark">Dark</span><span class="t-light">Light</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================ HERO ============================ -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="venue"><span class="tick"></span>MARS2 Workshop, ECCV 2026 &nbsp;&mdash;&nbsp; Malm&ouml;, Sweden</span>
+
+      <h1 class="title">Brain2VLM</h1>
+      <p class="subtitle">Hierarchical alignment between cortical representations and vision-language latent spaces</p>
+
+      <p class="authors">
+        N. A. Adarsh Pritam<sup>1</sup> &nbsp; Jeba Shiney O<sup>1</sup> &nbsp; <b>Sanyam Jain</b><sup>2,3</sup>
+      </p>
+      <p class="affil">
+        <sup>1</sup>Alliance School of Advanced Computing, Alliance University, India &nbsp;
+        <sup>2</sup>Department of Dentistry and Oral Health, Aarhus University, Denmark &nbsp;
+        <sup>3</sup>Department of Computer Science and Communication, &Oslash;stfold University College, Norway
+      </p>
+
+      <div class="links">
+        <a href="https://doi.org/10.64898/2026.04.23.720313" target="_blank" rel="noopener">
+          <svg viewBox="0 0 384 512"><path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/></svg>
+          Read the paper
+        </a>
+        <a href="https://github.com/adarsh-crafts/Brain2VLM" target="_blank" rel="noopener">
+          <svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+          Code
+        </a>
+        <a href="assets/brain2vlm_poster.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 448 512"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM96 96H352c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128c0-17.7 14.3-32 32-32zM64 288c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V288z"/></svg>
+          Poster
+        </a>
+        <a href="#cite">
+          <svg viewBox="0 0 448 512"><path d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V216zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H320c-35.3 0-64-28.7-64-64V216z"/></svg>
+          BibTeX
+        </a>
+      </div>
+
+      <!-- hero triptych: the thing the project is actually about -->
+      <div class="triptych" id="triptych">
+        <figure class="tri tri-gt">
+          <img id="heroGt" src="assets/tiles/gt_01.jpg" alt="Photograph shown to the participant">
+          <figcaption>What the participant saw</figcaption>
+        </figure>
+        <figure class="tri tri-lin">
+          <img id="heroLin" src="assets/tiles/lin_01.jpg" alt="Reconstruction from a linear ridge decoder">
+          <figcaption>Linear decoder</figcaption>
+        </figure>
+        <figure class="tri tri-mlp">
+          <img id="heroMlp" src="assets/tiles/mlp_01.jpg" alt="Reconstruction from the Brain2VLM residual MLP decoder">
+          <figcaption>Brain2VLM</figcaption>
+        </figure>
+      </div>
+      <div class="tri-foot">
+        <button class="btn" id="heroPlay" type="button">Pause</button>
+        <div class="dots" id="heroDots" role="tablist" aria-label="Choose a stimulus"></div>
+        <span>Same brain data, same frozen image generator. Only the map from cortex to latent space changes.</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================ IDEA ============================ -->
+  <section id="idea">
+    <div class="wrap">
+      <h2><span class="num">1</span>The question</h2>
+      <p class="lede">Brain-to-image systems keep getting heavier generators. We left the generator alone and
+        asked what kind of map the brain-to-latent interface actually is.</p>
+
+      <p>A person lies in a 7&nbsp;tesla scanner and looks at photographs. The scanner measures blood oxygenation
+        across thousands of voxels of visual cortex. To turn that back into a picture, current methods learn a map
+        from voxels into the latent space of a pretrained image generator, and let the generator do the drawing.
+        Almost everyone uses ridge regression for that map, a single matrix, and spends their effort on the
+        generator instead.</p>
+
+      <p>That assumes cortex relates to a generative model's latents the same way everywhere. We think it does not.
+        Early visual cortex carries something close to a picture: edges, layout, contrast. Higher visual areas carry
+        what the scene <em>is</em>: a giraffe, a kitchen, a person on a surfboard. Those two things live in different
+        parts of a diffusion model too, one in the autoencoder latent, one in the CLIP conditioning vector.</p>
+
+      <p class="pull">If the brain is organised as a hierarchy, then the map out of it should not be one map.
+        It should be near-linear at the bottom and clearly nonlinear at the top.</p>
+
+      <p>The panel below is that hypothesis with the measured numbers attached. Pick a region of visual cortex and
+        see which part of the generator it feeds, and how much a nonlinear decoder buys you there.</p>
+
+      <!-- ---------- interactive: hierarchy explorer ---------- -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Where does a nonlinear decoder pay off?</h3>
+          <span class="hint">Click a region on the cortex, or use the two buttons.</span>
+        </div>
+
+        <div class="controls">
+          <div class="switch" role="group" aria-label="Choose a cortical stream">
+            <button type="button" id="btnEarly" aria-pressed="true">Early visual: V1&ndash;V3</button>
+            <button type="button" id="btnVentral" aria-pressed="false">Ventral: V4, LO, PHC</button>
+          </div>
+        </div>
+
+        <div class="hier">
+          <div>
+            <svg viewBox="0 0 620 400" role="img" aria-label="Schematic of visual cortex with early and ventral regions feeding two latent spaces">
+              <!-- stimulus -->
+              <image href="assets/tiles/gt_01.jpg" x="8" y="150" width="72" height="72" preserveAspectRatio="xMidYMid slice"></image>
+              <rect x="8" y="150" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".35"></rect>
+              <text class="axistext" x="8" y="240">stimulus</text>
+              <path d="M86,186 L118,186" stroke="currentColor" stroke-width="1.5" opacity=".45" marker-end="url(#arw)"></path>
+
+              <defs>
+                <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" opacity=".6"></path>
+                </marker>
+              </defs>
+
+              <!-- brain schematic, lateral view, frontal pole left, occipital right -->
+              <path d="M138,182 C132,130 172,92 224,86 C286,79 344,104 356,152
+                       C366,192 350,232 316,250 C292,262 266,270 236,273
+                       C210,277 186,272 172,258 C158,244 150,220 146,204
+                       C141,196 138,190 138,182 Z"
+                    fill="var(--bg)" stroke="var(--rule-strong)" stroke-width="2"></path>
+              <!-- sylvian fissure and a few sulci, for readability only -->
+              <path d="M166,206 C196,222 232,228 268,222" fill="none"
+                    stroke="var(--rule-strong)" stroke-width="1.6" opacity=".8"></path>
+              <path d="M186,128 C206,146 214,166 210,184 M236,112 C254,134 262,158 258,178
+                       M286,110 C300,132 306,152 302,170"
+                    fill="none" stroke="var(--rule-strong)" stroke-width="1.2" opacity=".55"></path>
+              <text class="axistext" x="150" y="106">visual cortex (lateral view)</text>
+              <text class="axistext" x="150" y="292">frontal</text>
+              <text class="axistext" x="330" y="292" text-anchor="end">occipital</text>
+
+              <!-- early ROIs -->
+              <g class="roi" data-stream="early" data-roi="V1" tabindex="0" role="button" aria-label="Region V1">
+                <ellipse class="roi-fill" cx="332" cy="152" rx="21" ry="15"></ellipse>
+                <text class="roi-text" x="332" y="156" text-anchor="middle">V1</text>
+              </g>
+              <g class="roi" data-stream="early" data-roi="V2" tabindex="0" role="button" aria-label="Region V2">
+                <ellipse class="roi-fill" cx="322" cy="186" rx="21" ry="15"></ellipse>
+                <text class="roi-text" x="322" y="190" text-anchor="middle">V2</text>
+              </g>
+              <g class="roi" data-stream="early" data-roi="V3" tabindex="0" role="button" aria-label="Region V3">
+                <ellipse class="roi-fill" cx="306" cy="216" rx="21" ry="15"></ellipse>
+                <text class="roi-text" x="306" y="220" text-anchor="middle">V3</text>
+              </g>
+
+              <!-- ventral ROIs -->
+              <g class="roi" data-stream="ventral" data-roi="V4" tabindex="0" role="button" aria-label="Region V4">
+                <ellipse class="roi-fill" cx="282" cy="238" rx="21" ry="15"></ellipse>
+                <text class="roi-text" x="282" y="242" text-anchor="middle">V4</text>
+              </g>
+              <g class="roi" data-stream="ventral" data-roi="LO" tabindex="0" role="button" aria-label="Region LO">
+                <ellipse class="roi-fill" cx="244" cy="250" rx="21" ry="15"></ellipse>
+                <text class="roi-text" x="244" y="254" text-anchor="middle">LO</text>
+              </g>
+              <g class="roi" data-stream="ventral" data-roi="PHC" tabindex="0" role="button" aria-label="Region PHC">
+                <ellipse class="roi-fill" cx="206" cy="247" rx="24" ry="15"></ellipse>
+                <text class="roi-text" x="206" y="251" text-anchor="middle">PHC</text>
+              </g>
+
+              <!-- flows -->
+              <path id="flowEarly" class="flowline" stroke="var(--zc)" d="M356,152 C400,142 402,106 436,100"></path>
+              <path id="flowVentral" class="flowline" stroke="var(--cc)" d="M306,256 C356,284 396,292 436,290"></path>
+
+              <!-- latent boxes -->
+              <g class="latentbox" id="boxZ">
+                <rect x="436" y="66" width="176" height="74" fill="var(--panel)" stroke="var(--zc)" stroke-width="2"></rect>
+                <text x="450" y="92" class="stagelabel" fill="var(--zc)">diffusion latent  z</text>
+                <text x="450" y="112" class="axistext">4 &times; 40 &times; 40 &mdash; structure,</text>
+                <text x="450" y="128" class="axistext">layout, colour blobs</text>
+              </g>
+              <g class="latentbox" id="boxC">
+                <rect x="436" y="254" width="176" height="74" fill="var(--panel)" stroke="var(--cc)" stroke-width="2"></rect>
+                <text x="450" y="280" class="stagelabel" fill="var(--cc)">CLIP embedding  c</text>
+                <text x="450" y="300" class="axistext">768-d &mdash; what the scene</text>
+                <text x="450" y="316" class="axistext">is about</text>
+              </g>
+
+              <text class="axistext" x="436" y="184">Stable Diffusion v1.4</text>
+              <text class="axistext" x="436" y="200">takes both. Frozen.</text>
+              <path d="M524,146 L524,176 M524,208 L524,248" stroke="var(--rule-strong)" stroke-width="1.5"></path>
+            </svg>
+          </div>
+
+          <div class="readout">
+            <div class="kicker" id="roKicker">Early visual cortex, V1 to V3</div>
+            <p class="verdict" id="roVerdict">Almost linear already.</p>
+            <p id="roBody">Ridge regression gets most of the way to the diffusion latent. Adding depth and
+              nonlinearity to the decoder helps a little, and then stops helping.</p>
+
+            <div class="barrow">
+              <div class="barlabel"><span>Ridge regression</span><span class="barval" id="valRidge">0.239</span></div>
+              <div class="bartrack"><div class="barfill ridge" id="barRidge"></div></div>
+            </div>
+            <div class="barrow">
+              <div class="barlabel"><span>Residual MLP (ours)</span><span class="barval" id="valMlp">0.300</span></div>
+              <div class="bartrack"><div class="barfill mlp" id="barMlp"></div></div>
+            </div>
+
+            <p class="note" style="margin-top:14px">
+              <span class="delta" id="roDelta">+0.06</span>
+              &nbsp;correlation with the true latent, subj01. <span id="roScale"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="note">Correlation between predicted and true latents on the 982 shared test images. The routing of
+        early cortex to <em>z</em> and ventral cortex to <em>c</em> follows the region split used by Takagi and
+        Nishimoto, so the only thing we change is the decoder.</p>
+
+      <div class="takeaways">
+        <div class="takeaway">
+          <span class="statnum">Not one map</span>
+          <p>The interface from cortex to latent space is near-linear for structure and strongly nonlinear for
+            meaning. One decoder family for both is the wrong default.</p>
+        </div>
+        <div class="takeaway">
+          <span class="statnum">Only the interface</span>
+          <p>No new generator, no extra conditioning, no fine-tuning. Changing the map alone beats much heavier
+            pipelines on every semantic metric we report.</p>
+        </div>
+        <div class="takeaway">
+          <span class="statnum">Latents, not pixels</span>
+          <p>An expressive decoder drifts off the generator's own distribution. Semantics improve, texture does
+            not. Accurate latents are necessary but not sufficient.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PIPELINE ============================ -->
+  <section id="pipeline">
+    <div class="wrap">
+      <h2><span class="num">2</span>How a picture comes back out</h2>
+      <p class="lede">Five stages, from a photograph on a screen to a photograph rebuilt from blood flow.
+        Only stage three is trained.</p>
+
+      <div class="panel stepper">
+        <div class="panel-head">
+          <h3>The reconstruction pipeline</h3>
+          <span class="hint">Step through it, or click a stage.</span>
+        </div>
+
+        <svg viewBox="0 0 920 210" id="pipeSvg" role="img" aria-label="Five-stage reconstruction pipeline">
+          <defs>
+            <marker id="parw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--rule-strong)"></path>
+            </marker>
+          </defs>
+
+          <g class="stage" data-step="0" tabindex="0" role="button" aria-label="Stage 1, stimulus">
+            <rect class="stagebox" x="6" y="56" width="150" height="94"></rect>
+            <image href="assets/tiles/gt_01.jpg" x="18" y="68" width="54" height="54" preserveAspectRatio="xMidYMid slice"></image>
+            <text class="stagelabel" x="82" y="86">Photo</text>
+            <text class="stagesub" x="82" y="103">on a screen</text>
+            <text class="stagesub" x="18" y="140">NSD, 7T, MS COCO</text>
+          </g>
+          <path d="M160,103 L186,103" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="1" tabindex="0" role="button" aria-label="Stage 2, fMRI voxels">
+            <rect class="stagebox" x="190" y="56" width="150" height="94"></rect>
+            <text class="stagelabel" x="204" y="82">Voxel activity</text>
+            <g id="voxels"></g>
+            <text class="stagesub" x="204" y="140">x in R^V, one vector per trial</text>
+          </g>
+          <path d="M344,103 L370,103" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="2" tabindex="0" role="button" aria-label="Stage 3, decoder">
+            <rect class="stagebox" x="374" y="56" width="150" height="94"></rect>
+            <text class="stagelabel" x="388" y="82">Decoder</text>
+            <rect x="388" y="92" width="122" height="22" fill="none" stroke="var(--linear)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="396" y="107" fill="var(--linear)">ridge, one matrix</text>
+            <rect x="388" y="118" width="122" height="22" fill="none" stroke="var(--ours)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="396" y="133" fill="var(--ours)">residual MLP, ours</text>
+          </g>
+          <path d="M528,103 L554,103" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="3" tabindex="0" role="button" aria-label="Stage 4, predicted latents">
+            <rect class="stagebox" x="558" y="56" width="150" height="94"></rect>
+            <text class="stagelabel" x="572" y="82">Two latents</text>
+            <rect x="572" y="90" width="122" height="24" fill="none" stroke="var(--zc)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="580" y="106" fill="var(--zc)">z-hat, 4 x 40 x 40</text>
+            <rect x="572" y="118" width="122" height="24" fill="none" stroke="var(--cc)" stroke-width="1.6"></rect>
+            <text class="stagesub" x="580" y="134" fill="var(--cc)">c-hat, 768-d</text>
+          </g>
+          <path d="M712,103 L738,103" stroke="var(--rule-strong)" stroke-width="1.6" marker-end="url(#parw)"></path>
+
+          <g class="stage" data-step="4" tabindex="0" role="button" aria-label="Stage 5, generated image">
+            <rect class="stagebox" x="742" y="56" width="172" height="94"></rect>
+            <image href="assets/tiles/mlp_01.jpg" x="754" y="68" width="54" height="54" preserveAspectRatio="xMidYMid slice"></image>
+            <text class="stagelabel" x="818" y="86">Image</text>
+            <text class="stagesub" x="818" y="103">512 x 512</text>
+            <text class="stagesub" x="754" y="140">Stable Diffusion v1.4, frozen</text>
+          </g>
+
+          <text class="axistext" x="6" y="26" id="pipeCount">Stage 1 of 5</text>
+        </svg>
+
+        <div class="steptext">
+          <div class="stepname" id="stepName">A photograph on a screen</div>
+          <p id="stepBody">Each of the four participants viewed roughly 10,000 natural photographs from MS COCO
+            over 30 to 40 scanning sessions. 982 images were shown to everyone, and those are held out for testing.</p>
+        </div>
+
+        <div class="stepnav">
+          <button class="btn" id="stepPrev" type="button">Back</button>
+          <button class="btn primary" id="stepNext" type="button">Next stage</button>
+          <span class="note" id="stepTrained"></span>
+        </div>
+      </div>
+
+      <figure class="fig">
+        <img src="assets/img/methodology.png" alt="Brain2VLM reconstruction framework: ROIs, decoder comparison, generative reconstruction">
+        <figcaption><b>The same pipeline as it appears in the paper.</b> (a) Voxels are taken from early
+          (V1&ndash;V3) and ventral (V4, LO, PHC) regions. (b) Ridge and the residual MLP are trained with an
+          &#8467;<sub>2</sub> loss to predict <em>z</em> and <em>c</em>. (c) The predicted <em>z</em> is decoded to a
+          coarse image, re-noised, then denoised by a U-Net conditioned on the predicted <em>c</em> through
+          cross-attention. Nothing inside the generator is trained.</figcaption>
+      </figure>
+
+      <h3>The decoder itself is deliberately plain</h3>
+      <p>An input projection to 2048 units, then <em>N</em> residual blocks of linear, GELU, LayerNorm and dropout,
+        then a linear output projection. Mean squared error against the true latent. The same hyperparameters are
+        used for all four subjects. The point was never a clever architecture; it was to have enough expressivity
+        to expose the difference between the two streams.</p>
+
+      <figure class="fig">
+        <img src="assets/img/mlp.png" alt="Residual MLP decoder architecture diagram">
+        <figcaption><b>Residual MLP decoder.</b> Drawn with <em>N</em>&nbsp;=&nbsp;2 blocks; depth is varied in the
+          ablations below.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ RECONSTRUCTIONS ============================ -->
+  <section id="reconstructions">
+    <div class="wrap">
+      <h2><span class="num">3</span>What comes back</h2>
+      <p class="lede">Fourteen held-out photographs from subj01. Drag the divider to swap between the linear
+        baseline and our decoder on the same brain data.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Reconstruction explorer</h3>
+          <span class="hint">Pick a stimulus below, then drag across the image. Arrow keys work too.</span>
+        </div>
+
+        <div class="recon">
+          <div>
+            <div class="thumbs" id="thumbs"></div>
+            <p class="coco" id="cocoLine">Objects in this photo: <b>giraffe</b></p>
+            <p class="note">Both reconstructions come from the same fMRI recording and the same frozen Stable
+              Diffusion. The only difference is how the voxels were mapped into <em>z</em> and <em>c</em>.</p>
+          </div>
+
+          <div class="recon-side">
+            <figure class="seenwrap">
+              <img id="seenImg" src="assets/tiles/gt_01.jpg" alt="Photograph shown to the participant">
+              <figcaption class="cap">Seen</figcaption>
+            </figure>
+
+            <div>
+              <div class="compare" id="compare">
+                <img class="layer" id="cmpMlp" src="assets/tiles/mlp_01.jpg" alt="Brain2VLM reconstruction">
+                <div class="over" id="cmpOver">
+                  <img id="cmpLin" src="assets/tiles/lin_01.jpg" alt="Linear decoder reconstruction">
+                </div>
+                <span class="tag l">Linear</span>
+                <span class="tag r">Brain2VLM</span>
+                <div class="handle" id="cmpHandle" style="left:50%" role="slider" tabindex="0"
+                     aria-label="Compare linear and Brain2VLM reconstructions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                  <div class="knob">&#8596;</div>
+                </div>
+              </div>
+              <p class="note" style="margin-top:8px">Object identity is recovered far more often. Texture and fine
+                detail are not.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <figure class="fig">
+        <img src="assets/img/reconstructions_compressed.jpg" alt="Grid of stimuli with linear and Brain2VLM reconstructions">
+        <figcaption><b>All fourteen, as printed.</b> Top row, the photographs. Middle, reconstructions from linear
+          decoders. Bottom, reconstructions from our nonlinear decoders. Both recover coarse spatial structure;
+          the nonlinear decoder recovers recognisable categories more often.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ DECODER ABLATIONS ============================ -->
+  <section id="decoder">
+    <div class="wrap">
+      <h2><span class="num">4</span>How much decoder do you need?</h2>
+      <p class="lede">Depth, width and training data, measured separately for the structural latent and the
+        semantic one. The two targets behave nothing alike.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Ablation curves, subj01</h3>
+          <span class="hint">Hover a point for its value.</span>
+        </div>
+
+        <div class="controls">
+          <span class="ctl-label">Target</span>
+          <div class="switch" role="group" aria-label="Choose a decoding target">
+            <button type="button" data-target="z" aria-pressed="false">Diffusion latent z</button>
+            <button type="button" data-target="c" aria-pressed="true">CLIP embedding c</button>
+          </div>
+          <span class="ctl-label">Vary</span>
+          <div class="switch" role="group" aria-label="Choose an ablation">
+            <button type="button" data-abl="depth" aria-pressed="true">Depth</button>
+            <button type="button" data-abl="width" aria-pressed="false">Width</button>
+            <button type="button" data-abl="frac" aria-pressed="false">Training data</button>
+          </div>
+        </div>
+
+        <div class="chartbox">
+          <svg id="ablSvg" viewBox="0 0 760 340" role="img" aria-label="Ablation curve"></svg>
+          <div class="tip" id="ablTip"></div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--ours)"></i>residual MLP</span>
+          <span><i class="swatch" style="background:var(--linear)"></i>ridge baseline</span>
+        </div>
+        <p class="note" id="ablNote" style="margin-top:12px"></p>
+      </div>
+
+      <p>Depth saturates after about two blocks and width after 2048 units, but accuracy is still climbing with
+        the amount of training data at the point where NSD runs out. Decoding is still data-limited, which is a
+        more useful thing to know than another point of correlation.</p>
+
+      <div class="tablewrap">
+        <table class="data">
+          <caption class="note" style="text-align:left;padding-bottom:8px">Best configuration per ablation, against
+            the ridge baseline. All differences are significant at <em>p</em>&nbsp;&lt;&nbsp;0.01, paired
+            <em>t</em>-test across stimuli.</caption>
+          <thead>
+            <tr><th>Target</th><th>Ablation</th><th>Best value</th><th>Mean correlation</th><th>Std</th><th>Gain over ridge</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>diffusion <em>z</em></td><td>depth</td><td>0 blocks</td><td>0.2959</td><td>0.0036</td><td>+0.0569</td></tr>
+            <tr><td>diffusion <em>z</em></td><td>width</td><td>512</td><td class="best">0.3002</td><td>0.0037</td><td class="best">+0.0612</td></tr>
+            <tr><td>diffusion <em>z</em></td><td>data fraction</td><td>1.0</td><td>0.2843</td><td>0.0027</td><td>+0.0453</td></tr>
+            <tr><td>CLIP <em>c</em></td><td>depth</td><td>6 blocks</td><td class="best">0.7819</td><td>0.0008</td><td class="best">+0.4779</td></tr>
+            <tr><td>CLIP <em>c</em></td><td>width</td><td>2048</td><td>0.7761</td><td>0.0012</td><td>+0.4721</td></tr>
+            <tr><td>CLIP <em>c</em></td><td>data fraction</td><td>1.0</td><td>0.7761</td><td>0.0012</td><td>+0.4721</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ LATENT SPACE ============================ -->
+  <section id="latents">
+    <div class="wrap">
+      <h2><span class="num">5</span>Where the predictions land</h2>
+      <p class="lede">Being close on average is not the same as living in the right neighbourhood. These are the
+        982 test predictions projected onto their first two principal components.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Predicted latents against the real ones</h3>
+          <span class="hint">Toggle a cloud on or off in the legend.</span>
+        </div>
+
+        <div class="controls">
+          <span class="ctl-label">Latent space</span>
+          <div class="switch" role="group" aria-label="Choose a latent space">
+            <button type="button" data-pca="c" aria-pressed="true">CLIP c, semantic</button>
+            <button type="button" data-pca="z" aria-pressed="false">Diffusion z, structural</button>
+          </div>
+        </div>
+
+        <canvas class="scatter" id="pcaCanvas" width="1600" height="820"
+                aria-label="Principal component scatter of ground truth, linear and MLP predicted latents"></canvas>
+        <div class="legend" id="pcaLegend">
+          <button type="button" data-set="gt" aria-pressed="true"><i class="swatch" style="background:var(--gt)"></i>ground truth</button>
+          <button type="button" data-set="linear" aria-pressed="true"><i class="swatch" style="background:var(--linear)"></i>linear</button>
+          <button type="button" data-set="mlp" aria-pressed="true"><i class="swatch" style="background:var(--ours)"></i>residual MLP</button>
+        </div>
+        <p class="note" id="pcaNote" style="margin-top:12px"></p>
+      </div>
+
+      <p>For CLIP, the linear predictions sit in their own cluster, well away from the true embeddings; the MLP
+        predictions land on top of them. For the diffusion latent, all three clouds already overlap, and the MLP
+        moves things slightly in the wrong direction. Maximum mean discrepancy says the same thing in one number.</p>
+
+      <div class="tablewrap">
+        <table class="data">
+          <thead>
+            <tr><th>Comparison</th><th>Latent</th><th>MMD, lower is better</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>true <em>z</em> vs linear</td><td>diffusion <em>z</em></td><td>0.1213 &plusmn; 0.0018</td></tr>
+            <tr><td>true <em>z</em> vs MLP</td><td>diffusion <em>z</em></td><td>0.1327 &plusmn; 0.0019</td></tr>
+            <tr><td>true <em>c</em> vs linear</td><td>CLIP <em>c</em></td><td>0.3585 &plusmn; 0.0016</td></tr>
+            <tr><td>true <em>c</em> vs MLP</td><td>CLIP <em>c</em></td><td class="best">0.0424 &plusmn; 0.0004</td></tr>
+            <tr><td>linear vs MLP</td><td>diffusion <em>z</em></td><td>0.0190 &plusmn; 0.0007</td></tr>
+            <tr><td>linear vs MLP</td><td>CLIP <em>c</em></td><td>0.3892 &plusmn; 0.0004</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="pull">A decoder can be more accurate and less compatible with the generator at the same time.
+        That is the tension this work puts a number on.</p>
+
+      <p>Correlation with the true latent rewards getting the average right. The generator cares about something
+        else: whether the vector you hand it looks like the vectors it was trained to condition on. For CLIP those
+        two goals agree, and both improve. For the diffusion latent they come apart, which is the cleanest
+        explanation we have for why semantic scores jump while texture does not.</p>
+    </div>
+  </section>
+
+  <!-- ============================ NUMBERS ============================ -->
+  <section id="numbers">
+    <div class="wrap">
+      <h2><span class="num">6</span>Four subjects, same story</h2>
+      <p class="lede">Individual brains differ in signal quality and cortical layout. The direction of the effect
+        does not.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Reconstruction quality per subject</h3>
+          <span class="hint">Switch participants to compare.</span>
+        </div>
+
+        <div class="controls">
+          <span class="ctl-label">Participant</span>
+          <div class="switch" id="subjSwitch" role="group" aria-label="Choose a participant">
+            <button type="button" data-subj="subj01" aria-pressed="true">subj01</button>
+            <button type="button" data-subj="subj02" aria-pressed="false">subj02</button>
+            <button type="button" data-subj="subj05" aria-pressed="false">subj05</button>
+            <button type="button" data-subj="subj07" aria-pressed="false">subj07</button>
+          </div>
+        </div>
+
+        <div id="metricBars"></div>
+
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--linear)"></i>linear ridge</span>
+          <span><i class="swatch" style="background:var(--ours)"></i>Brain2VLM</span>
+        </div>
+      </div>
+
+      <h3>Against published pipelines</h3>
+      <p>BrainDiffuser adds a VDVAE initialiser and dual-guided diffusion. MindLDM adds masked autoencoder
+        features, CLIP alignment, depth reconstruction and ControlNet guidance. Both keep a regression at the
+        brain-to-latent interface. We changed only that interface.</p>
+
+      <div class="tablewrap">
+        <table class="data">
+          <thead>
+            <tr><th>Metric</th><th>BrainDiffuser</th><th>MindLDM</th><th>Takagi et al.</th><th>Brain2VLM</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="grouphead">Low-level fidelity</td></tr>
+            <tr><td>PixCorr, higher better</td><td>0.294</td><td>0.119</td><td>&mdash;</td><td class="best">0.36</td></tr>
+            <tr><td>SSIM, higher better</td><td class="best" style="color:var(--text)">0.406</td><td>0.328</td><td>&mdash;</td><td>0.31</td></tr>
+            <tr><td>LPIPS, lower better</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="best">0.69</td></tr>
+            <tr><td>AlexNet(5)</td><td>87%</td><td class="best" style="color:var(--text)">92%</td><td>83%</td><td class="best">92%</td></tr>
+            <tr><td>CLIP(6)</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="best">71%</td></tr>
+            <tr><td>DINOv2(6)</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="best">69%</td></tr>
+            <tr><td colspan="5" class="grouphead">High-level semantics</td></tr>
+            <tr><td>AlexNet</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="best">92%</td></tr>
+            <tr><td>CLIP</td><td>63%</td><td>83%</td><td>77%</td><td class="best">85%</td></tr>
+            <tr><td>DINO</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="best">92%</td></tr>
+            <tr><td>Inception</td><td>66%</td><td>81%</td><td>76%</td><td class="best">89%</td></tr>
+            <tr><td colspan="5" class="grouphead">Retrieval</td></tr>
+            <tr><td>top-1</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>4%</td></tr>
+            <tr><td>top-10</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>23%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Where on the cortex the gain lives</h3>
+      <p>Plotting the change in alignment, nonlinear minus linear, straight onto the cortical surface gives the
+        hypothesis its most direct test. Early areas barely light up. The ventral stream lights up along its whole
+        length.</p>
+
+      <figure class="fig">
+        <img src="assets/img/supp_brain.png" alt="Cortical surface maps of the alignment gain from nonlinear decoding">
+        <figcaption><b>Change in alignment projected onto the cortical surface, subj01.</b> Top row, early visual
+          cortex predicting the diffusion latent: sparse and weak. Bottom row, ventral cortex predicting CLIP:
+          strong and spatially coherent along the stream.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <img src="assets/img/supp_recons_compressed.jpg" alt="Reconstructions for all four subjects, linear and Brain2VLM">
+        <figcaption><b>All four participants.</b> For each subject, the first row is the linear ridge decoder and
+          the second is ours. Absolute quality varies between people; the direction of the difference does not.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ LIMITS ============================ -->
+  <section id="limits">
+    <div class="wrap">
+      <h2><span class="num">7</span>What this does not settle</h2>
+      <p>Four participants from one dataset is a narrow base, and every decoder here is trained within a single
+        subject. Cross-subject decoding and a second dataset are the obvious next tests.</p>
+      <p>The decoder never models the distribution it is predicting into, only the mean squared error to a target.
+        A distribution-aware loss, or a diffusion prior over latents, would let us keep the accuracy without
+        sliding off the generator's manifold. That is the experiment we most want to run next.</p>
+      <p>And a residual MLP is a blunt instrument for showing that a mapping is nonlinear. It shows the gap exists.
+        A transformer or a multimodal decoder would say more about the shape of it.</p>
+      <p class="note">One honest caveat about reading these reconstructions: a diffusion model always produces a
+        plausible photograph, whether or not the brain supplied the evidence for it. Category-level metrics and the
+        cortical maps are what carry the claim here, not any single pretty image.</p>
+    </div>
+  </section>
+
+  <!-- ============================ CITE ============================ -->
+  <section id="cite">
+    <div class="wrap">
+      <h2><span class="num">8</span>Cite this work</h2>
+      <pre class="bib" id="bibtex">@article{Pritam2026Brain2VLM,
+  author    = {Pritam, N A Adarsh and O, Jeba Shiney and Jain, Sanyam},
+  title     = {Brain2VLM: Hierarchical Alignment Between Cortical Representations
+               and Vision-Language Latent Spaces},
+  journal   = {bioRxiv},
+  year      = {2026},
+  doi       = {10.64898/2026.04.23.720313},
+  elocation-id = {2026.04.23.720313},
+  publisher = {Cold Spring Harbor Laboratory},
+  url       = {https://www.biorxiv.org/content/early/2026/04/23/2026.04.23.720313}
+}</pre>
+      <div class="copyrow">
+        <button class="btn" id="copyBib" type="button">Copy BibTeX</button>
+        <span class="copied" id="copiedMsg">Copied</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p><b>Data.</b> Natural Scenes Dataset, 7T fMRI, with stimuli from MS COCO. Preprocessed single-trial beta
+        weights, 982 shared test images per participant.</p>
+      <p><b>Code and acknowledgements.</b> The implementation builds on
+        <a href="https://github.com/yu-takagi/StableDiffusionReconstruction" target="_blank" rel="noopener">StableDiffusionReconstruction</a>,
+        <a href="https://github.com/ozcelikfu/brain-diffuser" target="_blank" rel="noopener">brain-diffuser</a>,
+        <a href="https://github.com/CompVis/stable-diffusion" target="_blank" rel="noopener">Stable Diffusion</a>,
+        <a href="https://github.com/openai/CLIP" target="_blank" rel="noopener">CLIP</a>,
+        <a href="https://github.com/CompVis/taming-transformers" target="_blank" rel="noopener">taming-transformers</a> and
+        <a href="https://github.com/tknapen/nsd_access" target="_blank" rel="noopener">nsd_access</a>.
+        GPU time was provided by Alliance University on Amazon EC2.</p>
+      <p>
+        <a href="https://doi.org/10.64898/2026.04.23.720313" target="_blank" rel="noopener">Paper</a> &nbsp;&middot;&nbsp;
+        <a href="https://github.com/adarsh-crafts/Brain2VLM" target="_blank" rel="noopener">Code</a> &nbsp;&middot;&nbsp;
+        <a href="assets/brain2vlm_poster.pdf" target="_blank" rel="noopener">Poster</a> &nbsp;&middot;&nbsp;
+        <a href="https://s4nyam.github.io/">Sanyam Jain</a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+
+  <script src="assets/data/data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
