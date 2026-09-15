@@ -311,14 +311,19 @@
                 <papertitle>PanoDiff-SR: Synthesizing Dental Panoramic Radiographs using Diffusion and Super-resolution</papertitle>
               </a>
               <br>
-              <strong>S Jain</strong>, S Pedersen, R Pauwels
+              <strong>S Jain</strong>, B Neves de Freitas, A Basse-O'Connor, A Iosifidis, R Pauwels
               <br>
               <em><b>arXiv Preprint, 2025</b></em>
               <br>
-              <a target="_blank" href="https://arxiv.org/abs/2507.09227">paper</a>
-              <p>Proposes a two-stage pipeline combining a latent diffusion model with super-resolution
-              to synthesize high-resolution panoramic dental radiographs, addressing data scarcity
-              in dental imaging while preserving anatomical fidelity.</p>
+              <a href="panodiff/">project page</a> |
+              <a target="_blank" href="https://arxiv.org/abs/2507.09227">paper</a> |
+              <a target="_blank" href="https://github.com/s4nyam/PanoDiff">code</a> |
+              <a target="_blank" href="https://archive.org/download/panodiff/">models</a>
+              <p>A two-stage pipeline for complete, full-arch panoramic radiographs: a DDIM diffusion
+              model generates a 256&times;128 seed, which a fine-tuned hybrid attention transformer
+              upscales to 1024&times;512. Six dentists reading under a twelve-second limit reached
+              68.5% accuracy at separating the results from real radiographs, against 78&ndash;82%
+              reported for GAN-generated PRs.</p>
             </td>
           </tr>
         </table>
@@ -643,6 +648,25 @@
         </table>
 
         <table width="100%" align="center" border="0" cellpadding="20">
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>PanoDiff-SR Project Page</papertitle>
+              (
+                <a href="panodiff/">project page</a> |
+                <a target="_blank" href="https://arxiv.org/abs/2507.09227">paper</a> |
+                <a target="_blank" href="https://github.com/s4nyam/PanoDiff">code</a>
+              )
+              <br>
+              <p>Interactive project page for PanoDiff-SR. Opens with the real-versus-synthetic test the
+              six dentists sat, scored against their own per-image answers; then a stage-by-stage
+              walkthrough of the pipeline, a draggable forward-diffusion schedule, the training
+              progression from a fixed seed, a seed-to-super-resolution comparison slider, every FID and
+              Inception score in the paper as live charts, the full observer study with ROC, PR and
+              inter-observer agreement, an attention-map viewer, and the direct high-resolution baselines
+              that test whether the two-stage split was the right call.</p>
+            </td>
+          </tr>
 
           <tr>
             <td width="100%" valign="center">
