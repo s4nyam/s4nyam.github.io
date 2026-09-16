@@ -119,6 +119,22 @@
 
                   <li>
                     <span class="news-date">[Sep '26]</span>
+                    <span class="news-tag tag-paper">[Paper]</span>
+                    Our article <b>Self-Replicating Neural Cellular Automata: Quantifying Emergent Phenotypic
+                    and Genotypic Diversity in an Open-Ended Substrate</b> has been accepted at <a
+                    target="_blank" href="https://www.mdpi.com/journal/jimaging"><b>Journal of Imaging</b></a>
+                    (MDPI), with Felix Simon Reimers and <a target="_blank"
+                    href="https://www.nichele.eu/">Prof. Stefano Nichele</a>. Every pixel of the grid carries
+                    its own 44-parameter network and survives only by cloning a living neighbour, and the paper
+                    proposes six coarse-grained diversity metrics that expose a phenotype-genotype diversity
+                    trade-off set by the mutation rate. The work extends my MSc thesis at Hi&Oslash;. <a
+                    href="sonca/">project page</a> | <a target="_blank"
+                    href="https://github.com/s4nyam/Self-Replicating-NCA">code</a> | <a target="_blank"
+                    href="https://www.youtube.com/@growingnca/playlists">animations</a>
+                  </li>
+
+                  <li>
+                    <span class="news-date">[Sep '26]</span>
                     <span class="news-tag tag-conf">[Conference]</span>
                     Delivered an oral presentation and a poster of our work <b>Brain2VLM</b> at the <a target="_blank"
                     href="https://eccv.ecva.net/Conferences/2026">ECCV 2026</a> workshop on Multimodal Reasoning and Slow
@@ -270,6 +286,35 @@
           <tr>
             <td style="padding: 20px; width: 100%; vertical-align: middle;">
               <heading style="font-size:25px;">Publications</heading>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" align="center" border="0" cellspacing="0" cellpadding="20">
+          <tr>
+            <td width="35%">
+              <img class="figure" width="100%" src="sonca.jpg" alt="Self-Replicating Neural Cellular Automata">
+            </td>
+            <td valign="middle" width="65%">
+              <a href="sonca/">
+                <papertitle>Self-Replicating Neural Cellular Automata: Quantifying Emergent Phenotypic and Genotypic Diversity in an Open-Ended Substrate</papertitle>
+              </a>
+              <br>
+              <strong>S Jain</strong>, F S Reimers, S Nichele
+              <br>
+              <em><b>Journal of Imaging (MDPI), accepted</b></em>
+              <br>
+              <a href="sonca/">project page</a> |
+              <a target="_blank" href="https://github.com/s4nyam/Self-Replicating-NCA">code</a> |
+              <a target="_blank" href="https://www.youtube.com/@growingnca/playlists">animations</a> |
+              <a target="_blank" href="https://github.com/s4nyam/Self-Replicating-NCA/raw/main/AIGA_Thesis.pdf">thesis</a>
+              <p>A cellular automaton in which every pixel owns a 44-parameter network and the only way to
+              stay alive is to clone a living neighbour and mutate its weights, so phenotype is a pure
+              read-out of genotype. Six coarse-grained diversity metrics make the resulting growth measurable
+              at both scales; across 1680 small runs and 24 long five-fold runs the substrate is persistent
+              and self-maintaining in 20 of 24 configurations, a full-genome hash recovers lineage structure a
+              three-locus probe misses, and raising phenotypic diversity collapses genotypic diversity and
+              vice versa.</p>
             </td>
           </tr>
         </table>
@@ -648,6 +693,27 @@
         </table>
 
         <table width="100%" align="center" border="0" cellpadding="20">
+
+          <tr>
+            <td width="100%" valign="center">
+              <papertitle>Self-Replicating Neural Cellular Automata Project Page</papertitle>
+              (
+                <a href="sonca/">project page</a> |
+                <a target="_blank" href="https://www.mdpi.com/journal/jimaging">paper</a> |
+                <a target="_blank" href="https://github.com/s4nyam/Self-Replicating-NCA">code</a>
+              )
+              <br>
+              <p>Interactive project page for the Journal of Imaging article. The substrate itself runs in the
+              page: the hero shows one grid in three views at once, and a full lab lets you move the seeding,
+              inheritance, mutation and life-budget parameters, switch activation, watch the six diversity
+              metrics update live, and drag an annihilation kernel across the grid to wound it and see it heal.
+              Alongside it are a hand-run forward pass through one 44-parameter agent, a step-through of the
+              clone-and-mutate rule, a paintable sandbox for the phenotypic metrics, a genome probe that
+              contrasts full-genome hashing with a three-locus microscope, an explorer over all 24 published
+              long runs with their five-fold min-max envelopes, and a calculator for the saturation argument
+              behind the phenotype-genotype trade-off.</p>
+            </td>
+          </tr>
 
           <tr>
             <td width="100%" valign="center">

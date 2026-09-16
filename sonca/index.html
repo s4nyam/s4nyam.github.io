@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-Replicating Neural Cellular Automata &mdash; Quantifying Emergent Phenotypic and Genotypic Diversity in an Open-Ended Substrate</title>
+  <meta name="description" content="Journal of Imaging (MDPI): a cellular automaton where every pixel owns a 44-parameter network and survives only by cloning a living neighbour. Six diversity metrics, 1680 small runs, 24 long runs, and a phenotype-genotype diversity trade-off set by the mutation rate.">
+  <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/dna_1f9ec.png" type="image/png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Self-Replicating Neural Cellular Automata: Quantifying Emergent Phenotypic and Genotypic Diversity in an Open-Ended Substrate">
+  <meta property="og:description" content="Every pixel is a tiny network. The only way to live is to copy a neighbour and mutate. Raise phenotypic diversity and genotypic diversity collapses &mdash; and the other way round.">
+  <meta property="og:url" content="https://s4nyam.github.io/sonca/">
+  <meta property="og:image" content="https://s4nyam.github.io/sonca/assets/runs/1-ghc1000.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="style.css?v=1" rel="stylesheet">
+
+  <script>
+    // Resolve the theme before paint. Shares the 'theme' key with the main site,
+    // /brain2vlm, /panodiff and /deepseanet.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) { }
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme',
+        (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <a class="home" href="https://s4nyam.github.io/">Sanyam Jain</a>
+      <span class="crumb">/ sonca</span>
+      <span class="spacer"></span>
+      <nav id="topnav">
+        <a href="#substrate">Substrate</a>
+        <a href="#rule">Update rule</a>
+        <a href="#lab">Lab</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#probe">Genome probe</a>
+        <a href="#runs">24 runs</a>
+        <a href="#tradeoff">Trade-off</a>
+        <a href="#lineage">Lineage</a>
+        <a href="#limits">Limits</a>
+        <a href="#cite">Cite</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch colour theme">
+        <span class="t-dark">Dark</span><span class="t-light">Light</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================ HERO ============================ -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="venue"><span class="tick"></span>Journal of Imaging (MDPI) &nbsp;&mdash;&nbsp; accepted</span>
+
+      <h1 class="title">Self-Replicating<br>Neural Cellular Automata</h1>
+      <p class="subtitle">Quantifying emergent phenotypic and genotypic diversity in an open-ended substrate</p>
+
+      <p class="authors">
+        <b>Sanyam Jain</b><sup>1</sup> &nbsp; Felix Simon Reimers<sup>1</sup> &nbsp; Stefano Nichele<sup>1,2</sup>
+      </p>
+      <p class="affil">
+        <sup>1</sup>Department of Computer Science and Communication, &Oslash;stfold University of Applied Sciences, Halden, Norway &nbsp;
+        <sup>2</sup>Department of Computer Science, Oslo Metropolitan University, Norway
+      </p>
+
+      <div class="links">
+        <a href="https://www.mdpi.com/journal/jimaging" target="_blank" rel="noopener">
+          <svg viewBox="0 0 384 512"><path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/></svg>
+          Paper
+        </a>
+        <a href="https://github.com/s4nyam/Self-Replicating-NCA" target="_blank" rel="noopener">
+          <svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+          Code
+        </a>
+        <a href="https://colab.research.google.com/drive/1HYKttER_0I6HD1y1oDdg_MLG0D21vMxB?usp=sharing" target="_blank" rel="noopener">
+          <svg viewBox="0 0 448 512"><path d="M0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM96 160c-8.8 0-16 7.2-16 16s7.2 16 16 16H352c8.8 0 16-7.2 16-16s-7.2-16-16-16H96zm0 96c-8.8 0-16 7.2-16 16s7.2 16 16 16H352c8.8 0 16-7.2 16-16s-7.2-16-16-16H96zm0 96c-8.8 0-16 7.2-16 16s7.2 16 16 16H256c8.8 0 16-7.2 16-16s-7.2-16-16-16H96z"/></svg>
+          Colab
+        </a>
+        <a href="https://www.youtube.com/@growingnca/playlists" target="_blank" rel="noopener">
+          <svg viewBox="0 0 576 512"><path d="M549.7 124.1c-6.3-23.7-24.8-42.3-48.3-48.6C458.8 64 288 64 288 64S117.2 64 74.6 75.5c-23.5 6.3-42 24.9-48.3 48.6-11.4 42.9-11.4 132.3-11.4 132.3s0 89.4 11.4 132.3c6.3 23.7 24.8 41.5 48.3 47.8C117.2 448 288 448 288 448s170.8 0 213.4-11.5c23.5-6.3 42-24.1 48.3-47.8 11.4-42.9 11.4-132.3 11.4-132.3s0-89.4-11.4-132.3zm-317.5 213.5V175.2l142.7 81.2-142.7 81.2z"/></svg>
+          Animations
+        </a>
+        <a href="https://github.com/s4nyam/Self-Replicating-NCA/raw/main/AIGA_Thesis.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 640 512"><path d="M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9v28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1 8.7 .3 12.4-2s6.3-6 7.1-10.3c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5V291.9c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"/></svg>
+          MSc thesis
+        </a>
+        <a href="#cite">
+          <svg viewBox="0 0 448 512"><path d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V216zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H320c-35.3 0-64-28.7-64-64V216z"/></svg>
+          BibTeX
+        </a>
+      </div>
+
+      <!-- hero: the substrate itself, running in your browser, in its three views -->
+      <div class="triptych">
+        <figure class="tri tri-alpha">
+          <canvas id="heroAlpha" width="120" height="120" aria-label="The alpha channel of a running substrate: living cells on a black ground"></canvas>
+          <figcaption>&alpha; channel &mdash; who is alive</figcaption>
+        </figure>
+        <figure class="tri tri-ghc">
+          <canvas id="heroGhc" width="120" height="120" aria-label="The same grid coloured by a hash of each cell's full weight vector"></canvas>
+          <figcaption>GHC &mdash; the whole genome</figcaption>
+        </figure>
+        <figure class="tri tri-rwsp">
+          <canvas id="heroRwsp" width="120" height="120" aria-label="The same grid coloured by three fixed weights of each cell's network"></canvas>
+          <figcaption>RWSP &mdash; three of forty loci</figcaption>
+        </figure>
+      </div>
+      <div class="tri-foot">
+        <button class="btn" id="heroPlay" type="button">Pause</button>
+        <button class="btn" id="heroSeed" type="button">Reseed</button>
+        <span class="gen" id="heroGen">generation 0</span>
+        <span>Same grid, same instant, three ways of looking at it. Nothing here is trained and nothing is a recording &mdash; the automaton is running in this page.</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================ 1. SUBSTRATE ============================ -->
+  <section id="substrate">
+    <div class="wrap">
+      <h2><span class="num">1</span>One network per pixel</h2>
+      <p class="lede">Most neural cellular automata train a single update rule and share it across every cell.
+        This substrate does the opposite: each pixel owns its own small network, and the only way to stay
+        alive is to copy a living neighbour's.</p>
+
+      <p>The grid is <span class="mono">W &times; H</span> with two depth channels. The first is an
+        <em>alpha</em> channel that says whether a cell is alive; the second holds hidden &ldquo;chemistry&rdquo;.
+        Every pixel additionally owns an <b>agent</b> &mdash; a two-layer network that reads the depth-wise
+        Moore neighbourhood and emits the cell's next state. A cell is alive only if it has both an
+        above-threshold alpha value <em>and</em> a non-empty agent; an alpha value on its own cannot bring a
+        cell to life, and an agent left in a cell whose alpha has fallen is zeroed along with the state.</p>
+
+      <p>A small fraction of <b>founder</b> cells is seeded uniformly at random and given Xavier-initialised
+        weights. Everything else starts empty. Nothing is trained: there is no objective, no gradient and no
+        fitness function. The only selective filter is viability &mdash; a genome whose output falls below the
+        alpha threshold deletes its own cell.</p>
+
+      <p class="pull">Phenotype is never mutated directly. Cell states are produced entirely by the agents,
+        so every observable change is a read-out of a change in the weights.</p>
+
+      <h3>The agent, all 44 parameters of it</h3>
+      <p>The input is the flattened depth-wise neighbourhood: 3&nbsp;&times;&nbsp;3 positions &times; 2
+        channels = 18 values. A hidden width of 2 and an output of 2 gives 44 parameters &mdash; 36&nbsp;+&nbsp;2
+        weights and biases in the first layer, 4&nbsp;+&nbsp;2 in the second. Only the <b>40 weights</b> mutate;
+        the biases are left untouched. Two hidden units is a deliberate lower bound rather than a tuned choice:
+        it is the smallest layer that still admits a non-linear, non-separable map, so any structure that
+        appears cannot be attributed to spare capacity. Capacity is also expensive here &mdash; a
+        200&nbsp;&times;&nbsp;200 grid holds 40,000 independent agents, about 1.8 million parameters, each
+        deep-copied and mutated across 1000 generations and five folds.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Run one agent by hand</h3>
+          <span class="badge illus">Illustration</span>
+          <span class="hint">Click a neighbour to raise or lower its value. The forward pass re-runs on every click.</span>
+        </div>
+
+        <div class="agent">
+          <div>
+            <p class="nblabel">Moore neighbourhood at <span class="mono">(i,&nbsp;j)</span></p>
+            <div class="nbgrid" id="nbGrid"></div>
+            <div class="chanpick controls" style="margin-bottom:0">
+              <span class="ctl-label">Editing</span>
+              <div class="switch" role="group" aria-label="Choose which channel to edit">
+                <button type="button" data-chan="0" aria-pressed="true">&alpha;</button>
+                <button type="button" data-chan="1" aria-pressed="false">chemistry</button>
+              </div>
+            </div>
+            <p class="note" style="margin-top:10px">Boundaries wrap, so the centre cell counts as one of
+              its own neighbours.</p>
+          </div>
+
+          <div class="readout">
+            <div class="kicker">Genome &mdash; 40 mutable weights, 4 fixed biases</div>
+            <div class="genebar" id="agentGenes" role="img" aria-label="The agent's 44 parameters as a bar of coloured cells"></div>
+            <div class="geneaxis"><span>fc1 &middot; 18&rarr;2</span><span>b</span><span>fc2 &middot; 2&rarr;2</span><span>b</span></div>
+
+            <div class="kicker" style="margin-top:14px">Forward pass</div>
+            <div class="eq" id="agentEq">h = act(W&#8321;x + b&#8321;)
+y = W&#8322;h + b&#8322;</div>
+
+            <p class="verdict" id="agentVerdict">Alive.</p>
+            <p id="agentBody">The agent returns an above-threshold alpha, so the cell survives into the next
+              generation carrying this state.</p>
+
+            <div class="controls" style="margin:12px 0 0">
+              <button class="btn" id="agentMutate" type="button">Mutate the genome</button>
+              <button class="btn" id="agentFresh" type="button">New founder</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <figure class="fig">
+        <img loading="lazy" decoding="async" src="assets/img/activations.png"
+          alt="Four 20 by 20 grids seeded with 10 percent living cells, evolved under sigmoid, tanh, ReLU and LeakyReLU activations">
+        <figcaption><b>The activation fixes the alphabet.</b> A 20&nbsp;&times;&nbsp;20 grid seeded with 10%
+          living cells under four activations. Sigmoid and ReLU are non-negative; tanh and LeakyReLU admit
+          negative states. Every experiment on this page uses sigmoid with &alpha;&nbsp;=&nbsp;0.5 or tanh with
+          &alpha;&nbsp;=&nbsp;0 &mdash; the mid-points of the two output ranges, not tuned values.
+          <span class="note">Paper Figure 1.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ 2. UPDATE RULE ============================ -->
+  <section id="rule">
+    <div class="wrap">
+      <h2><span class="num">2</span>Clone and mutate</h2>
+      <p class="lede">One generation is a single scan over every cell. Four things can happen to a cell, and
+        which one happens decides whether its lineage continues.</p>
+
+      <figure class="fig">
+        <img loading="lazy" decoding="async" src="assets/img/clone-mutate.png"
+          alt="Diagram of the inheritance step: the Moore neighbourhood, the list of living neighbours, a randomly chosen neighbour's network copied and perturbed by noise, and the resulting cell state">
+        <figcaption><b>The inheritance step.</b> (a) the 3&nbsp;&times;&nbsp;3 neighbourhood, white&nbsp;=&nbsp;dead;
+          (b) the living neighbours at time <i>t</i>; (c) the cell inherits a randomly chosen neighbour's network
+          and adds a uniform noise vector; (d) the state at <i>t</i>&nbsp;+&nbsp;1 is that network's output.
+          <span class="note">Paper Figure 2.</span></figcaption>
+      </figure>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Step through one cell's update</h3>
+          <span class="badge repo">nca.py, update_ca</span>
+          <span class="hint">Click a step, or use the two buttons. The grid on the right shows what the step does.</span>
+        </div>
+
+        <div class="two wide">
+          <div>
+            <ol class="steplist" id="ruleSteps">
+              <li aria-current="true" data-step="0">Liveness gate
+                <span class="log">If no value in the 3&nbsp;&times;&nbsp;3&nbsp;&times;&nbsp;2 neighbourhood exceeds &alpha;, the cell dies: state and agent are both zeroed.</span>
+              </li>
+              <li data-step="1">Output
+                <span class="log">Otherwise the agent processes the neighbourhood and produces the candidate next state &mdash; before any inheritance happens.</span>
+              </li>
+              <li data-step="2">Inheritance
+                <span class="log">With probability <span class="mono">ip</span> the cell picks one living neighbour uniformly at random and deep-copies its network.</span>
+              </li>
+              <li data-step="3">Mutation
+                <span class="log">Each weight of the copy is perturbed with probability <span class="mono">ppp</span> by noise drawn uniformly on [&minus;1,&nbsp;1].</span>
+              </li>
+              <li data-step="4">Life budget
+                <span class="log">A per-cell counter increments each generation; at budget <span class="mono">b</span> the cell is forced to die. Just-inherited cells are protected from premature culling.</span>
+              </li>
+            </ol>
+            <div class="controls" style="margin:12px 0 0">
+              <button class="btn" id="rulePrev" type="button">&larr; Previous</button>
+              <button class="btn" id="ruleNext" type="button">Next &rarr;</button>
+              <span class="note" id="ruleCount">Step 1 of 5</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="chartbox">
+              <svg id="ruleSvg" viewBox="0 0 420 300" role="img" aria-label="Diagram of the current step of the update rule"></svg>
+            </div>
+            <div class="readout" style="margin-top:8px">
+              <div class="kicker" id="ruleKicker">Liveness gate</div>
+              <p id="ruleBody">A cell with no living neighbour cannot be reached by inheritance, so it is
+                cleared outright &mdash; state and weights together.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Mutation only happens at birth</h3>
+      <p>One detail of the released implementation is worth stating plainly, because it is easy to miss from
+        the four-step summary. When a cell enters the inheritance branch, the reference code checks whether the
+        cell's <em>own</em> network is still all-zero. If it is &mdash; the cell was dead, and this is a birth
+        &mdash; the neighbour's genome is copied <em>and mutated</em>. If the cell was already alive, the
+        neighbour's genome is copied <em>unchanged</em>. Only dead cells acquire new weights. The consequence is
+        that the mutation rate is coupled to the death rate: a substrate with no turnover produces almost no new
+        genomes, which is exactly what the unbudgeted runs in section&nbsp;6 show.</p>
+
+      <figure class="fig">
+        <img loading="lazy" decoding="async" src="assets/img/fate-of-a-cell.png"
+          alt="Flowchart of the fate of a cell, from the liveness check through the inheritance and mutation branches, with an explanatory note">
+        <figcaption><b>Fate of a cell.</b> A living cell keeps its state and, with probability
+          <span class="mono">ip</span>, replaces its network by a copy of a living neighbour's. It dies only
+          when the budget is exhausted or the agent returns a sub-&alpha; value. A dead cell can be reborn only
+          if it has at least one living neighbour. <span class="note">Paper Figure 3.</span></figcaption>
+      </figure>
+
+      <p>Because inheritance requires a living neighbour, living cells create a local positive feedback:
+        if my neighbour is alive, I have a better chance of living longer. That feedback drives the growth
+        phase. Repeated clone-and-mutate steps then let ancestor&ndash;descendant lineages drift until a
+        descendant is, by the coarse-graining used here, a different species.</p>
+    </div>
+  </section>
+
+  <!-- ============================ 3. THE LAB ============================ -->
+  <section id="lab">
+    <div class="wrap-wide">
+      <h2><span class="num">3</span>The substrate, live</h2>
+      <p class="lede">A faithful re-implementation of <span class="mono">nca.py</span> in this page. Same
+        liveness gate, same birth-only mutation, same budget routine, same genotype colourings. Change a
+        parameter and the ecosystem changes under your cursor.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Substrate lab</h3>
+          <span class="badge live">Live &mdash; running in your browser</span>
+          <span class="hint">Pick a preset, or move the sliders. Drag on the &alpha; view to wound the grid and watch it heal.</span>
+        </div>
+
+        <div class="presets" id="labPresets" role="group" aria-label="Parameter presets"></div>
+
+        <div class="lab">
+          <div>
+            <div class="labviews">
+              <figure class="labview wound">
+                <canvas id="labAlpha" width="112" height="112" aria-label="Alpha channel of the live substrate"></canvas>
+                <figcaption><span>&alpha; channel</span><em>drag to wound</em></figcaption>
+              </figure>
+              <figure class="labview">
+                <canvas id="labChem" width="112" height="112" aria-label="Hidden chemistry channel of the live substrate"></canvas>
+                <figcaption><span>chemistry</span><em>channel 2</em></figcaption>
+              </figure>
+              <figure class="labview">
+                <canvas id="labGhc" width="112" height="112" aria-label="Genotypic hash colouring of the live substrate"></canvas>
+                <figcaption><span>GHC</span><em>hash of all 44</em></figcaption>
+              </figure>
+              <figure class="labview">
+                <canvas id="labRwsp" width="112" height="112" aria-label="Random weight selection plot of the live substrate"></canvas>
+                <figcaption><span>RWSP</span><em>3 fixed loci</em></figcaption>
+              </figure>
+            </div>
+
+            <div class="chartbox" style="margin-top:16px">
+              <svg id="labChart" viewBox="0 0 860 240" role="img" aria-label="Live diversity metrics for the running substrate"></svg>
+              <div class="tip" id="labTip"></div>
+            </div>
+            <div class="legend" id="labLegend"></div>
+          </div>
+
+          <div class="readout">
+            <div class="readnum">
+              <div><b id="labGen">0</b>generation</div>
+              <div><b id="labAliveN">0</b>living cells</div>
+              <div><b id="labGhcN">0</b>unique GHC colours</div>
+              <div><b id="labRwspN">0</b>unique RWSP colours</div>
+              <div><b id="labGep">0.00</b>GEP &mdash; entropy</div>
+              <div><b id="labOcc">0%</b>occupancy</div>
+            </div>
+
+            <div class="controls" style="margin-bottom:10px">
+              <button class="btn primary" id="labPlay" type="button">Pause</button>
+              <button class="btn" id="labStep" type="button">Step</button>
+              <button class="btn" id="labReset" type="button">Reseed</button>
+            </div>
+
+            <div class="slider">
+              <label for="labInit">init_prob</label>
+              <input type="range" id="labInit" min="0.005" max="0.30" step="0.005" value="0.08">
+              <output id="oLabInit">0.080</output>
+            </div>
+            <div class="slider">
+              <label for="labIp">ip &mdash; inheritance</label>
+              <input type="range" id="labIp" min="0" max="0.8" step="0.01" value="0.10">
+              <output id="oLabIp">0.10</output>
+            </div>
+            <div class="slider">
+              <label for="labPpp">ppp &mdash; mutation</label>
+              <input type="range" id="labPpp" min="0.01" max="0.80" step="0.01" value="0.02">
+              <output id="oLabPpp">0.02</output>
+            </div>
+            <div class="slider">
+              <label for="labBudget">budget b</label>
+              <input type="range" id="labBudget" min="1" max="21" step="1" value="4">
+              <output id="oLabBudget">4</output>
+            </div>
+            <div class="slider">
+              <label for="labSize">grid</label>
+              <input type="range" id="labSize" min="48" max="160" step="8" value="112">
+              <output id="oLabSize">112</output>
+            </div>
+
+            <div class="controls" style="margin:12px 0 0">
+              <span class="ctl-label">Activation</span>
+              <div class="switch" role="group" aria-label="Choose the agent activation">
+                <button type="button" data-act="sigmoid" aria-pressed="true">sigmoid</button>
+                <button type="button" data-act="tanh" aria-pressed="false">tanh</button>
+              </div>
+            </div>
+
+            <p class="note" style="margin-top:14px">The budget slider's top position is
+              <span class="mono">&infin;</span>: mortality off. Entropy is normalised by the alphabet the
+              activation admits &mdash; |&Sigma;|&nbsp;=&nbsp;6 for sigmoid, 11 for tanh &mdash; so it is
+              comparable across runs that share one.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap" style="padding:0">
+        <div class="callout">
+          <p><b>What the wound tool is, and is not.</b></p>
+          <ul>
+            <li><b>It is the paper's own proposed experiment.</b> Section&nbsp;5 defines an adversarial
+              &ldquo;annihilation&rdquo; kernel: because a dead cell can be reborn only from a living
+              neighbour, zeroing a contiguous region &mdash; state and agent together &mdash; leaves an
+              interface across which recovery is driven entirely by inheritance from the surviving rim.</li>
+            <li><b>It is not a result.</b> The paper reports no data for it. What you see here is the
+              mechanism running, not a measurement of regenerative robustness. Recovery time and the
+              genotypic composition of the refilled region are what would have to be logged to make it one.</li>
+          </ul>
+        </div>
+
+        <div class="callout">
+          <p><b>Two things this port does not reproduce, and why that is interesting.</b></p>
+          <ul>
+            <li><b>High inheritance homogenises here rather than killing.</b> The paper reports that
+              <span class="mono">ip</span>&nbsp;=&nbsp;0.50 with <span class="mono">b</span>&nbsp;=&nbsp;4 dies
+              out. In this port the population survives and instead loses genotypic variety: raising
+              <span class="mono">ip</span> from 0.10 to 0.80 at 96&nbsp;&times;&nbsp;96 takes unique genomes per
+              living cell from about 0.46 down to 0.07. That follows from the released
+              <span class="mono">nca.py</span>, where the perturbation is applied only when the inheriting
+              cell's own network is still all-zero &mdash; so an already-living cell that inherits copies its
+              neighbour <em>unmutated</em>, and frequent inheritance spreads one genome rather than diversifying.
+              The paper's prose describes mutation as following inheritance generally.</li>
+            <li><b>tanh needs a longer budget at these grid sizes.</b> A tanh cell's live states sit near
+              &plusmn;0.2 rather than near 0.6, so the neighbourhood signal feeding the next step is weaker and
+              more cells fall under the one-decimal rounding floor. At 112&nbsp;&times;&nbsp;112 a tanh run
+              needs <span class="mono">b</span>&nbsp;=&nbsp;8 or no mortality to establish, where the paper's
+              200&nbsp;&times;&nbsp;200 runs persist at <span class="mono">b</span>&nbsp;=&nbsp;4.</li>
+          </ul>
+        </div>
+
+        <p class="note">The live substrate is a port, not a rerun: it reproduces the update rule, the
+          thresholds, the budget routine and both genotype colourings, but it uses typed arrays instead of one
+          PyTorch module per pixel, and its grids are smaller than the paper's 200&nbsp;&times;&nbsp;200 so a
+          generation fits in a frame. The presets are named for what they show rather than after numbered
+          experiments. Numbers taken from the paper appear in section&nbsp;6, drawn from the published runs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 4. METRICS ============================ -->
+  <section id="metrics">
+    <div class="wrap">
+      <h2><span class="num">4</span>Six ways to measure diversity</h2>
+      <p class="lede">All six tools are the same object: a coarse-graining &phi; that labels each living cell,
+        and a functional <i>D</i> of the resulting label distribution. They differ only in what &phi; looks at
+        and what <i>D</i> computes.</p>
+
+      <p>Phenotypic tools take &phi; to be the observable cell state rounded to one decimal place. Genotypic
+        tools take &phi; to be a colour code of the agent's weight vector. For <i>D</i> the paper uses either
+        richness &mdash; the size of the support &mdash; or normalised Shannon entropy, the <i>q</i>&nbsp;=&nbsp;0
+        and <i>q</i>&nbsp;&rarr;&nbsp;1 members of the Hill-number family, plus two dispersion statistics that
+        summarise the same field by its spread.</p>
+
+      <p><b>&ldquo;Species&rdquo; here means one thing only:</b> a label class of &phi;. A rounded cell-state
+        type for phenotypic diversity, a genome colour class for genotypic diversity. There is no claim of
+        reproductive isolation, and every count of species below is a count of occupied labels at a stated
+        coarse-graining.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Paint a grid, watch the metrics move</h3>
+          <span class="badge paper">Supplementary S1</span>
+          <span class="hint">Click or drag on the grid to change cell types. Each metric is computed exactly as the paper defines it.</span>
+        </div>
+
+        <div class="metricdemo">
+          <div>
+            <div class="paintgrid" id="mdGrid"></div>
+            <div class="controls" style="margin:12px 0 0">
+              <span class="ctl-label">Brush</span>
+              <div class="switch" id="mdBrush" role="group" aria-label="Choose the cell type to paint"></div>
+            </div>
+            <div class="controls" style="margin:10px 0 0">
+              <button class="btn" id="mdUniform" type="button">One species</button>
+              <button class="btn" id="mdMixed" type="button">Even mix</button>
+              <button class="btn" id="mdRandom" type="button">Random</button>
+              <button class="btn" id="mdClear" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="metricrow">
+              <span class="metricname" style="color:var(--gep)">GEP</span>
+              <div class="bartrack"><div class="barfill" id="mdGepBar" style="background:var(--gep)"></div></div>
+              <span class="barval" id="mdGepVal">0.00</span>
+            </div>
+            <div class="metricrow">
+              <span class="metricname" style="color:var(--gcvp)">GCVP</span>
+              <div class="bartrack"><div class="barfill" id="mdGcvpBar" style="background:var(--gcvp)"></div></div>
+              <span class="barval" id="mdGcvpVal">0.00</span>
+            </div>
+            <div class="metricrow">
+              <span class="metricname" style="color:var(--clogv)">CLOGV</span>
+              <div class="bartrack"><div class="barfill" id="mdClogvBar" style="background:var(--clogv)"></div></div>
+              <span class="barval" id="mdClogvVal">0.00</span>
+            </div>
+
+            <div class="kicker" style="margin-top:16px">CTFP &mdash; counts per type</div>
+            <div class="genebar" id="mdCtfp" role="img" aria-label="Cellular type frequency for the painted grid"></div>
+            <div class="geneaxis" id="mdCtfpAxis"></div>
+
+            <p class="note" id="mdNote" style="margin-top:14px"></p>
+          </div>
+        </div>
+      </div>
+
+      <h3>The six tools on common axes</h3>
+      <p>This is the paper's Table&nbsp;3. It is also the argument for treating GEP as the headline
+        phenotypic signal: it is the only phenotypic tool here that is simultaneously bounded, normalised by a
+        fixed |&Sigma;|, and responsive to the whole type distribution rather than to one summary statistic of
+        it.</p>
+
+      <div class="tablewrap">
+        <table class="data">
+          <caption class="note">&phi; is the coarse-graining and <i>D</i> the functional;
+            <i>T</i><sub>c</sub> is the number of living cells at the generation concerned. Error margins
+            differ in kind rather than size: CTFP, GHC and RWSP are counts bounded by occupancy, GEP and GCVP
+            are bounded ratios, and CLOGV is unbounded &mdash; so only GEP supports comparison of levels
+            between runs.</caption>
+          <thead>
+            <tr>
+              <th>Metric</th><th>Coarse-graining &phi;</th><th>Functional <i>D</i></th><th>Range</th>
+              <th>Dominant failure mode</th><th>Recommended use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><i class="mdot" style="background:var(--navy-soft)"></i>CTFP</td>
+              <td class="wide">Cell state, rounded to 0.1</td>
+              <td class="wide">Per-label counts</td>
+              <td>0 to <i>T</i><sub>c</sub></td>
+              <td class="wide">Vector-valued rather than scalar; must be read visually</td>
+              <td class="wide">Tracking speciation and drift within a run</td>
+            </tr>
+            <tr>
+              <td><i class="mdot" style="background:var(--gep)"></i>GEP</td>
+              <td class="wide">Cell state, rounded to 0.1</td>
+              <td class="wide">Normalised Shannon entropy</td>
+              <td>[0,&nbsp;1]</td>
+              <td class="wide">Records how evenly types are mixed, not which types they are</td>
+              <td class="wide">Headline PD signal; comparable across runs sharing an activation</td>
+            </tr>
+            <tr>
+              <td><i class="mdot" style="background:var(--gcvp)"></i>GCVP</td>
+              <td class="wide">Cell state, rounded to 0.1</td>
+              <td class="wide">Fraction differing from the median</td>
+              <td>[0,&nbsp;1]</td>
+              <td class="wide">Saturates near unity on a full, real-valued grid regardless of true diversity</td>
+              <td class="wide">Binary substrates only; the GEP&ndash;GCVP crossing as a collapse diagnostic</td>
+            </tr>
+            <tr>
+              <td><i class="mdot" style="background:var(--clogv)"></i>CLOGV</td>
+              <td class="wide">Cell state, local 3&nbsp;&times;&nbsp;3 statistics</td>
+              <td class="wide">Global s.d. of local s.d.</td>
+              <td>[0,&nbsp;&infin;)</td>
+              <td class="wide">Scale-dependent and confounded with occupancy; levels not comparable across runs</td>
+              <td class="wide">Spatial heterogeneity of local organisation within one run</td>
+            </tr>
+            <tr>
+              <td><i class="mdot" style="background:var(--ghc)"></i>GHC</td>
+              <td class="wide">24-bit hash of the full genome</td>
+              <td class="wide">Richness (unique colours)</td>
+              <td>0 to <i>T</i><sub>c</sub></td>
+              <td class="wide">Many-to-one (&asymp;0.1% collisions at full occupancy); measures identity, not distance</td>
+              <td class="wide">Genotypic turnover and lineage identity; read alongside occupancy</td>
+            </tr>
+            <tr>
+              <td><i class="mdot" style="background:var(--rwsp)"></i>RWSP</td>
+              <td class="wide">Three fixed loci mapped to (R,&nbsp;G,&nbsp;B)</td>
+              <td class="wide">Richness (unique colours)</td>
+              <td>0 to <i>T</i><sub>c</sub></td>
+              <td class="wide">Observes 3 of 40 loci, so systematically under-reports genotypic diversity</td>
+              <td class="wide">Control for what a sparse probe misses</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <p><b>A metric the authors keep in order to discredit it.</b></p>
+        <p>GCVP compares every cell to the median cell. Once a grid is full and real-valued, the median
+          rarely matches any given cell, so the measure sits near unity no matter how little diversity is
+          actually present. In the published runs it reaches <b>exactly 1.000</b> at generation 1000 in the
+          four unbudgeted sigmoid configurations (17, 19, 21, 23) &mdash; while GEP in the same runs reads
+          0.72&nbsp;to&nbsp;0.75. The paper keeps GCVP rather than dropping it because it is inherited from
+          the CA literature and is still applied to real-valued grids in practice, so documenting the failure
+          explicitly is more useful than a silent omission.</p>
+      </div>
+
+      <details class="more">
+        <summary>CNWA, the exploratory lineage tool</summary>
+        <p>Agent genomes are standardised, clustered with <i>k</i>-means and projected with PCA;
+          clusters stand in for species, and area and stacked-bar variants give prototype speciation plots.
+          It is reported as complementary rather than as a headline metric. Two caveats travel with it:
+          <i>k</i> is fixed for visualisation rather than chosen by a stability or model-selection criterion,
+          and no stability analysis of the <i>k</i>-means solution was carried out. Cluster counts must not be
+          read as estimates of a number of species. CNWA is used only to show that the genome cloud is not
+          structureless and that its structure changes over generations.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============================ 5. GENOME PROBE ============================ -->
+  <section id="probe">
+    <div class="wrap">
+      <h2><span class="num">5</span>A full genome beats three loci</h2>
+      <p class="lede">Prior work visualises a few random gene values directly as an RGB triple. An RGB encoding
+        admits three, so three is exactly the practice under test &mdash; and three of forty turns out to be
+        far too few.</p>
+
+      <p>GHC hashes an agent's entire weight vector to 24 bits and splits it into an (R,&nbsp;G,&nbsp;B)
+        triple. RWSP fixes three weight indices for the whole run and colours each cell by those three values
+        only &mdash; a genetic microscope pointed at three loci. Because the fixed loci are rarely the mutated
+        ones, RWSP tends toward large single-colour colonies while GHC reflects the real turnover.</p>
+
+      <p>The asymmetry is quantifiable rather than incidental. A single inheritance event perturbs at least
+        one probed locus with probability 1&nbsp;&minus;&nbsp;(1&nbsp;&minus;&nbsp;<span class="mono">ppp</span>)<sup>3</sup>,
+        against 1&nbsp;&minus;&nbsp;(1&nbsp;&minus;&nbsp;<span class="mono">ppp</span>)<sup>40</sup> for the
+        whole genome.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Mutate a genome and watch what each probe sees</h3>
+          <span class="badge paper">Supplementary S1.5, S2</span>
+          <span class="hint">Move the mutation rate, then press the button to apply one inheritance event.</span>
+        </div>
+
+        <div class="genome">
+          <div>
+            <div class="kicker">44 parameters &mdash; the three probed loci are outlined</div>
+            <div class="genebar" id="probeGenes" role="img" aria-label="A genome's 44 parameters, with the three probed loci marked"></div>
+            <div class="geneaxis"><span>0</span><span>index</span><span>43</span></div>
+
+            <div class="locus">
+              <div>
+                <span class="chip" id="probeGhcChip" aria-hidden="true"></span>
+                <div class="chiprow" style="margin-top:6px">GHC</div>
+              </div>
+              <div>
+                <span class="chip" id="probeRwspChip" aria-hidden="true"></span>
+                <div class="chiprow" style="margin-top:6px">RWSP</div>
+              </div>
+              <div style="flex:1;min-width:190px">
+                <p class="note" id="probeState" style="margin:0"></p>
+              </div>
+            </div>
+
+            <div class="slider" style="margin-top:14px">
+              <label for="probePpp">ppp</label>
+              <input type="range" id="probePpp" min="0.01" max="0.80" step="0.01" value="0.02">
+              <output id="oProbePpp">0.02</output>
+            </div>
+            <div class="controls" style="margin:10px 0 0">
+              <button class="btn primary" id="probeStep" type="button">One inheritance event</button>
+              <button class="btn" id="probeRun" type="button">Run 50 events</button>
+              <button class="btn" id="probeReset" type="button">Fresh genome</button>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="kicker">Chance one event is visible</div>
+            <div class="metricrow">
+              <span class="metricname" style="color:var(--ghc)">GHC</span>
+              <div class="bartrack"><div class="barfill" id="probeGhcBar" style="background:var(--ghc)"></div></div>
+              <span class="barval" id="probeGhcP">55.4%</span>
+            </div>
+            <div class="metricrow">
+              <span class="metricname" style="color:var(--rwsp)">RWSP</span>
+              <div class="bartrack"><div class="barfill" id="probeRwspBar" style="background:var(--rwsp)"></div></div>
+              <span class="barval" id="probeRwspP">5.9%</span>
+            </div>
+
+            <div class="kicker" style="margin-top:16px">Observed over the events you have applied</div>
+            <p class="note" id="probeTally" style="margin:4px 0"></p>
+
+            <p class="note" style="margin-top:12px">At the long runs' setting,
+              <span class="mono">ppp</span>&nbsp;=&nbsp;0.02, the two probabilities are 55.4% and 5.9% &mdash;
+              a ratio of roughly nine to one, and the origin of the persistent gap between the two
+              unique-colour curves below. At <span class="mono">ppp</span>&nbsp;=&nbsp;0.80 they become
+              effectively 100% and 99.2%, which is why the curves converge only at very high perturbation.</p>
+          </div>
+        </div>
+      </div>
+
+      <figure class="fig">
+        <img loading="lazy" decoding="async" src="assets/img/ghc-vs-rwsp.png"
+          alt="Unique colour counts per generation for genotypic hash colouring against the random weight selection probe, across perturbation settings">
+        <figcaption><b>What the sparse probe misses.</b> Unique-colour counts for GHC (full genome) against
+          RWSP (three fixed loci). Were RWSP faithful it would track GHC; instead it collapses. The gap is far
+          larger than the hash's own bias &mdash; collisions cost of order 0.1% of agents, while RWSP reports
+          a small fraction of the GHC count throughout. Small run, 50&nbsp;&times;&nbsp;50, 300 generations,
+          sigmoid, from the sweep of Table&nbsp;1; because <span class="mono">ppp</span> is fixed at 0.02 in
+          every long run, <span class="mono">ppp</span>-dependent comparisons are made on the small-run sweep.
+          <span class="note">Paper Figure 5.</span></figcaption>
+      </figure>
+
+      <details class="more">
+        <summary>How much does hashing 44 values into 24 bits cost?</summary>
+        <div class="figpair" style="margin-top:8px">
+          <figure class="fig" style="margin:0">
+            <img loading="lazy" decoding="async" src="assets/img/ghc-collision.png"
+              alt="Collision rate of the genotypic hash against the parameter perturbation probability">
+            <figcaption><b>Higher perturbation, fewer collisions.</b> <span class="note">Supplementary Figure S1.</span></figcaption>
+          </figure>
+          <div>
+            <p style="font-size:14.5px">Two different questions sit behind that figure. The empirical test
+              measures how often a genome and its own mutated descendant hash to the same colour &mdash; that
+              is what decides whether GHC can see a mutation at all.</p>
+            <p style="font-size:14.5px">The combinatorial bound measures how often two <em>unrelated</em>
+              genomes coincide, which is what decides whether the unique-colour count under-reports the
+              population. With 2<sup>24</sup>&nbsp;=&nbsp;16,777,216 colours, the expected number of colliding
+              pairs among <i>N</i> living agents is about <i>N</i><sup>2</sup>/2<sup>25</sup>. At full occupancy
+              of a 200&nbsp;&times;&nbsp;200 grid, <i>N</i>&nbsp;=&nbsp;40,000 gives roughly 48 colliding pairs
+              &mdash; about 0.12% of agents. On the 50&nbsp;&times;&nbsp;50 small runs it is 0.19 pairs.
+              Both are two orders of magnitude below the GHC&ndash;RWSP gaps.</p>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============================ 6. RUNS ============================ -->
+  <section id="runs">
+    <div class="wrap-wide">
+      <h2><span class="num">6</span>Twenty-four long runs</h2>
+      <p class="lede">1680 small runs at 50&nbsp;&times;&nbsp;50 over 300 generations mapped the parameter
+        space. Twenty-four configurations were then taken to 200&nbsp;&times;&nbsp;200 for 1000 generations,
+        each executed five-fold.</p>
+
+      <div class="wrap" style="padding:0">
+        <p>The long-run design is a factorial grid in two blocks. Experiments 1&ndash;16 form a complete
+          2&nbsp;&times;&nbsp;2&nbsp;&times;&nbsp;2&nbsp;&times;&nbsp;2 over
+          <span class="mono">init_prob</span>&nbsp;&isin;&nbsp;{0.02,&nbsp;0.08},
+          <span class="mono">ip</span>&nbsp;&isin;&nbsp;{0.10,&nbsp;0.50},
+          <span class="mono">b</span>&nbsp;&isin;&nbsp;{4,&nbsp;8} and activation. Experiments 17&ndash;24 form a
+          complete 2&nbsp;&times;&nbsp;2&nbsp;&times;&nbsp;2 over
+          <span class="mono">init_prob</span>, <span class="mono">ip</span>&nbsp;&isin;&nbsp;{0.05,&nbsp;0.10}
+          and activation, with mortality removed. The mutation rate is held at
+          <span class="mono">ppp</span>&nbsp;=&nbsp;0.02 in every long run, so the effects of occupancy,
+          inheritance and mortality can be separated from the effect of mutation.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Every long run, as published</h3>
+          <span class="badge paper">Paper Table 2, Supplementary S3</span>
+          <span class="hint">Pick a run. Curves are the five-fold average; the shaded band is the min&ndash;max range across folds.</span>
+        </div>
+
+        <div class="runpick" id="runPick" role="group" aria-label="Choose one of the 24 long runs"></div>
+
+        <div class="runmeta" id="runMeta"></div>
+
+        <div class="runshots" id="runShots"></div>
+
+        <div class="runcharts">
+          <div>
+            <div class="chartbox">
+              <svg id="runPdSvg" viewBox="0 0 520 300" role="img" aria-label="Phenotypic diversity metrics over 1000 generations for the selected run"></svg>
+              <div class="tip" id="runPdTip"></div>
+            </div>
+            <div class="legend">
+              <span><i class="swatch line" style="background:var(--gep)"></i>GEP</span>
+              <span><i class="swatch line" style="background:var(--gcvp)"></i>GCVP</span>
+              <span><i class="swatch line" style="background:var(--clogv)"></i>CLOGV</span>
+            </div>
+          </div>
+          <div>
+            <div class="chartbox">
+              <svg id="runGdSvg" viewBox="0 0 520 300" role="img" aria-label="Unique genotype colour counts over 1000 generations for the selected run"></svg>
+              <div class="tip" id="runGdTip"></div>
+            </div>
+            <div class="legend">
+              <span><i class="swatch line" style="background:var(--ghc)"></i>GHC, full genome</span>
+              <span><i class="swatch line" style="background:var(--rwsp)"></i>RWSP, three loci</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="runcharts" style="margin-top:6px">
+          <div>
+            <div class="chartbox">
+              <svg id="runCtfpSvg" viewBox="0 0 520 300" role="img" aria-label="Cellular type frequency over 1000 generations for the selected run"></svg>
+              <div class="tip" id="runCtfpTip"></div>
+            </div>
+            <div class="legend" id="runCtfpLegend"></div>
+          </div>
+          <div class="readout">
+            <div class="kicker" id="runKicker"></div>
+            <p class="verdict" id="runVerdict"></p>
+            <p id="runBody"></p>
+          </div>
+        </div>
+
+        <p class="note" style="margin-top:14px">Curves are recovered from the vector plots published with the
+          paper, resampled onto a common 5-generation grid. As a check on the recovery: every run starts with a
+          GHC count equal to <span class="mono">init_prob</span>&nbsp;&times;&nbsp;40,000, which is the founder
+          count by construction &mdash; 800 cells at <span class="mono">init_prob</span>&nbsp;=&nbsp;0.02 and
+          3,200 at 0.08.</p>
+      </div>
+
+      <div class="wrap" style="padding:0">
+        <h3>Persistent in twenty of twenty-four</h3>
+        <p>The robustness claim is stated operationally. A configuration is <b>persistent</b> if the
+          living-cell count stays strictly positive in all five folds for all 1000 generations, and
+          <b>self-maintaining</b> if that count also stays within a bounded band after the initial growth
+          transient instead of drifting to zero or to saturation. Twenty of the 24 long configurations are
+          persistent, and the persistent ones are self-maintaining in this sense. The claim applies to those
+          twenty and not to the substrate at every parameter setting.</p>
+
+        <p>The four exceptions &mdash; experiments 9, 10, 13 and 14 &mdash; all combine
+          <span class="mono">ip</span>&nbsp;=&nbsp;0.50 with <span class="mono">b</span>&nbsp;=&nbsp;4, and die
+          within the first few tens of generations. The two settings pull in opposite directions on the same
+          quantity. A budget of 4 forces every cell to die after four generations, so the population survives
+          only if each cell seeds a viable neighbour inside that window;
+          <span class="mono">ip</span>&nbsp;=&nbsp;0.50 means a living cell replaces its own working genome
+          roughly every other generation, so a genome that does clear the threshold is unlikely to be kept long
+          enough to do the seeding. That it is the <em>combination</em> that matters is visible in the table:
+          the same <span class="mono">ip</span>&nbsp;=&nbsp;0.50 with <span class="mono">b</span>&nbsp;=&nbsp;8
+          survives (11, 12, 15, 16), and the same <span class="mono">b</span>&nbsp;=&nbsp;4 with
+          <span class="mono">ip</span>&nbsp;=&nbsp;0.10 also survives (1, 2, 5, 6), in both activations and at
+          both founder densities.</p>
+
+        <div class="takeaways">
+          <div class="takeaway">
+            <span class="statnum">20 / 24</span>
+            <p>Long configurations that are persistent and self-maintaining across all five folds and all 1000
+              generations.</p>
+          </div>
+          <div class="takeaway">
+            <span class="statnum">p &asymp; 0.0079</span>
+            <p>The finest resolution five folds allow. Complete separation of ten fold values is the most
+              extreme outcome a two-sided Mann&ndash;Whitney U test has available, and equals 2/252.</p>
+          </div>
+          <div class="takeaway">
+            <span class="statnum">1.8 M</span>
+            <p>Parameters alive at once on a full 200&nbsp;&times;&nbsp;200 grid &mdash; 40,000 independent
+              agents of 44 weights each, deep-copied and mutated every generation.</p>
+          </div>
+        </div>
+
+        <p class="note">Non-overlapping min&ndash;max envelopes in the charts above therefore already indicate
+          separation at p&nbsp;&asymp;&nbsp;0.0079, and no pair of configurations in this study can be resolved
+          more finely than that without additional folds.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 7. TRADE-OFF ============================ -->
+  <section id="tradeoff">
+    <div class="wrap">
+      <h2><span class="num">7</span>The phenotype&ndash;genotype trade-off</h2>
+      <p class="lede">Drive phenotypic diversity up and genotypic diversity collapses. Drive genotypic
+        diversity up and the phenotype collapses to a single dominant type. One parameter sets where on that
+        frontier a run lands.</p>
+
+      <p>At low <span class="mono">ppp</span> many types coexist in CTFP but few unique genomes appear in the
+        genotypic count. At high <span class="mono">ppp</span> many unique genomes appear but the phenotype
+        collapses onto one type. This mirrors the resource-allocation trade-off reported for bacteria, where
+        investing in fast growth &mdash; few, specialised genes &mdash; sacrifices trait flexibility and the
+        other way round.</p>
+
+      <div class="figpair">
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/tradeoff-lowppp-ctfp.png"
+            alt="Cellular type frequency for a low mutation rate run, showing several coexisting types">
+          <figcaption><b>Low ppp: many types.</b> CTFP keeps several species in play.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/tradeoff-lowppp-gd.png"
+            alt="Unique genotype colour counts for the same low mutation rate run, showing few unique genomes">
+          <figcaption><b>&hellip;and few genomes.</b> The genotypic count stays low.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/tradeoff-highppp-gd.png"
+            alt="Unique genotype colour counts for a high mutation rate run, showing many unique genomes">
+          <figcaption><b>High ppp: many genomes.</b> The genotypic count rises sharply.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/tradeoff-highppp-ctfp.png"
+            alt="Cellular type frequency for the same high mutation rate run, collapsed onto one dominant type">
+          <figcaption><b>&hellip;and one phenotype.</b> CTFP collapses to a dominant type.
+            <span class="note">Paper Figure 6; both rows are small runs, 50&nbsp;&times;&nbsp;50, 300 generations, sigmoid.</span></figcaption>
+        </figure>
+      </div>
+
+      <h3>Why the two scales should trade off</h3>
+      <p>The most plausible mechanism is saturation of the agent nonlinearity, and it follows from the update
+        rule rather than from any tuning. Mutation is additive and never reset, so a weight travelling down a
+        lineage accumulates perturbations at a rate proportional to
+        <span class="mono">ppp</span>&nbsp;&times;&nbsp;<span class="mono">ip</span>, each drawn uniformly on
+        [&minus;1,&nbsp;1] and hence of variance 1/3. The weight vector performs an unbiased random walk whose
+        variance grows linearly in the number of inheritance events. A hidden unit sums 18 such weights against
+        neighbourhood values, so for unit-scale inputs its pre-activation standard deviation grows like
+        &radic;(6&nbsp;&middot;&nbsp;<span class="mono">ppp</span>&nbsp;&middot;&nbsp;<span class="mono">ip</span>&nbsp;&middot;&nbsp;<i>g</i>)
+        after <i>g</i> generations.</p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>When does a lineage saturate?</h3>
+          <span class="badge paper">Paper &sect;4.4</span>
+          <span class="hint">A sigmoid is effectively saturated past a pre-activation of about 4. Move the two rates.</span>
+        </div>
+
+        <div class="two">
+          <div class="chartbox">
+            <svg id="satSvg" viewBox="0 0 520 300" role="img" aria-label="Pre-activation standard deviation against generation for the chosen mutation and inheritance rates"></svg>
+            <div class="tip" id="satTip"></div>
+          </div>
+
+          <div class="readout">
+            <div class="slider">
+              <label for="satPpp">ppp</label>
+              <input type="range" id="satPpp" min="0.01" max="0.80" step="0.01" value="0.02">
+              <output id="oSatPpp">0.02</output>
+            </div>
+            <div class="slider">
+              <label for="satIp">ip</label>
+              <input type="range" id="satIp" min="0.02" max="0.60" step="0.01" value="0.10">
+              <output id="oSatIp">0.10</output>
+            </div>
+
+            <div class="eq">&sigma;(g) = &radic;(6 &middot; ppp &middot; ip &middot; g)
+saturated once &sigma; &gt; 4</div>
+
+            <div class="kicker" style="margin-top:12px">Generations to saturation</div>
+            <p class="verdict" id="satVerdict">1333</p>
+            <p id="satBody"></p>
+          </div>
+        </div>
+      </div>
+
+      <p>Saturated units emit states at the extremes of the output range, and those extremes round into a
+        single CTFP bin. The phenotype collapses onto one dominant type while the underlying weight vectors keep
+        diverging &mdash; which is exactly what the genotypic count reports. Viability selection sharpens the
+        effect: a lineage that saturates below the alpha threshold removes its own cells, so the survivors are
+        the ones saturating on the live side of the threshold. At low <span class="mono">ppp</span> the converse
+        holds. Weights stay in the near-linear regime, small genotypic differences map to different rounded
+        states and several types coexist, while few genomes drift far enough for the hash to register novelty.</p>
+
+      <div class="callout">
+        <p><b>This is an account, not a measurement.</b></p>
+        <p>The saturation argument is consistent with the observations but was not instrumented. The direct
+          test &mdash; histograms of weight magnitude and of pre-activation variance as a function of
+          <span class="mono">ppp</span> &mdash; is named in the paper's conclusions as future work, and no
+          preliminary data for it is reported. Separately, the trade-off is characterised across the small-run
+          sweep, where <span class="mono">ppp</span> ranges over 0.02&ndash;0.80. Because
+          <span class="mono">ppp</span> is held fixed in the long runs, it is stated as a systematic tendency
+          over that sweep rather than as a hypothesis tested at the 1000-generation scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 8. LINEAGE ============================ -->
+  <section id="lineage">
+    <div class="wrap">
+      <h2><span class="num">8</span>Same phenotype, different genotype</h2>
+      <p class="lede">Because phenotype is a read-out of genotype, two runs with identical settings can
+        converge to the same observable colonies while carrying different lineages.</p>
+
+      <figure class="fig">
+        <img loading="lazy" decoding="async" src="assets/img/same-pheno-diff-geno.jpg"
+          alt="Two runs of experiment 19 with identical settings: near-identical substrate images above, clearly different genotype colourings below">
+        <figcaption><b>Two runs, one biome, two genealogies.</b> Experiment 19 run twice with identical
+          settings converges to the same phenotype (a) while carrying different genotypes (b, RWSP).
+          Phenotypic convergence does not imply genotypic convergence.
+          <span class="note">Paper Figure 7.</span></figcaption>
+      </figure>
+
+      <p>We are deliberately careful about what this shows. Two runs whose grids agree step for step are
+        behaviourally equivalent <em>at the resolution measured here</em>; the two genome sets were not
+        evaluated on any external task, so &ldquo;same phenotype&rdquo; means observational equivalence rather
+        than demonstrated functional identity. The clusters below likewise arise from drift under viability
+        selection, with no fitness function beyond liveness &mdash; which is why the lineages are described as
+        diverging rather than as adapting, and why open-endedness is used in the descriptive sense of
+        continuing production of novel genotypes without a fixed objective, rather than as a claim that any
+        formal open-endedness criterion has been met.</p>
+
+      <div class="figpair">
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/cnwa-clusters.png"
+            alt="Standardised agent genomes clustered with k-means and projected with PCA, for two runs">
+          <figcaption><b>The genome cloud has structure.</b> Standardised genomes clustered with
+            <i>k</i>-means and projected with PCA; the separated groups are diverging lineages.
+            <span class="note">Paper Figure 8a.</span></figcaption>
+        </figure>
+        <figure class="fig">
+          <img loading="lazy" decoding="async" src="assets/img/speciation.png"
+            alt="Stacked speciation plot showing species proportions per generation, with one species emerging and later going extinct">
+          <figcaption><b>Species come and go.</b> Proportions per generation derived from the clusters, with
+            some emerging and then going extinct. <span class="note">Paper Figure 8b.</span></figcaption>
+        </figure>
+      </div>
+
+      <h3>The released animations</h3>
+      <p>Two small demonstration runs from the repository, in all three views. These are
+        30&nbsp;&times;&nbsp;30 grids, chosen for legibility &mdash; the full-resolution 1000-generation
+        animations for every long run are on the project's
+        <a href="https://www.youtube.com/@growingnca/playlists" target="_blank" rel="noopener">video channel</a>.</p>
+
+      <div class="anims" id="animGrid"></div>
+      <p class="note" style="margin-top:12px">Frames are sampled and palettised for the web. Click a panel to
+        play it.</p>
+    </div>
+  </section>
+
+  <!-- ============================ 9. LIMITS ============================ -->
+  <section id="limits">
+    <div class="wrap">
+      <h2><span class="num">9</span>What this does not settle</h2>
+      <p class="lede">The claims above are bounded by the design in specific ways. These are the paper's own,
+        set out so they can be weighed directly.</p>
+
+      <div class="cards">
+        <div class="card">
+          <h4>Agent capacity</h4>
+          <p>Every result uses the same 44-parameter agent. Whether the trade-off and the metric behaviours
+            persist at hidden widths of 4 or 8 is untested.</p>
+        </div>
+        <div class="card">
+          <h4>Coverage of the mutation rate</h4>
+          <p><span class="mono">ppp</span> varies only in the small runs, so the trade-off is characterised at
+            50&nbsp;&times;&nbsp;50 over 300 generations and assumed, rather than shown, to carry over.</p>
+        </div>
+        <div class="card">
+          <h4>Statistical resolution</h4>
+          <p>Five folds support distribution-free envelopes and complete-separation statements at
+            p&nbsp;&asymp;&nbsp;0.0079, but not finer effect-size estimation.</p>
+        </div>
+        <div class="card">
+          <h4>Coarse-graining</h4>
+          <p>All phenotypic metrics use one-decimal rounding; no systematic sweep over that precision was run.
+            A finer binning would shift the level of the entropy.</p>
+        </div>
+        <div class="card">
+          <h4>Occupancy</h4>
+          <p>Both unique-colour counts are bounded above by the number of living cells, so genotypic curves
+            must be read alongside occupancy rather than as free-standing diversity estimates.</p>
+        </div>
+        <div class="card">
+          <h4>Genome geometry</h4>
+          <p>GHC measures identity, not distance. Genomes are not compared under a metric such as Euclidean or
+            cosine distance on standardised weights.</p>
+        </div>
+        <div class="card">
+          <h4>Lineage ground truth</h4>
+          <p>Parent&ndash;offspring links are not logged during simulation, so neither GHC nor CNWA is
+            validated against a true genealogy.</p>
+        </div>
+        <div class="card">
+          <h4>Selection</h4>
+          <p>The only pressure is viability together with spatial availability. What is reported is drift under
+            viability selection, not adaptation towards any objective.</p>
+        </div>
+        <div class="card">
+          <h4>Fixed design choices</h4>
+          <p>Toroidal boundaries, uniform noise on [&minus;1,&nbsp;1], mid-point alpha thresholds, the coarse
+            budget ladder {4,&nbsp;8,&nbsp;&infin;} and a fixed scan order are all unexplored alternatives.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><b>Two words used in a narrow sense.</b></p>
+        <ul>
+          <li><b>Autopoietic</b> is used descriptively, of a system that continuously regenerates its own
+            components. Nothing in the substrate is trained &mdash; no objective, no gradient, no fitness
+            function &mdash; so what is reported is a dynamical property of clone-and-mutate inheritance under
+            viability selection, not learning in the machine-learning sense.</li>
+          <li><b>Open-ended</b> is used in the sense of continuing production of novel structure without a
+            fixed objective. The evidence presented is of persistent genotypic novelty under drift, not of a
+            formal open-endedness criterion being satisfied.</li>
+        </ul>
+      </div>
+
+      <h3>What would settle them</h3>
+      <p>Three of the extensions follow directly from the limits above and can be specified now. The
+        saturation account can be tested by re-instrumenting the simulator to record weight-magnitude histograms
+        and pre-activation variance, then re-running the <span class="mono">ppp</span> sweep under that
+        instrumentation. Lineage ground truth can be obtained by logging the parent index at every inheritance
+        event, which converts GHC and CNWA from descriptive tools into estimators that can be scored against a
+        known genealogy. And the adversarial annihilation kernel &mdash; the wound tool in section&nbsp;3 &mdash;
+        becomes a measurement once the recovery time of the living-cell fraction and of the global entropy, and
+        the genotypic composition of the refilled region, are logged. That is the untrained analogue of the
+        regeneration experiments in Growing NCA.</p>
+    </div>
+  </section>
+
+  <!-- ============================ 10. CITE ============================ -->
+  <section id="cite">
+    <div class="wrap">
+      <h2><span class="num">10</span>Cite this work</h2>
+
+      <pre class="bib" id="bibtex">@article{Jain2026SelfReplicatingNCA,
+  author    = {Jain, Sanyam and Reimers, Felix Simon and Nichele, Stefano},
+  title     = {Self-Replicating Neural Cellular Automata: Quantifying Emergent
+               Phenotypic and Genotypic Diversity in an Open-Ended Substrate},
+  journal   = {Journal of Imaging},
+  publisher = {MDPI},
+  year      = {2026},
+  note      = {Accepted; volume, pages and DOI to follow}
+}
+
+@mastersthesis{Jain2024AIGA,
+  author    = {Jain, Sanyam},
+  title     = {AI Generating Algorithms with Self-Organizing Neural Cellular
+               Automata: Quantifying Genetic and Phenotypic Diversity,
+               Emerging Growth, and Speciation},
+  school    = {{\O}stfold University College},
+  address   = {Halden, Norway},
+  year      = {2024}
+}</pre>
+      <div class="copyrow">
+        <button class="btn" id="copyBib" type="button">Copy BibTeX</button>
+        <span class="copied" id="copiedMsg">Copied</span>
+        <span class="note">The article is accepted at <a href="https://www.mdpi.com/journal/jimaging"
+            target="_blank" rel="noopener">Journal of Imaging</a>; the volume, page range and DOI will be
+          filled in once they are issued.</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p><b>Code and data.</b> The simulator, the metric implementations and the notebooks are in the
+        <a href="https://github.com/s4nyam/Self-Replicating-NCA" target="_blank" rel="noopener">project
+          repository</a>, with a <a
+          href="https://colab.research.google.com/drive/1HYKttER_0I6HD1y1oDdg_MLG0D21vMxB?usp=sharing"
+          target="_blank" rel="noopener">Colab notebook</a> that reproduces a run end to end. Large runs were
+        executed on the Simula eX3 cluster under SLURM; the memory-bound diversity analysis was run separately.</p>
+      <p><b>Provenance.</b> Every curve in section&nbsp;6 is recovered from the vector figures published with
+        the paper and is labelled as such. The substrate in the hero and in section&nbsp;3 is a live port of
+        <span class="mono">nca.py</span> and is labelled Live; it is a demonstration of the rule, not a
+        reproduction of the paper's numbers. Panels built for this page rather than taken from the paper carry
+        an Illustration badge.</p>
+      <p><b>Acknowledgements.</b> The authors thank the Department of Computer Science and Communication at
+        &Oslash;stfold University of Applied Sciences, Simula Research Laboratory, OsloMet &mdash; Oslo
+        Metropolitan University and the Norwegian Artificial Intelligence Research Consortium (NORA) for
+        computational resources and logistical support. This article builds on and extends the first author's
+        Master's thesis.</p>
+      <p>
+        <a href="https://www.mdpi.com/journal/jimaging" target="_blank" rel="noopener">Paper</a> &nbsp;&middot;&nbsp;
+        <a href="https://github.com/s4nyam/Self-Replicating-NCA" target="_blank" rel="noopener">Code</a> &nbsp;&middot;&nbsp;
+        <a href="https://www.youtube.com/@growingnca/playlists" target="_blank" rel="noopener">Animations</a> &nbsp;&middot;&nbsp;
+        <a href="https://s4nyam.github.io/">Sanyam Jain</a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+
+  <script src="assets/data/runs.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+
+</html>

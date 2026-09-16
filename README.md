@@ -20,11 +20,13 @@ Push to `main` and GitHub Pages serves it.
 ├── panodiff/             project page — PanoDiff-SR (arXiv:2507.09227)
 ├── brain2vlm/            project page — Brain2VLM
 ├── deepseanet/           project page — DeepSeaNet (ICAPAI 2024)
+├── sonca/                project page — Self-Replicating Neural Cellular Automata
+│                         (Journal of Imaging, accepted)
 │
 ├── CV.pdf  CL.pdf        curriculum vitae, cover letter
 ├── my.jpg  logo.jpg      portrait and site logo
 ├── hiof.png  iitj.png  oslomet.png   institution marks
-└── brain2vlm.jpg  deepseanet.jpg  lenia.png  table.jpg   publication thumbnails
+└── brain2vlm.jpg  deepseanet.jpg  sonca.jpg  lenia.png  table.jpg   publication thumbnails
 ```
 
 Some project pages live in other repositories and are linked from `index.html` rather than
@@ -35,7 +37,7 @@ stored here, including [EvoLenia](https://s4nyam.github.io/evolenia/) and the
 
 ## Project pages
 
-Each directory under the root is one self-contained project page, and the three in this repo are
+Each directory under the root is one self-contained project page, and the four in this repo are
 built to the same recipe so they read as a set:
 
 ```
@@ -93,6 +95,29 @@ Water-conditions playground, a feature-pyramid explorer (FPN, PANet, BiFPN, BiSk
 results for EfficientDet-Lite0, YOLOv5, YOLOv8 and Detectron2 on the Brackish dataset, class
 activation maps, and reproducibility notes.
 
+### Self-Replicating Neural Cellular Automata — `sonca/`
+
+Companion page to *Self-Replicating Neural Cellular Automata: Quantifying Emergent Phenotypic and
+Genotypic Diversity in an Open-Ended Substrate* (Journal of Imaging, accepted;
+[code](https://github.com/s4nyam/Self-Replicating-NCA)).
+
+This one departs from the pattern in one respect: the subject of the paper is a simulator, so the
+page runs it. `app.js` contains a port of the repository's `update_ca` — the same liveness gate,
+the same birth-only mutation, the same post-scan squash, threshold and budget order, and the same
+GHC and RWSP colourings — over typed arrays rather than one PyTorch module per pixel. The hero
+shows one live grid in three views at once; section 3 is a full lab with parameter sliders, live
+diversity metrics and a draggable annihilation kernel. Panels that run the substrate carry a
+`Live` badge rather than `Paper`, and a callout names the two behaviours the port does not
+reproduce and why.
+
+The published results are still data, not simulation. `sonca/assets/data/runs.js` holds all 24 long
+runs — GEP, GCVP, CLOGV, the GHC and RWSP unique-colour counts with their five-fold min–max
+envelopes, and the CTFP series per cell type — recovered from the vector figures released with the
+paper and resampled onto a common 5-generation grid. The recovery checks out against a quantity the
+plots never state: every run's GHC count at generation 1 equals `init_prob × 40,000`, which is the
+founder count by construction. The 200 × 200 grids under `sonca/assets/runs/` are the rasters
+extracted from those same figures, at their native lattice resolution.
+
 ---
 
 ## Working on it locally
@@ -107,6 +132,7 @@ python3 -m http.server 8000
 ```
 
 Then <http://localhost:8000> for the site and <http://localhost:8000/panodiff/> for a project page.
+`sonca/` is the heaviest page (about 8 MB of grids, figures and animations, all lazy-loaded).
 
 When you change a project's `style.css`, `app.js` or `assets/data/data.js`, bump the `?v=` query
 string on its `<link>` and `<script>` tags in that page's `index.html` so returning visitors are not
