@@ -277,7 +277,7 @@
     {
       name: 'Pool and prepare', img: 'tsne_sources.png',
       cap: 'Five source datasets in ResNet-50 feature space. They separate, and the model is trained on the mixture.',
-      body: '7243 radiographs from five public datasets, each cropped with margins fixed per source to remove that device’s letterboxing, then resized to 1024 &times; 512 with Lanczos.',
+      body: '7243 radiograph files (5653 distinct radiographs) from five public datasets, each cropped with margins fixed per source to remove that device’s letterboxing, then resized to 1024 &times; 512 with Lanczos.',
       log: 'process_data.py'
     },
     {
@@ -307,7 +307,7 @@
     {
       name: 'Evaluate', img: 'piecharts.png',
       cap: 'Every decision of all six observers, split by correctness and certainty.',
-      body: 'Distribution metrics (t-SNE, FID, Inception score), a time-limited observer study with six dentists, inter-observer agreement, and a ViT trained to separate real from synthetic as an implicit check.',
+      body: 'Distribution metrics (t-SNE, FID, KID, precision and recall, Inception score), a time-limited observer study with six dentists, inter-observer agreement, a ViT trained to separate real from synthetic, a MedSAM probe that has never seen either set, and direct high-resolution baselines.',
       log: '7243 × 4 image sets · 6 observers × 200 images'
     }
   ];
@@ -348,7 +348,7 @@
     D.datasets.forEach(function (d, i) {
       var tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
-      tr.innerHTML = '<td><b>' + d.abbr + '</b></td><td>' + d.n.toLocaleString() + '</td><td>' +
+      tr.innerHTML = '<td><b>' + d.abbr + '</b></td><td>' + (d.nlabel || d.n.toLocaleString()) + '</td><td>' +
         d.country + '</td><td class="mono" style="font-size:12.5px">' + d.res + '</td>';
       tr.addEventListener('click', function () { select(i); });
       tb.appendChild(tr);
@@ -360,7 +360,7 @@
       $('#dsVerdict').textContent = d.full;
       $('#dsBody').innerHTML = d.note + ' Released as ' + d.fmt + ' in ' + d.year +
         ', available via ' + d.avail + '. <a href="' + d.url + '" target="_blank" rel="noopener">Source &rarr;</a>';
-      $('#dsMeta').textContent = d.n.toLocaleString() + ' images, native ' + d.res +
+      $('#dsMeta').textContent = (d.nlabel || d.n.toLocaleString()) + ' images, native ' + d.res +
         ', all resized to 1024 × 512 for training.';
     }
     select(1);
@@ -684,10 +684,10 @@
   (function () {
     var img = $('#armImg'), thumbs = $('#armThumbs'), arm = 'DIFFHATSR', row = 0;
     var INFO = {
-      DIFFHATSR: ['Diffusion + HAT-SR', 'The pipeline of this paper. FID 40.5 against real high-resolution radiographs, the best of the four arms, and IS 2.31.'],
-      DIFFSWINIR: ['Diffusion + SwinIR', 'The same seeds through SwinIR instead. FID rises to 91.1 and IS falls to 1.56 — the lowest on the page. SwinIR here was fine-tuned on a pixel loss alone, which is most of the reason.'],
-      GANHATSR: ['FastGAN + HAT-SR', 'A GAN seed carried by the same super-resolution model. FID 102.2. The upscaler cannot repair anatomy the seed did not have.'],
-      GANSWINIR: ['FastGAN + SwinIR', 'Both weaker halves together: FID 115.0, the worst arm. Notably it sits only 15.1 FID from GAN + HAT, so the two SR models disagree far less about GAN seeds than about diffusion seeds.']
+      DIFFHATSR: ['Diffusion + HAT-SR', 'The pipeline of this paper, and the closest of the four arms to real high-resolution radiographs on every measure: FID 40.5, KID 40.8, precision 0.56 and recall 0.29.'],
+      DIFFSWINIR: ['Diffusion + SwinIR', 'The same seeds through SwinIR, fine-tuned on the same radiographs. FID rises to 94.4. SwinIR returns something close to a smooth enlargement of its input: it keeps about 4% of the high-frequency energy of real radiographs, against about 70% for HAT-SR. Its Inception score (2.89) is nonetheless the highest of the four.'],
+      GANHATSR: ['FastGAN + HAT-SR', 'A GAN seed carried by the same super-resolution model. FID 102.3. The upscaler cannot repair anatomy the seed did not have, and recall stays below 1%.'],
+      GANSWINIR: ['FastGAN + SwinIR', 'Both weaker halves together: FID 109.7, the furthest arm from the real radiographs. It sits 54.8 FID from FastGAN + HAT-SR, so the choice of upscaler matters less for GAN seeds, which limit what either upscaler can recover.']
     };
     D.srarms.forEach(function (r, i) {
       var b = document.createElement('button');
@@ -758,7 +758,7 @@
       rows.forEach(function (r, k) { if (r.name === 'HRGT-HRPD') idx = k; });
       if (idx > -1) {
         var yy = T + rh * idx;
-        svg.appendChild(el('rect', { x: L - 3, y: yy + rh * 0.1, width: X(40.7) - L + 6, height: rh * 0.8, fill: 'none', stroke: css('--synth'), 'stroke-width': 1.6, 'stroke-dasharray': '3 3' }));
+        svg.appendChild(el('rect', { x: L - 3, y: yy + rh * 0.1, width: X(40.5) - L + 6, height: rh * 0.8, fill: 'none', stroke: css('--synth'), 'stroke-width': 1.6, 'stroke-dasharray': '3 3' }));
       }
     }
     document.addEventListener('themechange', draw);
@@ -770,9 +770,9 @@
   (function () {
     var root = $('#isBars'), view = 'main';
     var NOTES = {
-      main: 'Pure Gaussian noise scores 1.05, which is the floor. Low-resolution PanoDiff (2.99) scores above real low-resolution data (2.91); high-resolution PanoDiff (2.31) scores below real (2.55). Inception score never looks at the real distribution, so read these as diversity and classifiability, not fidelity.',
+      main: 'Pure Gaussian noise scores 1.05, which is the floor. Low-resolution PanoDiff (2.98) scores above real low-resolution data (2.90); high-resolution PanoDiff (2.38) scores below real (2.68). Inception score never looks at the real distribution, so read these as diversity and classifiability, not fidelity.',
       sources: 'The five real source datasets span 2.63 to 2.94 among themselves. Any synthetic set has to be read against that spread rather than against a single number.',
-      arms: 'Ten arms, ranked. The two SwinIR arms sit at the bottom; the HAT arms sit above their SwinIR counterparts in every pairing, including on real data, where LRGT+HATSR (2.73) beats LRGT+SwinIR (2.39).'
+      arms: 'Ten arms, ranked. With both upscalers fine-tuned on the same radiographs, SwinIR scores higher than HAT-SR in every pairing, and PanoDiff + SwinIR (2.89) even scores above real high-resolution radiographs (2.68), although its images are the smoothest in the comparison. A score above that of real radiographs is the clearest sign that IS does not measure radiographic realism; the arms are compared on FID, KID, precision and recall in the table below instead.'
     };
     function bar(name, mean, sd, c, best) {
       var lo = 1.0, hi = 3.1;
@@ -1104,7 +1104,7 @@
   (function () {
     var root = $('#attnBars');
     D.attnStats.forEach(function (s) {
-      var scale = s.name.indexOf('entropy') > -1 ? { lo: 5.9, hi: 6.35 } : { lo: 0, hi: 0.7 };
+      var scale = s.name.indexOf('entropy') > -1 ? { lo: 5.9, hi: 6.2 } : { lo: 0, hi: 0.5 };
       function w(v) { return Math.max(1, Math.min(100, 100 * (v - scale.lo) / (scale.hi - scale.lo))); }
       var d = document.createElement('div');
       d.style.margin = '0 0 16px';
@@ -1118,11 +1118,54 @@
             (k === 'real' ? 'real' : 'synthetic') + '</span><span class="barval">' + fmt(v, 4) +
             ' <span style="font-weight:400;color:var(--text-mute)">± ' + fmt(sd, 4) + '</span></span></div>' +
             '<div class="bartrack"><div class="barfill" style="width:' + w(v) + '%;background:' +
-            css(k === 'real' ? '--real' : '--synth') + '"></div>' +
-            '<div class="barfill ghost" style="width:' + w(s.unif) + '%"></div></div></div>';
-        }).join('') +
-        '<div class="note" style="font-size:12.5px">uniform reference ' + fmt(s.unif, 4) + ' (dashed)</div>';
+            css(k === 'real' ? '--real' : '--synth') + '"></div></div></div>';
+        }).join('');
       root.appendChild(d);
+    });
+  })();
+
+  /* ---------------- 6c. Table 9: distance, fidelity and coverage per arm ---------------- */
+
+  (function () {
+    var tb = $('#armsTable tbody');
+    if (!tb) return;
+    var rows = D.arms.toReal;
+    ['lr', 'hr'].forEach(function (res) {
+      var grp = rows.filter(function (r) { return r.res === res; });
+      var bF = Math.min.apply(null, grp.map(function (r) { return r.fid; }));
+      var bK = Math.min.apply(null, grp.map(function (r) { return r.kid; }));
+      var bP = Math.max.apply(null, grp.map(function (r) { return r.p; }));
+      var bR = Math.max.apply(null, grp.map(function (r) { return r.r; }));
+      var h = document.createElement('tr');
+      h.innerHTML = '<td colspan="5" class="note" style="text-align:left;font-style:italic">' +
+        (res === 'lr' ? 'Low resolution (256 × 128), against the 7243 real LR radiographs'
+                      : 'Full resolution (1024 × 512), against the 7243 real HR radiographs') + '</td>';
+      tb.appendChild(h);
+      grp.forEach(function (r) {
+        var tr = document.createElement('tr');
+        if (r.ours) tr.className = 'ours';
+        tr.innerHTML = '<td style="text-align:left">' + r.b + '</td>' +
+          '<td class="' + (r.fid === bF ? 'best' : '') + '">' + fmt(r.fid, 1) + '</td>' +
+          '<td class="' + (r.kid === bK ? 'best' : '') + '">' + fmt(r.kid, 1) + ' <span class="note">± ' + fmt(r.kidsd, 1) + '</span></td>' +
+          '<td class="' + (r.p === bP ? 'best' : '') + '">' + fmt(r.p, 3) + '</td>' +
+          '<td class="' + (r.r === bR ? 'best' : '') + '">' + fmt(r.r, 3) + '</td>';
+        tb.appendChild(tr);
+      });
+    });
+  })();
+
+  /* ---------------- 8c. Table 7: MedSAM probe ---------------- */
+
+  (function () {
+    var tb = $('#medsamTable tbody');
+    if (!tb) return;
+    D.medsam.forEach(function (r) {
+      var tr = document.createElement('tr');
+      var big = Math.abs(parseFloat(r.r.replace('−', '-'))) >= 0.3;
+      tr.innerHTML = '<td style="text-align:left"><b>' + r.prompt + '</b></td><td style="text-align:left">' + r.m + '</td>' +
+        '<td>' + r.real + '</td><td>' + r.syn + '</td>' +
+        '<td' + (big ? ' style="color:var(--warn);font-weight:700"' : '') + '>' + r.r + '</td><td>' + r.dev + '</td>';
+      tb.appendChild(tr);
     });
   })();
 
