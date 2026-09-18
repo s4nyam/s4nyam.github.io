@@ -447,8 +447,31 @@
     });
   })();
 
+  /* ---------------- citation formats ---------------- */
+
+  (function () {
+    var tabs = $('#citeTabs');
+    if (!tabs) return;
+    tabs.addEventListener('click', function (e) {
+      var b = e.target.closest('.citetab');
+      if (!b) return;
+      var want = b.getAttribute('data-cite');
+      $$('.citetab', tabs).forEach(function (t) {
+        t.setAttribute('aria-pressed', String(t === b));
+      });
+      $$('.citebody').forEach(function (pre) {
+        pre.hidden = pre.getAttribute('data-cite') !== want;
+      });
+    });
+  })();
+
+  function visibleCite() {
+    var shown = $$('.citebody').filter(function (pre) { return !pre.hidden; })[0];
+    return (shown || $('#bibtex')).textContent;
+  }
+
   $('#copyBib').addEventListener('click', function () {
-    var txt = $('#bibtex').textContent, msg = $('#copiedMsg');
+    var txt = visibleCite(), msg = $('#copiedMsg');
     function done() { msg.classList.add('on'); setTimeout(function () { msg.classList.remove('on'); }, 1600); }
     if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(done, done); }
     else {
@@ -1286,6 +1309,7 @@
         [cur + '-nca-alpha.png', '&alpha; channel ' + endLab, 'Alpha channel of experiment ' + cur + ' ' + endLab],
         [cur + '-nca-chem.png', 'chemistry ' + endLab, 'Hidden chemistry channel of experiment ' + cur + ' ' + endLab],
         [cur + '-ghc1.png', 'GHC, generation 1', 'Genotype hash colouring at generation 1'],
+        [cur + '-rwsp1.png', 'RWSP, generation 1', 'Three-locus probe at generation 1'],
         [cur + '-ghc' + late + '.png', 'GHC, generation ' + late, 'Genotype hash colouring at generation ' + late],
         [cur + '-rwsp' + late + '.png', 'RWSP, generation ' + late, 'Three-locus probe at generation ' + late]
       ];
@@ -1294,6 +1318,14 @@
         var f = document.createElement('figure');
         f.innerHTML = '<img loading="lazy" decoding="async" src="assets/runs/' + sh[0] + '" alt="' + sh[2] + '">'
           + '<figcaption>' + sh[1] + '</figcaption>';
+        // a panel that fails to load is replaced by a labelled placeholder rather
+        // than a broken-image icon
+        $('img', f).addEventListener('error', function () {
+          var ph = document.createElement('div');
+          ph.className = 'shotmiss';
+          ph.textContent = 'panel unavailable';
+          this.replaceWith(ph);
+        });
         shots.appendChild(f);
       });
 

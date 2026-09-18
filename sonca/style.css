@@ -283,6 +283,20 @@ figure.fig figcaption { font-size: 13.5px; color: var(--text-soft); padding-top:
 figure.fig figcaption b { color: var(--text); }
 .figpair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+/* background figures (section 1): four sources of very different aspect ratio,
+   boxed to a common height so the grid reads as one row of four ideas */
+.bgfigs { align-items: start; }
+.bgfigs figure.fig img {
+  width: 100%; object-fit: contain;
+  background: #fff; padding: 8px; box-sizing: border-box;
+}
+.bgfigs figure.fig:nth-child(-n+2) img { height: 156px; }   /* the two wide strips */
+.bgfigs figure.fig:nth-child(n+3)  img { height: 240px; }   /* the two tall diagrams */
+@media (max-width: 760px) {
+  .bgfigs figure.fig:nth-child(-n+2) img { height: 120px; }
+  .bgfigs figure.fig:nth-child(n+3)  img { height: 190px; }
+}
+
 .lightbox {
   position: fixed; inset: 0; z-index: 90; display: none; background: rgba(6, 7, 11, .94);
   padding: 28px; cursor: zoom-out; align-items: center; justify-content: center;
@@ -407,7 +421,9 @@ table.data caption { text-align: left; padding-bottom: 8px; }
 .runpick button.died { color: var(--gcvp); border-style: dashed; }
 .runpick button:hover:not([aria-pressed="true"]) { border-color: var(--navy); color: var(--text); }
 
-.runshots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0 4px; }
+.runshots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0 4px; }
+@media (max-width: 1100px) { .runshots { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .runshots { grid-template-columns: repeat(2, 1fr); } }
 .runshots figure { margin: 0; }
 .runshots img { width: 100%; display: block; border: 1px solid var(--rule-strong); background: var(--void); image-rendering: pixelated; cursor: zoom-in; }
 .runshots figcaption { font-size: 11.5px; color: var(--text-soft); padding-top: 5px; line-height: 1.3; }
@@ -432,6 +448,24 @@ table.data caption { text-align: left; padding-bottom: 8px; }
 /* ---------- cite ---------- */
 
 pre.bib { background: var(--bg-sunk); border: 1px solid var(--rule); padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+pre.bib[hidden] { display: none; }
+pre.bib.flow { white-space: pre-wrap; word-break: break-word; }
+
+/* citation format switcher */
+.citetabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.citetab {
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 5px 13px; border-radius: 999px; border: 1px solid var(--rule-strong);
+  background: var(--panel); color: var(--text-soft);
+}
+.citetab:hover { border-color: var(--navy); color: var(--navy); }
+.citetab[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: var(--bg); }
+
+/* a run panel that cannot be loaded, in place of a broken image */
+.shotmiss {
+  display: grid; place-items: center; aspect-ratio: 1; border: 1px dashed var(--rule-strong);
+  background: var(--bg-sunk); color: var(--text-mute); font-size: 11px; text-align: center; padding: 4px;
+}
 .copyrow { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
 .copied { font-size: 13.5px; color: var(--text-soft); opacity: 0; transition: opacity .2s; }
 .copied.on { opacity: 1; }
@@ -457,7 +491,6 @@ footer p { max-width: 46em; }
 @media (max-width: 560px) {
   .triptych { grid-template-columns: 1fr; }
   .labviews { grid-template-columns: 1fr; }
-  .runshots { grid-template-columns: repeat(2, 1fr); }
   .runpick { grid-template-columns: repeat(6, 1fr); }
   .anims { grid-template-columns: 1fr; }
   .figpair { grid-template-columns: 1fr; }
