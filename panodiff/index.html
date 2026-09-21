@@ -296,7 +296,7 @@
     <div class="wrap">
       <h2><span class="num">3</span>Five datasets, five devices, one corpus</h2>
       <p class="lede">7243 radiograph files &mdash; 5653 distinct radiographs &mdash; pooled from five public sources
-        on four continents, cropped per source and resized to a common 1024&nbsp;&times;&nbsp;512.</p>
+        on four continents, cropped by one fixed margin and resized to a common 1024&nbsp;&times;&nbsp;512.</p>
 
       <div class="tiles">
         <div class="tile"><span class="statnum">7,243</span><span class="lab">files after preparation: 5,653 distinct radiographs</span><div class="src">paper &sect;3.1</div></div>
@@ -351,16 +351,15 @@
           <h3>What preparation does to an image</h3>
           <span class="badge repo">process_data.py</span>
         </div>
-        <p style="max-width:none">One step, applied to everything: a crop that is hard-coded per source to remove
-          that device's letterboxing and burned-in markers, then a Lanczos resize to 1024&nbsp;&times;&nbsp;512.
-          The crop margins are the whole trick &mdash; without them, five differently framed corpora cannot be
-          pooled into one training set.</p>
-        <pre class="code">crop_top_left_bottom_right, per source
-  ADLD     (90, 30, 30, 170)
-  DENTEX   (20, 100, 50, 20)
-  TUFTS    (20, 30, 100, 100)
-  USPFORP  (30, 30, 165, 30)
-then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
+        <p style="max-width:none">One step, applied to everything: a fixed margin is cropped from every source
+          radiograph to remove letterboxing and burned-in markers, then a Lanczos resize to
+          1024&nbsp;&times;&nbsp;512. The margin is the same for all five sources, and it matters beyond training:
+          any real radiograph compared with the synthetic ones has to be framed the same way, which is why the
+          held-out restoration test (&sect;<a href="#sr">5</a>) and the MedSAM probe (&sect;<a href="#medsam">9</a>)
+          apply exactly this step to their real images.</p>
+        <pre class="code">crop_top_left_bottom_right = (64, 127, 90, 127)   # every source, in source pixels
+w, h = img.size
+img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       </div>
     </div>
   </section>
@@ -621,16 +620,18 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
         radiograph pairs. On generated seeds HAT-SR brings both generators closer to the real radiographs than
         SwinIR does (&sect;<a href="#metrics">6</a>), and the reason is visible in the arm viewer below: the
         fine-tuned SwinIR returns something close to a smooth enlargement of its input. Measured with a Laplacian
-        filter, PanoDiff's samples keep about 4% of the high-frequency energy of real radiographs after SwinIR,
-        against about 70% after HAT-SR.</p>
-      <p>Restoring real radiographs shows where that comes from. Under identical pre-training and a matched
-        budget, the two architectures are perceptually equivalent before any fine-tuning (LPIPS 0.274 against
-        0.269); what separates them afterwards is the <em>objective</em>, not the architecture &mdash; HAT was
-        fine-tuned with pixel, perceptual and adversarial terms, SwinIR with a pixel loss alone.</p>
+        filter over all 7243 images, PanoDiff's samples keep about 4% of the high-frequency energy of real
+        radiographs after SwinIR, against about 80% after HAT-SR.</p>
+      <p>Restoring real radiographs shows where that comes from. The test uses the 185 radiographs of the DENTEX
+        validation and test sets that are not in the training corpus (the other 115 of those 300 are
+        pixel-identical to DENTEX training images), prepared exactly as the corpus was, downsampled fourfold and
+        restored. With their released natural-image weights the two networks are perceptually close (LPIPS 0.310
+        against 0.291). Fine-tuning separates them in opposite directions: SwinIR becomes the best of the four on
+        PSNR and SSIM, HAT-SR the best on LPIPS, and each ordering holds on all 185 images.</p>
 
       <div class="panel">
         <div class="panel-head">
-          <h3>Matched pre-training, matched budget</h3>
+          <h3>Restoring 185 held-out radiographs</h3>
           <span class="badge paper">Paper Table 10</span>
         </div>
         <div class="tablewrap">
@@ -639,9 +640,12 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
             <tbody></tbody>
           </table>
         </div>
-        <p class="note">SwinIR fine-tuned on a pixel loss posts the best PSNR and SSIM on the page and the worst
-          LPIPS &mdash; the same trap as bicubic, one row further along. Fine-tuning SwinIR with HAT's exact
-          recipe is the experiment that would settle the architecture question, and it has not been run.</p>
+        <p class="note">Winning on the distortion measures while losing on the perceptual one is the
+          perception&ndash;distortion trade-off, and it has been reported for dental radiographs too. Two things
+          drive it here. SwinIR was fine-tuned with a pixel loss alone, which favours smooth averages, and HAT-SR
+          with pixel, perceptual and adversarial terms. And SwinIR was fine-tuned on exactly this fixed fourfold
+          downsampling, HAT-SR on varied blur, noise and compression, so the table measures restoration from
+          this one degradation rather than super-resolution in general.</p>
       </div>
 
       <div class="panel">
@@ -670,6 +674,50 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="panel" id="loupe">
+        <div class="panel-head">
+          <h3>Look closer: one seed, both upscalers</h3>
+          <span class="badge paper">Paper Figure 18</span>
+          <span class="hint">Hover over any image &mdash; the lens follows in all three.</span>
+        </div>
+        <div class="controls loupe-controls">
+          <div class="switch" role="group" aria-label="Generator" id="loupeGen">
+            <button type="button" data-gen="diff" aria-pressed="true">PanoDiff</button>
+            <button type="button" data-gen="gan" aria-pressed="false">FastGAN</button>
+          </div>
+          <div class="switch" role="group" aria-label="Sample" id="loupeSeed"></div>
+          <div class="switch" role="group" aria-label="Magnification" id="loupeZoom">
+            <button type="button" data-z="2" aria-pressed="false">2&times;</button>
+            <button type="button" data-z="3" aria-pressed="true">3&times;</button>
+            <button type="button" data-z="4" aria-pressed="false">4&times;</button>
+          </div>
+        </div>
+        <div class="loupe-grid" id="loupeGrid">
+          <figure class="loupe-cell">
+            <div class="loupe-stage" data-arm="lr" tabindex="0" aria-label="Low-resolution seed; use the arrow keys to move the lens">
+              <img alt="Low-resolution seed, bicubic-upscaled for display"><div class="lens" aria-hidden="true"></div>
+            </div>
+            <figcaption><b>Seed</b> 256&nbsp;&times;&nbsp;128, bicubic for display</figcaption>
+          </figure>
+          <figure class="loupe-cell">
+            <div class="loupe-stage" data-arm="hat" tabindex="0" aria-label="HAT-SR output; use the arrow keys to move the lens">
+              <img alt="The same seed after HAT-SR"><div class="lens" aria-hidden="true"></div>
+            </div>
+            <figcaption><b class="c-sr">HAT-SR</b> 1024&nbsp;&times;&nbsp;512</figcaption>
+          </figure>
+          <figure class="loupe-cell">
+            <div class="loupe-stage" data-arm="swin" tabindex="0" aria-label="SwinIR output; use the arrow keys to move the lens">
+              <img alt="The same seed after SwinIR"><div class="lens" aria-hidden="true"></div>
+            </div>
+            <figcaption><b>SwinIR</b> 1024&nbsp;&times;&nbsp;512</figcaption>
+          </figure>
+        </div>
+        <p class="note" style="margin-top:10px">Full-resolution images; the first three samples of each generator are
+          the columns of the paper's Figure 18. Both upscalers were fine-tuned on the same 7243 radiographs. Look at
+          enamel edges, the periodontal ligament space and the trabecular bone of the ramus: HAT-SR reconstructs
+          them, SwinIR returns a smooth enlargement of the seed. On a touch screen, drag across an image.</p>
       </div>
     </div>
   </section>
@@ -756,8 +804,13 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
         </div>
         <p class="note" style="margin-top:8px">Numbers are the source indices of the paper's Table 8. KID is the mean
           &plusmn; sd over 100 subsets of 1000 images. Precision and recall use the same Inception features with
-          k&nbsp;=&nbsp;3 nearest neighbours. PanoDiff with HAT-SR is the closest arm to the real radiographs on all
-          four measures, each by a wide margin.</p>
+          k&nbsp;=&nbsp;3 nearest neighbours. PanoDiff with HAT-SR is the closest generated arm to the real
+          radiographs on all four measures, each by a wide margin. The last two rows apply the same upscalers to
+          the <em>real</em> low-resolution images, which isolates the upscaling step: both land far closer to the
+          real set than any generated arm, so most of the remaining distance comes from the generator. There the
+          order reverses &mdash; with a real input the correct output exists, a pixel-loss network returns a smooth
+          estimate that stays close to it, and a network trained with adversarial terms resynthesises detail that
+          is plausible but not this radiograph's. On generated seeds there is no true detail to stay close to.</p>
       </div>
 
       <figure class="fig">
@@ -1026,7 +1079,9 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
         good it believes that mask to be. If synthetic teeth look like real teeth to such a model, it should segment
         them with the same confidence and accuracy. It was run on all 7243 synthetic radiographs and on the 2697
         real radiographs that have a manual tooth mask: 500 ADLD, 634 DENTEX, 598 TSXK and 1000 TUFTS, less 35 with
-        an empty mask. Every image received the same three kinds of box prompt: a <em>fixed</em> box at the same
+        an empty mask. The real radiographs were prepared exactly as the training corpus was, so both sets are
+        framed alike &mdash; straight from the source files, their dentition would cover a quarter less of the
+        image, and every measure would read that as anatomy. Every image received the same three kinds of box prompt: a <em>fixed</em> box at the same
         position in every image, a <em>dentition</em> box around the tooth region, and one box per
         <em>tooth region</em>.</p>
 
@@ -1038,15 +1093,16 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
         </div>
         <div class="tablewrap">
           <table class="data" id="medsamTable">
-            <thead><tr><th style="text-align:left">Prompt</th><th style="text-align:left">Measure</th><th>Real</th><th>Synthetic</th><th>r</th><th>Device vs. others |r|</th></tr></thead>
+            <thead><tr><th style="text-align:left">Prompt</th><th style="text-align:left">Measure</th><th>Real</th><th>Synthetic</th><th>r</th><th>p</th><th>Device vs. others |r|</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
         <p class="note" style="margin-top:8px">r is the effect size of the real&ndash;synthetic difference
           (rank-biserial; r&nbsp;&gt;&nbsp;0 means higher on real; |r|&nbsp;&lt;&nbsp;0.1 negligible,
-          0.1&ndash;0.3 small, above 0.3 medium). The last column gives, for scale, the range of |r| when each real
+          0.1&ndash;0.3 small, above 0.3 medium) and p the two-sided Mann&ndash;Whitney value. The last column gives, for scale, the range of |r| when each real
           device is compared with the other three on the same measure. Dice is the overlap with the tooth region
-          the prompt was built from; against the manual masks MedSAM reaches 0.83 with tooth-region prompts.</p>
+          the prompt was built from; against the manual masks MedSAM reaches 0.83 with tooth-region prompts and
+          0.78 with the dentition box.</p>
       </div>
 
       <figure class="fig">
@@ -1058,15 +1114,16 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
       </figure>
 
       <div class="callout">
-        <p><b>Convincing teeth, a less convincing dentition.</b> Tooth region by tooth region MedSAM cannot tell the
-          two sets apart: predicted quality 0.504 against 0.503, Dice 0.832 against 0.824. With the fixed box the
-          difference is small, and smaller than the difference between any one real device and the other three.
-          Only with the dentition box does it become medium-sized (quality 0.501 against 0.462, r&nbsp;=&nbsp;+0.35):
-          what MedSAM is less sure about is the dentition as a whole, how the teeth are arranged. That is the same
-          picture the attention analysis gave &mdash; convincing local detail, differences in the global arrangement
-          &mdash; obtained here without training anything on the images being judged. The reference regions come
-          from the authors' own U-Net, used identically on both sets, and tooth regions are connected regions rather
-          than individual teeth.</p>
+        <p><b>MedSAM cannot tell them apart.</b> Under all three prompts its predicted quality is almost the same
+          on both sets &mdash; 0.464 against 0.466 with the fixed box, 0.480 against 0.472 with the dentition box,
+          0.505 against 0.507 per tooth region &mdash; every difference negligible (|r|&nbsp;&le;&nbsp;0.08), and
+          not even in a consistent direction. The real devices differ from each other by more than that. The one
+          effect above negligible is that synthetic dentitions break into slightly more regions (4.2 against 3.4
+          per image), still inside the range of the real devices. A classifier trained on the two classes separates
+          them at 97.7% (&sect;<a href="#attention">8</a>); a general segmentation model does not, so what separates
+          them is a signature a detector can learn, not a property such a model relies on. The reference regions
+          come from the authors' own U-Net, used identically on both sets, and tooth regions are connected regions
+          rather than individual teeth.</p>
       </div>
     </div>
   </section>
@@ -1216,9 +1273,10 @@ then  img.crop(box).resize((1024, 512), LANCZOS)</pre>
         </div>
         <div class="card">
           <h4>The SR architecture question is open</h4>
-          <p>Matched pre-training and budget removed two confounds, but HAT was fine-tuned with perceptual and
-            adversarial terms and the recovered SwinIR with a pixel loss. The objective, not the architecture, is
-            what produced the difference.</p>
+          <p>With their released weights the two upscalers are perceptually close. They were fine-tuned on the
+            same radiographs but with different objectives and input degradations &mdash; HAT with perceptual and
+            adversarial terms on varied degradations, SwinIR with a pixel loss on fixed fourfold pairs &mdash; so
+            the comparison does not separate the architecture from the objective.</p>
         </div>
         <div class="card">
           <h4>Memorisation is bounded, not excluded</h4>

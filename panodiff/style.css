@@ -497,3 +497,29 @@ footer p { max-width: 48em; }
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ---------- Figure 18 magnifier: one lens, mirrored across three panels ---------- */
+.loupe-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.loupe-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.loupe-cell { margin: 0; min-width: 0; }
+.loupe-cell figcaption { font-size: 13px; color: var(--text-soft); margin-top: 6px; }
+.loupe-cell figcaption .c-sr { color: var(--sr); }
+.loupe-stage {
+  position: relative; overflow: hidden; background: var(--film);
+  border: 1px solid var(--rule-strong); cursor: crosshair; touch-action: none; outline: none;
+}
+.loupe-stage:focus-visible { box-shadow: 0 0 0 2px var(--sr); }
+.loupe-stage img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+.loupe-stage .lens {
+  position: absolute; left: 0; top: 0; border-radius: 50%; pointer-events: none;
+  border: 2px solid var(--sr); box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 6px 18px rgba(0, 0, 0, .45);
+  background-repeat: no-repeat; background-color: var(--film);
+  opacity: 0; transition: opacity .12s ease; will-change: transform, background-position;
+}
+.loupe-grid.on .lens { opacity: 1; }
+.loupe-stage[data-arm="lr"] .lens { border-color: var(--text-mute); }
+.loupe-stage[data-arm="swin"] .lens { border-color: var(--gan); }
+@media (max-width: 720px) {
+  .loupe-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .loupe-stage .lens { transition: none; } }

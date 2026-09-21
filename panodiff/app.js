@@ -277,7 +277,7 @@
     {
       name: 'Pool and prepare', img: 'tsne_sources.png',
       cap: 'Five source datasets in ResNet-50 feature space. They separate, and the model is trained on the mixture.',
-      body: '7243 radiograph files (5653 distinct radiographs) from five public datasets, each cropped with margins fixed per source to remove that device’s letterboxing, then resized to 1024 &times; 512 with Lanczos.',
+      body: '7243 radiograph files (5653 distinct radiographs) from five public datasets, each cropped by the same fixed margin to remove letterboxing and burned-in markers, then resized to 1024 &times; 512 with Lanczos.',
       log: 'process_data.py'
     },
     {
@@ -670,7 +670,7 @@
     var bestL = Math.min.apply(null, D.swinir.map(function (r) { return r.lpips; }));
     D.swinir.forEach(function (r) {
       var tr = document.createElement('tr');
-      if (r.name.indexOf('HAT, fine-tuned') === 0) tr.className = 'ours';
+      if (r.name.indexOf('HAT-SR') === 0) tr.className = 'ours';
       tr.innerHTML = '<td>' + r.name + '</td>' +
         '<td class="' + (r.psnr === bestP ? 'best' : '') + '">' + fmt(r.psnr, 2) + '</td>' +
         '<td class="' + (r.ssim === bestS ? 'best' : '') + '">' + fmt(r.ssim, 3) + '</td>' +
@@ -685,7 +685,7 @@
     var img = $('#armImg'), thumbs = $('#armThumbs'), arm = 'DIFFHATSR', row = 0;
     var INFO = {
       DIFFHATSR: ['Diffusion + HAT-SR', 'The pipeline of this paper, and the closest of the four arms to real high-resolution radiographs on every measure: FID 40.5, KID 40.8, precision 0.56 and recall 0.29.'],
-      DIFFSWINIR: ['Diffusion + SwinIR', 'The same seeds through SwinIR, fine-tuned on the same radiographs. FID rises to 94.4. SwinIR returns something close to a smooth enlargement of its input: it keeps about 4% of the high-frequency energy of real radiographs, against about 70% for HAT-SR. Its Inception score (2.89) is nonetheless the highest of the four.'],
+      DIFFSWINIR: ['Diffusion + SwinIR', 'The same seeds through SwinIR, fine-tuned on the same radiographs. FID rises to 94.4. SwinIR returns something close to a smooth enlargement of its input: it keeps about 4% of the high-frequency energy of real radiographs, against about 80% for HAT-SR. Its Inception score (2.89) is nonetheless the highest of the four.'],
       GANHATSR: ['FastGAN + HAT-SR', 'A GAN seed carried by the same super-resolution model. FID 102.3. The upscaler cannot repair anatomy the seed did not have, and recall stays below 1%.'],
       GANSWINIR: ['FastGAN + SwinIR', 'Both weaker halves together: FID 109.7, the furthest arm from the real radiographs. It sits 54.8 FID from FastGAN + HAT-SR, so the choice of upscaler matters less for GAN seeds, which limit what either upscaler can recover.']
     };
@@ -709,6 +709,73 @@
     group($('#armSwitch'), 'data-arm', function (v) { arm = v; paint(); });
     img.addEventListener('click', function () { zoom(img.src, INFO[arm][0]); });
     paint();
+  })();
+
+  /* ---------------- 5e. Figure 18 magnifier ---------------- */
+  /* One lens position, mirrored across the seed, HAT-SR and SwinIR panels, so the same anatomy is
+     compared at the same place. The lens paints the full-resolution 1024x512 image as its background. */
+
+  (function () {
+    var grid = $('#loupeGrid');
+    if (!grid) return;
+    var N = 5, gen = 'diff', seed = 0, z = 3, fx = 0.5, fy = 0.5;
+    var stages = $$('.loupe-stage', grid);
+    var seedBox = $('#loupeSeed');
+    for (var i = 0; i < N; i++) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('data-seed', i); b.setAttribute('aria-pressed', i === 0);
+      b.textContent = String(i + 1);
+      b.title = i < 3 ? 'Sample ' + (i + 1) + ' (a column of Figure 18)' : 'Sample ' + (i + 1);
+      seedBox.appendChild(b);
+    }
+    function src(arm) { return 'assets/zoom/' + gen + seed + '_' + arm + '.jpg'; }
+    function load() {
+      stages.forEach(function (st) {
+        var url = src(st.getAttribute('data-arm'));
+        st.querySelector('img').src = url;
+        st.querySelector('.lens').style.backgroundImage = 'url("' + url + '")';
+      });
+      place();
+    }
+    function place() {
+      stages.forEach(function (st) {
+        var w = st.clientWidth, h = st.clientHeight, lens = st.querySelector('.lens');
+        if (!w || !h) return;
+        var d = Math.max(90, Math.round(h * 0.62));
+        var x = fx * w, y = fy * h;
+        lens.style.width = d + 'px'; lens.style.height = d + 'px';
+        lens.style.transform = 'translate(' + (x - d / 2) + 'px,' + (y - d / 2) + 'px)';
+        lens.style.backgroundSize = (w * z) + 'px ' + (h * z) + 'px';
+        lens.style.backgroundPosition = (d / 2 - x * z) + 'px ' + (d / 2 - y * z) + 'px';
+      });
+    }
+    function at(e, st) {
+      var r = st.getBoundingClientRect();
+      fx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      fy = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      grid.classList.add('on');
+      place();
+    }
+    stages.forEach(function (st) {
+      st.addEventListener('pointermove', function (e) { at(e, st); });
+      st.addEventListener('pointerdown', function (e) { at(e, st); });
+      st.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') grid.classList.remove('on'); });
+      st.addEventListener('focus', function () { grid.classList.add('on'); place(); });
+      st.addEventListener('blur', function () { grid.classList.remove('on'); });
+      st.addEventListener('keydown', function (e) {
+        var step = e.shiftKey ? 0.1 : 0.025;
+        var k = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+        if (!k) return;
+        e.preventDefault();
+        fx = Math.min(1, Math.max(0, fx + k[0])); fy = Math.min(1, Math.max(0, fy + k[1]));
+        grid.classList.add('on'); place();
+      });
+    });
+    group($('#loupeGen'), 'data-gen', function (v) { gen = v; load(); });
+    group(seedBox, 'data-seed', function (v) { seed = +v; load(); });
+    group($('#loupeZoom'), 'data-z', function (v) { z = +v; place(); });
+    window.addEventListener('resize', place);
+    load();
   })();
 
   /* ---------------- 6. FID chart ---------------- */
@@ -1130,8 +1197,10 @@
     var tb = $('#armsTable tbody');
     if (!tb) return;
     var rows = D.arms.toReal;
-    ['lr', 'hr'].forEach(function (res) {
+    ['lr', 'hr', 'real'].forEach(function (res) {
       var grp = rows.filter(function (r) { return r.res === res; });
+      if (!grp.length) return;
+      var scale = res === 'real';          // real inputs give the scale; no bold there
       var bF = Math.min.apply(null, grp.map(function (r) { return r.fid; }));
       var bK = Math.min.apply(null, grp.map(function (r) { return r.kid; }));
       var bP = Math.max.apply(null, grp.map(function (r) { return r.p; }));
@@ -1139,16 +1208,18 @@
       var h = document.createElement('tr');
       h.innerHTML = '<td colspan="5" class="note" style="text-align:left;font-style:italic">' +
         (res === 'lr' ? 'Low resolution (256 × 128), against the 7243 real LR radiographs'
-                      : 'Full resolution (1024 × 512), against the 7243 real HR radiographs') + '</td>';
+         : res === 'hr' ? 'Full resolution (1024 × 512), against the 7243 real HR radiographs'
+         : 'For scale: the same upscalers on the real low-resolution images') + '</td>';
       tb.appendChild(h);
       grp.forEach(function (r) {
         var tr = document.createElement('tr');
         if (r.ours) tr.className = 'ours';
+        var b = function (hit) { return hit && !scale ? 'best' : ''; };
         tr.innerHTML = '<td style="text-align:left">' + r.b + '</td>' +
-          '<td class="' + (r.fid === bF ? 'best' : '') + '">' + fmt(r.fid, 1) + '</td>' +
-          '<td class="' + (r.kid === bK ? 'best' : '') + '">' + fmt(r.kid, 1) + ' <span class="note">± ' + fmt(r.kidsd, 1) + '</span></td>' +
-          '<td class="' + (r.p === bP ? 'best' : '') + '">' + fmt(r.p, 3) + '</td>' +
-          '<td class="' + (r.r === bR ? 'best' : '') + '">' + fmt(r.r, 3) + '</td>';
+          '<td class="' + b(r.fid === bF) + '">' + fmt(r.fid, 1) + '</td>' +
+          '<td class="' + b(r.kid === bK) + '">' + fmt(r.kid, 1) + ' <span class="note">± ' + fmt(r.kidsd, 1) + '</span></td>' +
+          '<td class="' + b(r.p === bP) + '">' + fmt(r.p, 3) + '</td>' +
+          '<td class="' + b(r.r === bR) + '">' + fmt(r.r, 3) + '</td>';
         tb.appendChild(tr);
       });
     });
@@ -1164,7 +1235,8 @@
       var big = Math.abs(parseFloat(r.r.replace('−', '-'))) >= 0.3;
       tr.innerHTML = '<td style="text-align:left"><b>' + r.prompt + '</b></td><td style="text-align:left">' + r.m + '</td>' +
         '<td>' + r.real + '</td><td>' + r.syn + '</td>' +
-        '<td' + (big ? ' style="color:var(--warn);font-weight:700"' : '') + '>' + r.r + '</td><td>' + r.dev + '</td>';
+        '<td' + (big ? ' style="color:var(--warn);font-weight:700"' : '') + '>' + r.r + '</td>' +
+        '<td>' + (r.p || '') + '</td><td>' + r.dev + '</td>';
       tb.appendChild(tr);
     });
   })();
