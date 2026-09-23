@@ -1156,7 +1156,7 @@
       $('#camBody').textContent = a.ok
         ? (a.cls === 'real'
           ? 'The classifier is confident this is real. Attention lands in scattered hot spots, several of them on tooth crowns but many on the image border.'
-          : 'The classifier is confident this is synthetic, and it is right. Over the full test set it reaches 97.7% — whatever cue it uses, it is reliable and it is not one a person is using at twelve seconds.')
+          : 'The classifier is confident this is synthetic, and it is right. Over the full test set it reaches 97.5% — whatever cue it uses, it is reliable and it is not one a person is using at twelve seconds.')
         : 'One of four the classifier got wrong, and all four are synthetic radiographs it read as real. These are the images where PanoDiff-SR is at its most convincing, to a machine as well as to a clinician.';
     }
     mix.addEventListener('input', function () {
@@ -1252,13 +1252,13 @@
     }
     function draw() {
       clear(svg);
-      var X = function (v) { return L + (W - L - R) * (v - 88) / 14; };       // ViT detect 88 .. 102
+      var X = function (v) { return L + (W - L - R) * (v - 74) / 28; };       // ViT detect 74 .. 102
       var Y = function (v) { return H - B - (H - B - T) * v / 230; };          // FID 0 .. 230
       [0, 50, 100, 150, 200].forEach(function (v) {
         svg.appendChild(el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: v ? 'gridline' : 'axisline' }));
         svg.appendChild(el('text', { x: L - 8, y: Y(v) + 4, class: 'ticktext', 'text-anchor': 'end' }, v));
       });
-      [90, 92, 94, 96, 98, 100].forEach(function (v) {
+      [76, 80, 84, 88, 92, 96, 100].forEach(function (v) {
         svg.appendChild(el('line', { x1: X(v), x2: X(v), y1: T, y2: H - B, class: 'gridline' }));
         svg.appendChild(el('text', { x: X(v), y: H - B + 18, class: 'ticktext', 'text-anchor': 'middle' }, v));
       });
@@ -1283,7 +1283,7 @@
           tipAt(tip, svg, W, H, X(m.vit), Y(m.fid) - 12,
             '<b>' + m.name + '</b><div class="row"><i style="background:' + c + '"></i>' + m.family +
             ' at ' + m.res + '</div><div class="row">FID ' + fmt(m.fid, 2) + ' &middot; IS ' + fmt(m.is, 2) +
-            ' &middot; ViT ' + fmt(m.vit, 1) + '%' + (m.cost ? ' &middot; ' + m.cost + ' acc.-h' : '') + '</div>');
+            ' &middot; ViT ' + fmt(m.vit, 1) + '%</div><div class="row">Precision ' + fmt(m.prec, 1) + '% &middot; recall ' + fmt(m.rec, 1) + '%' + (m.cost ? ' &middot; ' + m.cost + ' acc.-h' : '') + '</div>');
         });
         dot.addEventListener('mouseleave', function () { hideTip(tip); });
         g.appendChild(dot);
@@ -1303,14 +1303,18 @@
     var tb = $('#hrTable tbody');
     var bestF = Math.min.apply(null, D.directhr.map(function (m) { return m.fid; }));
     var bestV = Math.min.apply(null, D.directhr.map(function (m) { return m.vit; }));
+    var bestP = Math.max.apply(null, D.directhr.map(function (m) { return m.prec; }));
+    var bestR = Math.max.apply(null, D.directhr.map(function (m) { return m.rec; }));
     D.directhr.forEach(function (m) {
       var tr = document.createElement('tr');
       if (m.ours) tr.className = 'ours';
       tr.innerHTML = '<td>' + m.name + '</td><td style="text-align:left">' + m.family + '</td>' +
         '<td class="' + (m.fid === bestF ? 'best' : '') + '">' + fmt(m.fid, 2) + '</td>' +
         '<td>' + fmt(m.is, 2) + '</td>' +
+        '<td class="' + (m.prec === bestP ? 'best' : '') + '">' + fmt(m.prec, 1) + '</td>' +
+        '<td class="' + (m.rec === bestR ? 'best' : '') + '">' + fmt(m.rec, 1) + '</td>' +
         '<td class="' + (m.vit === bestV ? 'best' : '') + '">' + fmt(m.vit, 1) + '</td>' +
-        '<td>' + (m.cost ? m.cost : '—') + '</td>';
+        '<td>' + (m.cost ? m.cost + (m.dag ? '<sup>†</sup>' : '') : '—') + '</td>';
       tb.appendChild(tr);
     });
   })();
