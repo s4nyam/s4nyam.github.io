@@ -1,0 +1,2578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SONCA · Food-Led Intelligence</title>
+<meta name="description" content="Energy-budgeted self-replicating neural cellular automata whose cells attend to food.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#ECEFF3; --surface:#F7F9FB; --surface-2:#E2E7ED; --ink:#15202C; --ink-2:#465262; --ink-3:#77818F;
+  --line:#D2D9E1; --line-2:#BCC5D0; --accent:#2B5FD3; --accent-ink:#FFFFFF; --accent-soft:rgba(43,95,211,.10);
+  --field:#070C14; --field-line:#1C2433; --good:#1F8A5B; --warn:#B8562B;
+  --sugar:#EEB03E; --protein:#E85480; --prey:#8A68EC;
+  --shadow:0 1px 2px rgba(20,30,45,.06), 0 8px 28px rgba(20,30,45,.08);
+  --ui:"Barlow Semi Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --prose:"Newsreader","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121018; --surface:#1A1722; --surface-2:#252131; --ink:#ECE8F3; --ink-2:#B3ACC0; --ink-3:#7E778D;
+    --line:#2D2939; --line-2:#3D3850; --accent:#86A6FF; --accent-ink:#0B1020; --accent-soft:rgba(134,166,255,.14);
+    --good:#5CC98F; --warn:#F09A6B; --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121018; --surface:#1A1722; --surface-2:#252131; --ink:#ECE8F3; --ink-2:#B3ACC0; --ink-3:#7E778D;
+  --line:#2D2939; --line-2:#3D3850; --accent:#86A6FF; --accent-ink:#0B1020; --accent-soft:rgba(134,166,255,.14);
+  --good:#5CC98F; --warn:#F09A6B; --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.4;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app{min-height:100%;display:flex;flex-direction:column;max-width:1500px;margin:0 auto;
+  padding:0 max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px))}
+
+/* ---------- header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 4px 10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand svg{flex:none}
+.brand h1{margin:0;font-size:21px;font-weight:600;letter-spacing:.005em;line-height:1.1}
+.brand h1 .dot{color:var(--ink-3);font-weight:500;margin:0 .15em}
+.brand p{margin:2px 0 0;font-family:var(--prose);font-style:italic;font-size:14px;color:var(--ink-2)}
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+  display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-weight:500;font-size:15px;white-space:nowrap}
+.btn:hover{border-color:var(--line-2)}
+.btn:focus-visible,.seg button:focus-visible,.tool:focus-visible,.chip:focus-visible,.tab:focus-visible,.world:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);min-width:92px;justify-content:center}
+.btn svg{width:15px;height:15px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface);height:34px}
+.seg button{border:0;background:transparent;padding:0 10px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.seg .lab{padding:0 8px 0 10px;display:flex;align-items:center;color:var(--ink-3);font-size:14px}
+
+/* ---------- stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 392px;gap:16px;align-items:start;padding-bottom:16px}
+.dish{min-width:0}
+.dish-col{width:min(100%, calc((100vh - 236px) * 1.5));width:min(100%, calc((100svh - 236px) * 1.5));min-width:min(100%, 560px);margin:0 auto}
+.dish-head{display:flex;align-items:center;justify-content:space-between;gap:8px 14px;padding:0 2px 8px;flex-wrap:wrap}
+.dish-head h2{margin:0;font-size:18px;font-weight:600;white-space:nowrap}
+.viewctl{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap}
+.viewctl .lab{color:var(--ink-3);font-size:14px;margin-right:2px}
+.viewctl .chip{height:28px;font-size:13.5px;padding:0 9px}
+.viewctl select{height:30px}
+.viewport{position:relative;border-radius:14px;overflow:hidden;background:var(--field);box-shadow:var(--shadow);
+  aspect-ratio:3/2;touch-action:none;user-select:none;-webkit-user-select:none}
+.viewport canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{position:absolute;left:10px;top:10px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.hud .row{display:inline-flex;gap:10px;align-items:center;padding:4px 9px;border-radius:7px;background:rgba(6,10,18,.62);
+  color:#E6ECF5;font-size:14px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);width:max-content}
+.hud .row b{font-weight:600}
+.hud .muted{color:#9AA6B8}
+.hud .env{color:#F2D9A0}
+.hud .env:empty{display:none}
+.ledger{position:absolute;right:10px;bottom:10px;pointer-events:none;padding:4px 9px;border-radius:7px;background:rgba(6,10,18,.62);
+  color:#AFC0D6;font-size:13px}
+.ledger .ok{color:#7FE0A8}
+.legendbar{position:absolute;right:10px;top:10px;display:flex;gap:10px;padding:4px 9px;border-radius:7px;background:rgba(6,10,18,.62);
+  color:#D6DEEA;font-size:13px;pointer-events:none}
+.legendbar i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.toast{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:6px 12px;border-radius:8px;background:rgba(6,10,18,.8);
+  color:#E6ECF5;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* ---------- tool dock */
+.dock{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px}
+.tools{display:flex;gap:4px;flex-wrap:wrap}
+.tool{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:8px;border:1px solid transparent;
+  background:transparent;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.tool:hover{background:var(--surface-2)}
+.tool[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.tool svg{width:16px;height:16px}
+.tool kbd{font:inherit;font-size:12px;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:0 4px;line-height:16px}
+.opts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:8px;padding:8px 4px 2px;min-height:44px}
+.opts .hint{color:var(--ink-3);font-size:14px;font-family:var(--prose);font-style:italic}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:30px;padding:0 10px;border-radius:15px;border:1px solid var(--line);background:var(--surface);cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;font-weight:500;color:var(--ink-2);font-size:14px}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.chip.tog::before{content:"";width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ink-3);box-sizing:border-box}
+.chip.tog[aria-pressed="true"]::before{background:var(--accent);border-color:var(--accent)}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.range{display:flex;align-items:center;gap:8px;color:var(--ink-2);font-size:14px}
+.range output{min-width:2.2em;color:var(--ink);font-weight:600}
+input[type=range]{accent-color:var(--accent);width:120px}
+select{height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface);padding:0 8px}
+
+/* ---------- side panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);
+  max-height:calc(100vh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 8px;flex:none;overflow-x:auto}
+.tab{border:0;background:none;padding:12px 10px 10px;cursor:pointer;font-weight:500;color:var(--ink-3);position:relative;font-size:15.5px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:600}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;background:var(--accent);border-radius:2px}
+.tabbody{overflow-y:auto;padding:4px 16px 18px;flex:1;min-height:0}
+.pane{display:none}
+.pane.on{display:block}
+.sec{padding:14px 0;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec h3{margin:0 0 8px;font-size:16px;font-weight:600}
+.sec h3 small{font-weight:400;color:var(--ink-3);font-size:14px;margin-left:6px}
+.prose{font-family:var(--prose);font-size:15.5px;line-height:1.5;color:var(--ink-2);margin:0 0 8px}
+.prose em{color:var(--ink)}
+.refs{font-size:13.5px;color:var(--ink-3);margin:6px 0 0;font-family:var(--prose);font-style:italic}
+.worlds{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.world{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:5px}
+.world:hover{border-color:var(--line-2)}
+.world[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.world img{width:100%;aspect-ratio:3/2;border-radius:6px;display:block;image-rendering:pixelated;background:var(--field)}
+.world span{font-weight:600;font-size:14.5px;padding:0 3px 2px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px}
+.metric .v{font-size:22px;font-weight:600;line-height:1.1}
+.metric .k{font-size:13.5px;color:var(--ink-3)}
+.chart{width:100%;height:120px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13.5px;color:var(--ink-2);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px}
+.budget{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:14px}
+.budget .n{color:var(--ink-2)}
+.budget .bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.budget .bar b{display:block;height:100%;border-radius:4px}
+.budget .val{text-align:right;color:var(--ink);min-width:3.6em}
+.budget .grp{grid-column:1/-1;font-weight:600;margin-top:6px;color:var(--ink)}
+.balance{display:flex;justify-content:space-between;margin-top:10px;font-size:14.5px;color:var(--ink-2)}
+.balance b{color:var(--ink)}
+.splist{list-style:none;margin:0;padding:0}
+.splist li{display:grid;grid-template-columns:12px 1fr auto;gap:4px 10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.splist li:first-child{border-top:0}
+.splist .sw{width:12px;height:12px;border-radius:3px}
+.splist .nm{font-family:var(--prose);font-style:italic;font-size:15.5px}
+.splist .ct{font-weight:600}
+.splist .tr{grid-column:2/-1;font-size:13px;color:var(--ink-3)}
+.empty{color:var(--ink-3);font-family:var(--prose);font-style:italic;font-size:15px;margin:4px 0}
+.eq{font-family:var(--prose);font-size:15px;line-height:1.55;background:var(--surface-2);border-radius:10px;padding:10px 12px;color:var(--ink);overflow-x:auto}
+.eq .v{font-style:italic}
+.tok{display:grid;grid-template-columns:10px 1fr 60px auto;gap:4px 10px;align-items:center;font-size:14px;padding:4px 0}
+.tok i{width:10px;height:10px;border-radius:50%}
+.tok .bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.tok .bar b{display:block;height:100%}
+.tok .a{font-weight:600;text-align:right;min-width:2.8em}
+.tok .d{grid-column:2/-1;color:var(--ink-3);font-size:12.5px;margin-top:-3px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:14px}
+.kv span:nth-child(odd){color:var(--ink-2)}
+.kv span:nth-child(even){font-weight:600;text-align:right}
+.ebar{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin:6px 0 2px}
+.ebar b{display:block;height:100%;background:linear-gradient(90deg,#3A6FD8,#48C6A6 60%,#EEB03E)}
+.genes{display:grid;grid-template-columns:1fr 70px 3.2em;gap:3px 10px;font-size:13.5px;align-items:center}
+.genes .g{color:var(--ink-2)}
+.genes .gb{height:6px;border-radius:3px;background:var(--surface-2);position:relative;overflow:hidden}
+.genes .gb b{position:absolute;top:0;bottom:0;background:var(--ink-3);border-radius:3px}
+.genes .gb u{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--accent)}
+.genes .gv{text-align:right;font-weight:600}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:10px 0}
+.slider label{font-weight:500}
+.slider output{font-weight:600}
+.slider input{grid-column:1/-1;width:100%}
+.slider .note{grid-column:1/-1;font-size:13px;color:var(--ink-3);font-family:var(--prose);font-style:italic}
+.rules{margin:0;padding:0 0 0 18px;font-family:var(--prose);font-size:15px;color:var(--ink-2);line-height:1.45}
+.rules li{margin:0 0 6px}
+.rules b{font-family:var(--ui);font-weight:600;color:var(--ink);font-size:15px}
+.reflist{margin:0;padding:0 0 0 18px;font-family:var(--prose);font-size:14px;color:var(--ink-2);line-height:1.45}
+.foot{font-size:13.5px;color:var(--ink-3);padding:8px 4px 18px;font-family:var(--prose)}
+.inline-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+@media (max-width: 1080px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .panel{position:static;max-height:none}
+  .tabbody{max-height:none}
+}
+@media (max-width: 640px){
+  body{font-size:14.5px}
+  .brand h1{font-size:18px}
+  .brand p{display:none}
+  .transport{width:100%;justify-content:flex-start}
+  .seg .lab{display:none}
+  .foot{display:none}
+  .viewctl{width:100%}
+  .viewctl .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%;padding-bottom:2px}
+  .viewctl .chips::-webkit-scrollbar{display:none}
+  .viewctl .chips .lab{display:none}
+  .tool .t{display:none}
+  .tool kbd{display:none}
+  .tool{padding:0 9px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .legendbar{display:none}
+  input[type=range]{width:96px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <circle cx="17" cy="17" r="15" fill="var(--field)"/>
+        <circle cx="17" cy="17" r="15" fill="none" stroke="var(--line-2)" stroke-width="1.5"/>
+        <circle cx="12" cy="13" r="3.2" fill="var(--sugar)"/>
+        <circle cx="22.5" cy="15" r="2.4" fill="var(--protein)"/>
+        <circle cx="16" cy="23" r="3.6" fill="var(--prey)"/>
+        <circle cx="19.5" cy="20" r="1.1" fill="#7FE0C4"/><circle cx="15" cy="18" r="1.1" fill="#7FE0C4"/><circle cx="17.5" cy="17" r="1.1" fill="#7FE0C4"/>
+      </svg>
+      <div>
+        <h1>SONCA<span class="dot">·</span>Food-Led Intelligence</h1>
+        <p>Self-replicating neural cellular automata on an energy budget, whose cells attend to food</p>
+      </div>
+    </div>
+    <div class="transport">
+      <button class="btn primary" id="play" aria-label="Pause"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg><span>Pause</span></button>
+      <button class="btn" id="step" title="Advance one tick (→)"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5v11l7.5-5.5z"/><rect x="11.5" y="2.5" width="2" height="11" rx=".8"/></svg>Step</button>
+      <div class="seg" role="group" aria-label="Speed">
+        <span class="lab">Speed</span>
+        <button data-speed="1" aria-pressed="true">1×</button>
+        <button data-speed="2" aria-pressed="false">2×</button>
+        <button data-speed="4" aria-pressed="false">4×</button>
+        <button data-speed="8" aria-pressed="false">8×</button>
+      </div>
+      <button class="btn" id="reset" title="Restart this world with a new seed (R)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M13 8a5 5 0 1 1-1.5-3.6"/><path d="M13 2.5v3h-3"/></svg>Restart</button>
+      <button class="btn" id="theme" aria-label="Toggle colour theme" title="Toggle light or dark"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="dish" aria-label="Simulation">
+      <div class="dish-col">
+      <div class="dish-head">
+        <h2 id="envName">Open agar</h2>
+        <div class="viewctl">
+          <div class="chips" role="group" aria-label="Overlays">
+            <span class="lab">Show</span>
+            <button class="chip tog" data-ov="arrows" aria-pressed="false" title="Where each cell's attention points">Attention</button>
+            <button class="chip tog" data-ov="signal" aria-pressed="false" title="Contours of food scent">Scent</button>
+            <button class="chip tog" data-ov="quorum" aria-pressed="false" title="Quorum-sensing signal">Quorum</button>
+            <button class="chip tog" data-ov="enzyme" aria-pressed="false" title="Digestive enzyme">Enzyme</button>
+            <button class="chip tog" data-ov="slime" aria-pressed="true" title="Slime trails: the colony's external memory">Slime</button>
+          </div>
+          <label class="range"><span class="lab">Colour</span>
+            <select id="colorMode">
+              <option value="species">by species</option>
+              <option value="ghc">by genome hash (SONCA GHC)</option>
+              <option value="energy">by energy</option>
+              <option value="phenotype">by phenotype</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="viewport" id="viewport">
+        <canvas id="view" aria-label="Petri dish simulation. Click or drag to use the selected tool."></canvas>
+        <div class="hud" aria-live="off">
+          <div class="row"><span>Tick <b id="hTick">0</b></span><span><b id="hPop">0</b> cells</span><span class="muted"><span id="hSpo">0</span> spores</span><span class="muted"><span id="hSp">1</span> species</span></div>
+          <div class="row env" id="envHud"></div>
+        </div>
+        <div class="legendbar" id="legendbar"><span><i style="background:var(--sugar)"></i>Sugar</span><span><i style="background:var(--protein)"></i>Protein</span><span><i style="background:var(--prey)"></i>Prey</span></div>
+        <div class="ledger" id="ledger">Energy ledger</div>
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <div class="dock" aria-label="Tools">
+        <div class="tools" role="group" aria-label="Tool">
+          <button class="tool" data-tool="food" aria-pressed="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="var(--sugar)"/></svg><span class="t">Food</span><kbd>1</kbd></button>
+          <button class="tool" data-tool="seed" aria-pressed="false"><svg viewBox="0 0 16 16" fill="#48C6A6"><circle cx="6" cy="7" r="2.2"/><circle cx="10.5" cy="6" r="1.8"/><circle cx="9" cy="10.5" r="2.3"/></svg><span class="t">Seed colony</span><kbd>2</kbd></button>
+          <button class="tool" data-tool="wall" aria-pressed="false"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="4" rx=".8"/><rect x="9" y="3" width="5" height="4" rx=".8"/><rect x="5.5" y="9" width="5" height="4" rx=".8"/></svg><span class="t">Wall</span><kbd>3</kbd></button>
+          <button class="tool" data-tool="toxin" aria-pressed="false"><svg viewBox="0 0 16 16" fill="#7BD35A"><path d="M8 1.8c2.6 3.3 4.2 5.6 4.2 7.6a4.2 4.2 0 0 1-8.4 0c0-2 1.6-4.3 4.2-7.6z"/></svg><span class="t">Toxin</span><kbd>4</kbd></button>
+          <button class="tool" data-tool="erase" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M9.5 2.5l4 4-6.5 6.5H3.5l-1-1 7-9.5z"/><path d="M6 13h7.5"/></svg><span class="t">Erase</span><kbd>5</kbd></button>
+          <button class="tool" data-tool="wound" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 13L13 3"/><path d="M5 5.5l1 1M10 10.5l1 1"/></svg><span class="t">Wound</span><kbd>6</kbd></button>
+          <button class="tool" data-tool="inspect" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.3"/><path d="M10.3 10.3L14 14"/></svg><span class="t">Inspect</span><kbd>7</kbd></button>
+        </div>
+        <div class="opts" id="opts"></div>
+      </div>
+
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Details">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="world" aria-selected="true">Worlds</button>
+        <button class="tab" role="tab" data-tab="life" aria-selected="false">Life</button>
+        <button class="tab" role="tab" data-tab="attn" aria-selected="false">Attention</button>
+        <button class="tab" role="tab" data-tab="bio" aria-selected="false">Biology</button>
+      </div>
+      <div class="tabbody">
+        <!-- WORLDS -->
+        <div class="pane on" id="pane-world" role="tabpanel">
+          <div class="sec">
+            <h3 id="wTitle">Open agar</h3>
+            <p class="prose" id="wBlurb"></p>
+            <p class="prose"><em>What to watch.</em> <span id="wWatch"></span></p>
+            <p class="refs" id="wRefs"></p>
+          </div>
+          <div class="sec">
+            <h3>Ten worlds <small>tap to load</small></h3>
+            <div class="worlds" id="worlds"></div>
+          </div>
+          <div class="sec">
+            <h3>What this is</h3>
+            <p class="prose">An extension of <a href="https://s4nyam.github.io/sonca/" target="_blank" rel="noopener">SONCA</a>, where every pixel owns an inherited genome and mutation happens only at birth. Here SONCA's fixed life budget is replaced by an <em>energy budget</em>: cells burn energy every tick for maintenance, thinking, moving and building, and can only refill it by eating. Intelligence is whatever helps a lineage find and eat food before its budget runs out.</p>
+            <p class="prose">Each cell smells every food particle through its diffusing attractant and weighs them with a small <em>attention head</em> made of 44 inherited weights, the same size as a SONCA agent. The Attention tab shows one cell thinking.</p>
+          </div>
+        </div>
+
+        <!-- LIFE -->
+        <div class="pane" id="pane-life" role="tabpanel">
+          <div class="sec">
+            <div class="metrics" id="metrics"></div>
+          </div>
+          <div class="sec">
+            <h3>Population by species</h3>
+            <canvas class="chart" id="popChart"></canvas>
+            <div class="legend" id="popLegend"></div>
+          </div>
+          <div class="sec">
+            <h3>Evolving traits <small>colony means</small></h3>
+            <canvas class="chart" id="traitChart"></canvas>
+            <div class="legend">
+              <span><i style="background:#E85480"></i>Cognition</span>
+              <span><i style="background:#3FB6E8"></i>Attention focus</span>
+              <span><i style="background:#EEB03E"></i>Energy efficiency</span>
+              <span><i style="background:#8A68EC"></i>Cooperation</span>
+            </div>
+          </div>
+          <div class="sec">
+            <h3>Energy budget <small>per tick, whole dish</small></h3>
+            <div class="budget" id="budget"></div>
+            <div class="balance" id="balance"></div>
+          </div>
+          <div class="sec">
+            <h3>Living species</h3>
+            <ul class="splist" id="splist"></ul>
+          </div>
+        </div>
+
+        <!-- ATTENTION -->
+        <div class="pane" id="pane-attn" role="tabpanel">
+          <div class="sec" id="inspBox">
+            <p class="empty" id="inspEmpty">Choose <b>Inspect</b> and click a cell to watch it decide where to go.</p>
+            <div id="inspBody" hidden>
+              <h3 id="iTitle">Cell</h3>
+              <div class="kv" id="iKv"></div>
+              <div class="ebar"><b id="iE"></b></div>
+              <h3 style="margin-top:14px">What it attends to</h3>
+              <div id="iToks"></div>
+              <div class="inline-btns"><button class="btn" id="iClear">Stop following</button></div>
+            </div>
+          </div>
+          <div class="sec">
+            <h3>How a cell attends to food</h3>
+            <p class="prose">Food particles are the tokens. Each releases attractant from its surface, which spreads around walls and decays, so a cell at geodesic distance <span class="v">d</span> senses about <span class="v">A</span>·e<sup>−d/λ</sup>. The cell's own state forms a query, each food's chemistry forms a key, and both pass through the cell's inherited weights:</p>
+            <div class="eq">
+              α<sub>j</sub> = softmax<sub>j</sub> β [ ½ <span class="v">q</span>·<span class="v">k</span><sub>j</sub> + ½ (ln <span class="v">A</span><sub>j</sub> − <span class="v">d</span><sub>j</sub>/λ − ln c<sub>0</sub>) + κ ln(1 − <span class="v">d</span><sub>j</sub>/<span class="v">R</span>) ]<br>
+              <span class="v">q</span> = W<sub>Q</sub> [hunger, quorum, motile, intake drop, 1]<br>
+              <span class="v">k</span><sub>j</sub> = W<sub>K</sub> [sugar, protein, prey, richness, crowding, 1]
+            </div>
+            <p class="prose" style="margin-top:8px">The distance term is a linear bias on the logits, like ALiBi in language models, but here it is simply the physics of diffusion. <span class="v">R</span> is how far the cell can travel on its current energy, so unaffordable food is discounted (the energy-budget rule). Cognition widens λ and sharpens β but costs maintenance every tick. A null token, weighted by the exploration gene, lets a cell ignore faint signals and search instead. The attention-weighted gradient becomes the direction the cell grows or moves.</p>
+          </div>
+        </div>
+
+        <!-- BIOLOGY -->
+        <div class="pane" id="pane-bio" role="tabpanel">
+          <div class="sec">
+            <h3>Environment dials</h3>
+            <div id="sliders"></div>
+          </div>
+          <div class="sec">
+            <h3>Rules this world never breaks</h3>
+            <ol class="rules">
+              <li><b>Energy is conserved.</b> Every unit enters as food and leaves as heat, structure or spores. The ledger in the corner checks the books every frame.</li>
+              <li><b>Sensing is local.</b> Cells only feel attractant concentration where they are; scent flows around walls, not through them.</li>
+              <li><b>Uptake saturates.</b> Michaelis–Menten kinetics from the food a cell sits on or touches.</li>
+              <li><b>Division needs reserves.</b> A cell divides only once it can pay for a daughter's structure, the biosynthetic heat, and a reserve for both.</li>
+              <li><b>Mutation happens only at birth,</b> as in SONCA. Genomes are otherwise inherited exactly.</li>
+              <li><b>Brains are expensive.</b> Maintenance rises with cognition (the expensive-tissue trade-off).</li>
+              <li><b>Moving costs energy</b> and motile cells pay a higher upkeep.</li>
+              <li><b>Public goods need a quorum.</b> Digestive enzyme is secreted only when enough kin signal nearby, and it works only at the prey's surface.</li>
+              <li><b>Sharing is between kin,</b> through junctions both cells must build, with transfer losses.</li>
+              <li><b>Starving cells go dormant.</b> Spores cost little to keep, travel on fruiting bodies, and wake when food is sensed.</li>
+              <li><b>One cell per site.</b> Hard prey is impenetrable until digested; the dead are recycled as nutrient.</li>
+            </ol>
+          </div>
+          <div class="sec">
+            <h3>Sources</h3>
+            <ol class="reflist">
+              <li>Jain, Reimers &amp; Nichele (2026). Self-replicating neural cellular automata. <a href="https://github.com/s4nyam/Self-Replicating-NCA" target="_blank" rel="noopener">code</a></li>
+              <li>Mordvintsev et al. (2020). Growing neural cellular automata. Distill.</li>
+              <li>Tesfaldet, Nowrouzezahrai &amp; Pal (2022). Attention-based neural cellular automata (ViTCA).</li>
+              <li>Press, Smith &amp; Lewis (2022). Train short, test long: ALiBi.</li>
+              <li>Adler (1966). Chemotaxis in bacteria. Science.</li>
+              <li>Nakagaki, Yamada &amp; Tóth (2000). Maze-solving by an amoeboid organism. Nature.</li>
+              <li>Tero et al. (2010). Rules for biologically inspired adaptive network design. Science.</li>
+              <li>Reid et al. (2012). Slime mold uses an externalized spatial memory. PNAS.</li>
+              <li>Tweedy et al. (2020). Seeing around corners: cells solve mazes by self-generated gradients. Science.</li>
+              <li>Charnov (1976). Optimal foraging, the marginal value theorem.</li>
+              <li>Caraco, Martindale &amp; Whittam (1980); Stephens &amp; Krebs (1986). Risk-sensitive foraging.</li>
+              <li>Aiello &amp; Wheeler (1995). The expensive-tissue hypothesis.</li>
+              <li>Miller &amp; Bassler (2001). Quorum sensing in bacteria.</li>
+              <li>Griffin, West &amp; Buckling (2004). Cooperation and competition in pathogenic bacteria.</li>
+              <li>Berleman &amp; Kirby (2009). Deciphering the hunting strategy of a bacterial wolfpack.</li>
+              <li>Errington (2003); Potrykus &amp; Cashel (2008). Sporulation and the stringent response.</li>
+              <li>Fricker et al. (2017). The mycelium as a network.</li>
+              <li>MacArthur &amp; Wilson (1967). The theory of island biogeography.</li>
+              <li>Bonner (2009). The social amoebae.</li>
+              <li>Fretwell &amp; Lucas (1970). Territorial behavior and habitat distribution.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+  <div class="foot">Keyboard: Space play or pause, → step, R restart, 1–7 tools, [ and ] size. The engine is a separate module (<span style="font-family:var(--ui)">window.FLI</span>) so it can move into the SONCA portal or a Web Worker unchanged.</div>
+</div>
+<script>
+/* ==========================================================================
+   SONCA · FLI — Food-Led Intelligence engine
+   Energy-budgeted extension of Self-Replicating Neural Cellular Automata
+   (Jain, Reimers & Nichele 2026). Every cell owns a genome; genomes are
+   copied with mutation only at birth. SONCA's fixed life budget b is
+   replaced by a metabolic energy budget that can only be refilled by eating.
+   ========================================================================== */
+const FLI = (() => {
+'use strict';
+
+const W = 192, H = 128, N = W * H;
+const MAXF = 48;          // max simultaneous food particles (= attention tokens)
+const INF = 1e9;
+const MAXD = 260;         // geodesic horizon of the chemical fields (cells)
+const EMPTY = 0, VEG = 1, FOR = 2, SPORE = 3;
+const SUGAR = 0, PROTEIN = 1, PREY = 2;
+
+const FOOD_TYPES = [
+  { key: 'sugar',   name: 'Sugar',   density: 15, emit: 1.0, hard: false, rgb: [238, 176, 62],  note: 'Soft, quick energy. Cells grow onto it and absorb it directly.' },
+  { key: 'protein', name: 'Protein', density: 35, emit: 1.3, hard: false, rgb: [232, 84, 128],  note: 'Soft and energy-dense: the richest food a lone cell can eat.' },
+  { key: 'prey',    name: 'Prey',    density: 60, emit: 0.9, hard: true,  rgb: [138, 104, 236], note: 'Hard and impenetrable. Only exoenzymes digest it, and they need a quorum.' },
+];
+
+// Physiology. Energy is in ATP-equivalent units; one tick is one update of every cell.
+const P = {
+  EMAX: 100, B0: 20, DIV_HEAT: 4, RESERVE: 16,
+  BASAL: 0.05, BRAIN_COST: 1.0, FOR_MULT: 1.25, MOVE: 0.08,
+  VMAX: 3.0, KM: 10,
+  SPORE_COST: 4, SPORE_BASAL: 0.002, GERM_COST: 3,
+  RECYCLE: 0.5, ETA: 0.97,
+  Q_EMIT: 0.1, Q_COST: 0.004, Q_D: 0.2, Q_KEEP: 0.95,
+  E_D: 0.05, E_KEEP: 0.985, ENZ_MAX: 0.12, ENZ_K: 1.5, DIG_MAX: 1.5,
+  F_D: 0.12,
+  SLIME_DEP: 0.02, SLIME_COST: 0.002, SLIME_KEEP: 0.998,
+  TOX_DMG: 0.8,
+  LAMBDA0: 8,
+  DET: Math.log(0.02),
+  PREF: 8,
+  MORT: 0.0003,
+  SPEC: 0.06,
+  metabMult: 1, foodMult: 1, mutScale: 1, senseMult: 1,
+  rain: 0, rainSize: 0.7, rainMix: [0.55, 0.35, 0.10],
+  distPerTick: 2,
+};
+const P_DEFAULT = JSON.parse(JSON.stringify(P));
+
+// ---------------------------------------------------------------- genome
+const GENE_DEFS = [
+  ['brain',     'Cognition',          0,     2,    0.6,  'Receptor and signalling investment. Widens sensing range λ and sharpens attention β, but raises maintenance cost (expensive tissue).'],
+  ['chemo',     'Chemotactic gain',   0,     6,    3.0,  'How strongly growth and motility follow the attention goal vector.'],
+  ['slime',     'Slime memory',       0,     4,    1.5,  'Avoidance of ground already marked with slime while searching.'],
+  ['risk',      'Risk when starving', 0,     1,    0.6,  'How far hunger overrides toxin avoidance (the energy-budget rule).'],
+  ['branch',    'Branching',         -2,     2,    0.3,  'Negative gives compact colonies; positive gives dendritic, exploring fronts.'],
+  ['divThr',    'Division threshold', 0.45,  0.98, 0.72,  'Energy, as a fraction of capacity, needed before binary fission.'],
+  ['restraint', 'Growth restraint',   0,     0.35, 0.15, 'Extra energy demanded before dividing when no food is sensed.'],
+  ['invest',    'Daughter share',     0.2,   0.8,  0.5,  'Fraction of post-division energy handed to the daughter.'],
+  ['mvt',       'Patch leaving',      0,     1.2,  0.5,  'Marginal-value rule: leave when recent intake falls below this fraction of long-run intake.'],
+  ['forage',    'Motility',           0,     1,    0.3,  'Propensity to become a motile forager when the patch runs dry.'],
+  ['enzyme',    'Exoenzyme',          0,     1,    0.5,  'Digestive enzyme secreted at hard prey: a public good.'],
+  ['qsThr',     'Quorum threshold',   0.1,   3,    0.6,  'Autoinducer level at which cooperative secretion switches on.'],
+  ['share',     'Kin sharing',        0,     0.25, 0.1,  'Gap-junction energy flow to adjacent kin; both cells must express it.'],
+  ['sporeThr',  'Sporulation',        0,     0.4,  0.12, 'Energy fraction below which a cell that senses no food forms a spore.'],
+  ['altru',     'Altruistic lysis',   0,     1,    0.1,  'Propensity for programmed death that feeds starving kin.'],
+  ['explore',   'Exploration drive', -4,     2,   -1.0,  'Bias of the null attention token: readiness to explore instead of chasing faint signals.'],
+  ['budget',    'Budget awareness',   0,     3,    1.0,  'κ: discounts food that cannot be reached on the current energy reserve.'],
+  ['disperse',  'Spore dispersal',    0,     1,    0.5,  'Fruiting-body height: how far spores are carried.'],
+  ['mut',       'Mutation rate',      0.002, 0.15, 0.03, 'Per-division chance of a copying error. As in SONCA, mutation happens only at birth.'],
+  ['hue',       'Neutral marker',     0,     360,  180,  'Selectively neutral locus, used to watch drift.'],
+];
+const NS = GENE_DEFS.length;
+const G_BRAIN=0, G_CHEMO=1, G_SLIME=2, G_RISK=3, G_BRANCH=4, G_DIVTHR=5, G_RESTR=6, G_INVEST=7,
+      G_MVT=8, G_FORAGE=9, G_ENZ=10, G_QS=11, G_SHARE=12, G_SPORE=13, G_ALTRU=14, G_EXPLORE=15,
+      G_BUDGET=16, G_DISP=17, G_MUT=18, G_HUE=19;
+const DQ = 4, HQ = 5, FK = 6;             // key width, cell-state inputs, food features
+const WQ0 = NS, WK0 = NS + HQ * DQ;       // 20, 40
+const G = WK0 + FK * DQ;                  // 64 genes; attention head = 20 + 24 = 44 weights
+const H_LABELS = ['hunger', 'quorum', 'motile', 'intake drop', 'bias'];
+const F_LABELS = ['sugar', 'protein', 'prey', 'richness', 'crowding', 'bias'];
+// Innate wiring. Latent axes: nutritional value, competition, cooperation, scouting.
+const WQ_DEF = [
+  [1.0, -0.8,  0.0, 0.0],
+  [0.0,  0.0,  4.5, 0.0],
+  [0.0,  0.0,  0.0, 1.0],
+  [0.0,  0.0,  0.0, 0.5],
+  [0.5,  1.0, -3.0, 0.2],
+];
+const WK_DEF = [
+  [0.8,  0.0, 0.0, 0.0],
+  [1.2,  0.0, 0.0, 0.0],
+  [1.5,  0.0, 2.0, 0.0],
+  [1.0,  0.0, 0.0, 1.0],
+  [0.0, -1.5, 0.0, 0.0],
+  [0.0,  0.0, 0.0, 0.0],
+];
+const GMIN = new Float32Array(G), GMAX = new Float32Array(G), GDEF = new Float32Array(G), GSIG = new Float32Array(G);
+for (let k = 0; k < NS; k++){ const d = GENE_DEFS[k]; GMIN[k] = d[2]; GMAX[k] = d[3]; GDEF[k] = d[4]; GSIG[k] = 0.08 * (d[3] - d[2]); }
+GSIG[G_HUE] = 8;
+for (let h = 0; h < HQ; h++) for (let c = 0; c < DQ; c++){ const k = WQ0 + h * DQ + c; GMIN[k] = -3; GMAX[k] = 3; GDEF[k] = WQ_DEF[h][c]; GSIG[k] = 0.25; }
+for (let r = 0; r < FK; r++) for (let c = 0; c < DQ; c++){ const k = WK0 + r * DQ + c; GMIN[k] = -3; GMAX[k] = 3; GDEF[k] = WK_DEF[r][c]; GSIG[k] = 0.25; }
+const GENE_INDEX = {}; GENE_DEFS.forEach((d, k) => { GENE_INDEX[d[0]] = k; });
+
+// ---------------------------------------------------------------- random numbers
+let seedState = 12345;
+function rng(){
+  seedState = (seedState + 0x6D2B79F5) | 0;
+  let t = Math.imul(seedState ^ (seedState >>> 15), 1 | seedState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function mkRng(seed){
+  let s = seed | 0;
+  return function(){
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function gauss(){ let u = rng(); if (u < 1e-12) u = 1e-12; return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.283185307179586 * rng()); }
+
+function hsl(h, s, l){
+  h = (((h % 360) + 360) % 360) / 360;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => { const k = (n + h * 12) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); };
+  return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
+}
+
+// ---------------------------------------------------------------- world state
+const wall = new Uint8Array(N);
+const toxin = new Float32Array(N);
+const foodN = new Float64Array(N);          // nutrient bound in food particles
+const foodId = new Int16Array(N).fill(-1);  // which particle a pixel belongs to
+const hardMask = new Uint8Array(N);         // undigested hard prey (impassable)
+let F = new Float64Array(N), F2 = new Float64Array(N);    // dissolved nutrient
+let Q = new Float32Array(N), Q2 = new Float32Array(N);    // quorum autoinducer
+let EZ = new Float32Array(N), EZ2 = new Float32Array(N);  // exoenzyme
+const slime = new Float32Array(N);          // extracellular slime (spatial memory)
+const state = new Uint8Array(N);
+const energy = new Float64Array(N);
+const lin = new Int32Array(N);
+const age = new Int32Array(N);
+const rS = new Float32Array(N), rL = new Float32Array(N); // short / long intake memory
+const cid = new Int32Array(N);
+const gxA = new Float32Array(N), gyA = new Float32Array(N), salA = new Float32Array(N);
+const sensA = new Uint8Array(N);
+const acted = new Uint32Array(N);
+const dE = new Float64Array(N);
+const order = new Int32Array(N);
+const DIST = new Float32Array(N * MAXF);    // geodesic distance to each food, cell-major
+const signal = new Float32Array(N);         // overlay cache
+
+// lineages (unique genomes). Cells of one lineage share an identical genome.
+const LCAP = 4096;
+const genes = new Float32Array(LCAP * G);
+const gU32 = new Uint32Array(genes.buffer);
+const linSp = new Int32Array(LCAP);
+const linCount = new Int32Array(LCAP);
+const linGen = new Int32Array(LCAP);
+const linGHC = new Int32Array(LCAP);
+const Ustamp = new Uint32Array(LCAP);
+const U = new Float32Array(LCAP * MAXF * HQ);   // per-lineage query·key projections
+let linFree = [], linTop = 0, nLin = 0;
+
+let species = [];
+let nSpAlive = 0;
+let foods = new Array(MAXF).fill(null);
+const activeSlots = new Int32Array(MAXF);
+let nActive = 0;
+let distQueue = [];
+
+let tick = 0, cidCounter = 0, founderCount = 0, wallCount = 0;
+const ledger = { injected: 0, removed: 0, heat: 0 };
+const st = {};
+const COSTS = ['maintenance', 'cognition', 'motility', 'growth', 'enzymes', 'transport', 'dormancy', 'toxins', 'signalling'];
+const C_MAINT = 0, C_BRAIN = 1, C_MOVE = 2, C_GROW = 3, C_ENZ = 4, C_SHARE = 5, C_DORM = 6, C_TOX = 7, C_SIG = 8;
+st.cost = new Float64Array(COSTS.length);
+const emaCost = new Float64Array(COSTS.length);
+function resetTickStats(){
+  st.cost.fill(0); st.recycled = 0;
+  st.intake = 0; st.fromFood = 0; st.fromF = 0; st.digested = 0; st.enz = 0; st.burn = 0;
+  st.births = 0; st.deaths = 0; st.starved = 0; st.lysis = 0; st.bg = 0; st.spor = 0; st.germ = 0;
+  st.moves = 0; st.muts = 0; st.specs = 0; st.focusSum = 0; st.focusN = 0; st.rain = 0;
+}
+resetTickStats();
+function burn(x, c){ ledger.heat += x; st.burn += x; st.cost[c] += x; }
+
+// ---------------------------------------------------------------- lineages & species
+const GENERA = [
+  [G_BRAIN, 1, 'Cerebrella'], [G_BRAIN, -1, 'Minimella'],
+  [G_ENZ, 1, 'Myxococca'], [G_ENZ, -1, 'Furax'],
+  [G_FORAGE, 1, 'Nomadia'], [G_FORAGE, -1, 'Sessilia'],
+  [G_BRANCH, 1, 'Hyphella'], [G_BRANCH, -1, 'Globula'],
+  [G_SHARE, 1, 'Syncytia'], [G_SHARE, -1, 'Solitaria'],
+  [G_SPORE, 1, 'Sporella'], [G_EXPLORE, 1, 'Exploria'],
+  [G_DIVTHR, -1, 'Prolifera'], [G_DIVTHR, 1, 'Patientia'],
+  [G_RISK, 1, 'Audax'], [G_BUDGET, 1, 'Prudentia'],
+];
+const SYL = ['ra','li','mo','ta','ve','ni','su','ko','phi','ze','lu','da','xe','qui','ri','sa','no','bel','cor','mi'];
+const END = ['is','us','a','um','ensis','oides','ata','ica'];
+function genusFor(g){
+  let best = 'Sonca', bestD = 0.12;
+  for (let k = 0; k < GENERA.length; k++){
+    const gi = GENERA[k][0], sg = GENERA[k][1];
+    const d = sg * (g[gi] - GDEF[gi]) / (GMAX[gi] - GMIN[gi]);
+    if (d > bestD){ bestD = d; best = GENERA[k][2]; }
+  }
+  return best;
+}
+function epithet(){
+  const n = 2 + (rng() < 0.4 ? 1 : 0);
+  let s = '';
+  for (let k = 0; k < n; k++) s += SYL[(rng() * SYL.length) | 0];
+  return s + END[(rng() * END.length) | 0];
+}
+function allocLin(){
+  if (linFree.length) return linFree.pop();
+  if (linTop < LCAP) return linTop++;
+  return -1;
+}
+function freeLin(L){ linCount[L] = 0; Ustamp[L] = 0; linFree.push(L); }
+function addToLin(L){
+  if (linCount[L]++ === 0) nLin++;
+  const S = species[linSp[L]];
+  if (S.count++ === 0){ nSpAlive++; S.extinct = -1; }
+  if (S.count > S.peak) S.peak = S.count;
+}
+function removeFromLin(L){
+  const S = species[linSp[L]];
+  if (--S.count === 0){ nSpAlive--; S.extinct = tick; }
+  if (--linCount[L] === 0){ nLin--; freeLin(L); }
+}
+function ghc(L){
+  let h = 2166136261 >>> 0;
+  const o = L * G;
+  for (let k = 0; k < G; k++){ if (k === G_HUE) continue; h ^= gU32[o + k]; h = Math.imul(h, 16777619) >>> 0; }
+  return (h ^ (h >>> 24)) & 0xffffff;
+}
+function geneDist(o, proto){
+  let s = 0, w = 0;
+  for (let k = 0; k < G; k++){
+    if (k === G_HUE || k === G_MUT) continue;
+    const d = (genes[o + k] - proto[k]) / (GMAX[k] - GMIN[k]);
+    const wk = k >= WQ0 ? 0.5 : 1;
+    s += wk * d * d; w += wk;
+  }
+  return Math.sqrt(s / w);
+}
+function newSpecies(L, hue, parent){
+  const o = L * G;
+  const proto = genes.slice(o, o + G);
+  const id = species.length;
+  species.push({ id, name: genusFor(proto) + ' ' + epithet(), hue, rgb: hsl(hue, 0.72, 0.58),
+    proto, count: 0, peak: 0, born: tick, parent, extinct: -1 });
+  return id;
+}
+function maybeMutate(L){
+  const o = L * G;
+  if (rng() >= genes[o + G_MUT] * P.mutScale) return L;
+  const L2 = allocLin();
+  if (L2 < 0) return L;
+  const o2 = L2 * G;
+  for (let k = 0; k < G; k++) genes[o2 + k] = genes[o + k];
+  for (let k = 0; k < G; k++){
+    if (k === G_HUE) continue;
+    if (rng() < 0.25){
+      let v = genes[o2 + k] + gauss() * GSIG[k];
+      if (v < GMIN[k]) v = GMIN[k]; else if (v > GMAX[k]) v = GMAX[k];
+      genes[o2 + k] = v;
+    }
+  }
+  let hh = genes[o2 + G_HUE] + gauss() * GSIG[G_HUE];
+  genes[o2 + G_HUE] = ((hh % 360) + 360) % 360;
+  const sp = linSp[L], S = species[sp];
+  linGen[L2] = linGen[L] + 1;
+  linCount[L2] = 0; Ustamp[L2] = 0;
+  if (species.length < 6000 && geneDist(o2, S.proto) > P.SPEC){
+    const nh = (S.hue + 50 + rng() * 100) % 360;
+    genes[o2 + G_HUE] = nh;
+    linSp[L2] = newSpecies(L2, nh, sp);
+    st.specs++;
+  } else linSp[L2] = sp;
+  linGHC[L2] = ghc(L2);
+  st.muts++;
+  return L2;
+}
+
+// ---------------------------------------------------------------- food particles
+// Attractant is released from a particle's surface, so emission scales with its perimeter,
+// not its mass. How much energy it holds is a separate key feature the cell must learn to weigh.
+function emission(type, count){ return Math.log(2 * Math.sqrt(Math.PI * count) * FOOD_TYPES[type].emit / P.PREF); }
+function queueDist(s){ const f = foods[s]; if (f && !f.queued){ f.queued = true; distQueue.push(s); } }
+
+function placeFood(cx, cy, r, type, opts){
+  opts = opts || {};
+  let slot = -1;
+  for (let s = 0; s < MAXF; s++) if (!foods[s]){ slot = s; break; }
+  if (slot < 0) return -1;
+  const T = FOOD_TYPES[type];
+  const pix = [];
+  const lim = r * r + r * 0.8;
+  const x0 = Math.max(0, Math.floor(cx - r - 1)), x1 = Math.min(W - 1, Math.ceil(cx + r + 1));
+  const y0 = Math.max(0, Math.floor(cy - r - 1)), y1 = Math.min(H - 1, Math.ceil(cy + r + 1));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++){
+    const dx = x - cx, dy = y - cy;
+    if (dx * dx + dy * dy > lim) continue;
+    const i = y * W + x;
+    if (wall[i] || foodId[i] >= 0) continue;
+    if (T.hard && state[i] !== EMPTY) continue;
+    pix.push(i);
+  }
+  if (!pix.length) return -1;
+  const dens = T.density * P.foodMult * (opts.scale || 1);
+  let total = 0;
+  for (let k = 0; k < pix.length; k++){
+    const i = pix[k];
+    foodId[i] = slot; foodN[i] = dens; total += dens;
+    if (T.hard) hardMask[i] = 1;
+  }
+  ledger.injected += total;
+  foods[slot] = { slot, type, hard: T.hard, x: cx, y: cy, r, pixels: Int32Array.from(pix),
+    n0: total, N: total, count: pix.length, count0: pix.length, countAtDist: pix.length,
+    lnA: emission(type, pix.length), feat: new Float32Array(FK), crowd: 0, crowdAcc: 0,
+    born: tick, distReady: false, queued: false };
+  if (opts.defer) queueDist(slot); else computeDist(slot);
+  return slot;
+}
+
+function removeFood(slot, toF){
+  const f = foods[slot];
+  if (!f) return;
+  const px = f.pixels;
+  for (let k = 0; k < px.length; k++){
+    const p = px[k];
+    if (foodId[p] !== slot) continue;
+    const v = foodN[p];
+    if (toF) F[p] += v; else ledger.removed += v;
+    foodN[p] = 0; foodId[p] = -1; hardMask[p] = 0;
+  }
+  foods[slot] = null;
+  for (let i = 0; i < N; i++) DIST[i * MAXF + slot] = INF;
+  distQueue = distQueue.filter(s => s !== slot);
+}
+
+// Geodesic distance from a food's remaining pixels, walls block (Dijkstra, octile moves).
+// The steady state of a diffusing, decaying attractant is ~ A·exp(−d/λ), so this field
+// gives each cell the log-concentration it would sense from this particle.
+const dTmp = new Float32Array(N);
+let hIdx = new Int32Array(N * 3), hKey = new Float32Array(N * 3), hSize = 0, popKey = 0;
+function hPush(i, k){
+  if (hSize >= hIdx.length){
+    const ni = new Int32Array(hIdx.length * 2); ni.set(hIdx); hIdx = ni;
+    const nk = new Float32Array(hKey.length * 2); nk.set(hKey); hKey = nk;
+  }
+  let j = hSize++;
+  while (j > 0){
+    const p = (j - 1) >> 1;
+    if (hKey[p] <= k) break;
+    hIdx[j] = hIdx[p]; hKey[j] = hKey[p]; j = p;
+  }
+  hIdx[j] = i; hKey[j] = k;
+}
+function hPop(){
+  const top = hIdx[0]; popKey = hKey[0];
+  hSize--;
+  if (hSize > 0){
+    const li = hIdx[hSize], lk = hKey[hSize];
+    let j = 0;
+    for (;;){
+      let c = 2 * j + 1;
+      if (c >= hSize) break;
+      if (c + 1 < hSize && hKey[c + 1] < hKey[c]) c++;
+      if (hKey[c] >= lk) break;
+      hIdx[j] = hIdx[c]; hKey[j] = hKey[c]; j = c;
+    }
+    hIdx[j] = li; hKey[j] = lk;
+  }
+  return top;
+}
+const SQ2 = Math.SQRT2;
+function relax(n, nd){ if (nd < dTmp[n]){ dTmp[n] = nd; hPush(n, nd); } }
+function computeDist(slot){
+  const f = foods[slot];
+  if (!f) return;
+  dTmp.fill(INF); hSize = 0;
+  const px = f.pixels;
+  for (let k = 0; k < px.length; k++){
+    const p = px[k];
+    if (foodId[p] === slot && foodN[p] > 0){ dTmp[p] = 0; hPush(p, 0); }
+  }
+  while (hSize > 0){
+    const p = hPop(), d = popKey;
+    if (d > dTmp[p] || d >= MAXD) continue;
+    const x = p % W, y = (p - x) / W;
+    const l = x > 0 && !wall[p - 1], r = x < W - 1 && !wall[p + 1];
+    const u = y > 0 && !wall[p - W], dn = y < H - 1 && !wall[p + W];
+    if (l) relax(p - 1, d + 1);
+    if (r) relax(p + 1, d + 1);
+    if (u) relax(p - W, d + 1);
+    if (dn) relax(p + W, d + 1);
+    const dd = d + SQ2;
+    if (l && u && !wall[p - W - 1]) relax(p - W - 1, dd);
+    if (r && u && !wall[p - W + 1]) relax(p - W + 1, dd);
+    if (l && dn && !wall[p + W - 1]) relax(p + W - 1, dd);
+    if (r && dn && !wall[p + W + 1]) relax(p + W + 1, dd);
+  }
+  for (let i = 0, j = slot; i < N; i++, j += MAXF) DIST[j] = dTmp[i];
+  f.countAtDist = f.count; f.distReady = true; f.queued = false;
+}
+
+function updateFoods(){
+  nActive = 0;
+  for (let s = 0; s < MAXF; s++){
+    const f = foods[s];
+    if (!f) continue;
+    let sum = 0, cnt = 0;
+    const px = f.pixels;
+    for (let k = 0; k < px.length; k++){
+      const p = px[k];
+      if (foodId[p] !== s) continue;
+      const v = foodN[p];
+      if (v > 0.05){ sum += v; cnt++; }
+      else { F[p] += v; foodN[p] = 0; foodId[p] = -1; hardMask[p] = 0; }
+    }
+    if (cnt === 0 || sum < 1){ removeFood(s, true); continue; }
+    f.N = sum; f.count = cnt;
+    f.lnA = emission(f.type, cnt);
+    const ft = f.feat;
+    ft[0] = f.type === SUGAR ? 1 : 0; ft[1] = f.type === PROTEIN ? 1 : 0; ft[2] = f.type === PREY ? 1 : 0;
+    ft[3] = Math.min(1.5, Math.log(1 + sum) / Math.log(1 + 20000));
+    const perim = 2 * Math.sqrt(Math.PI * cnt) + 2;
+    f.crowd = f.crowdAcc / perim;
+    ft[4] = Math.min(2, f.crowd);
+    ft[5] = 1;
+    f.crowdAcc = 0;
+    activeSlots[nActive++] = s;
+    if (!f.distReady || f.count < f.countAtDist * 0.85) queueDist(s);
+  }
+  let budget = P.distPerTick;
+  while (budget-- > 0 && distQueue.length){
+    const s = distQueue.shift();
+    if (foods[s]){ foods[s].queued = false; computeDist(s); }
+  }
+}
+
+// ---------------------------------------------------------------- chemotactic attention
+// Tokens are the food particles whose attractant a cell can detect. Each cell forms a
+// query from its own physiology, each food a key from its chemistry, both through the
+// cell's own inherited 44 weights (W_Q 5×4, W_K 6×4). The physical term ln Aⱼ − dⱼ/λ is the
+// log of the steady-state attractant concentration, which is a linear distance bias (ALiBi).
+const tokS = new Int32Array(MAXF), tokL = new Float64Array(MAXF), tokD = new Float32Array(MAXF);
+const tokA = new Float64Array(MAXF), tokSc = new Float64Array(MAXF), tokFe = new Float64Array(MAXF), tokSig = new Float64Array(MAXF);
+const insp = { idx: -1, cid: 0, tokens: [], nullA: 1, beta: 0, lambda: 0, hunger: 0, qn: 0, drop: 0, motile: 0,
+  gx: 0, gy: 0, reach: 0, stamp: 0, x: 0, y: 0 };
+
+function computeU(L){
+  Ustamp[L] = tick;
+  const o = L * G, wq = o + WQ0, wk = o + WK0, uo = L * MAXF * HQ;
+  for (let a = 0; a < nActive; a++){
+    const s = activeSlots[a], ft = foods[s].feat;
+    let k0 = 0, k1 = 0, k2 = 0, k3 = 0;
+    for (let r = 0; r < FK; r++){
+      const fv = ft[r];
+      if (fv === 0) continue;
+      const b = wk + r * DQ;
+      k0 += fv * genes[b]; k1 += fv * genes[b + 1]; k2 += fv * genes[b + 2]; k3 += fv * genes[b + 3];
+    }
+    const u = uo + s * HQ;
+    for (let h = 0; h < HQ; h++){
+      const b = wq + h * DQ;
+      U[u + h] = genes[b] * k0 + genes[b + 1] * k1 + genes[b + 2] * k2 + genes[b + 3] * k3;
+    }
+  }
+}
+
+function attend(i, x, y, L, e, isFor){
+  if (Ustamp[L] !== tick) computeU(L);
+  const o = L * G;
+  const brain = genes[o + G_BRAIN];
+  const lam = P.LAMBDA0 * (1 + brain) * P.senseMult, invLam = 1 / lam;
+  const beta = 1 + 1.5 * brain;
+  const kappa = genes[o + G_BUDGET];
+  const hunger = 1 - e / P.EMAX;
+  const qv = Q[i], qn = qv / (qv + 1);
+  const drop = rS[i] < 0.5 * rL[i] ? 1 : 0;
+  const reach = e / (P.MOVE + P.BASAL * P.FOR_MULT) + 2;
+  const base = i * MAXF, uo = L * MAXF * HQ;
+  const nullL = beta * genes[o + G_EXPLORE];
+  let maxl = nullL, nT = 0;
+  for (let a = 0; a < nActive; a++){
+    const s = activeSlots[a];
+    const d = DIST[base + s];
+    if (d >= INF) continue;
+    const f = foods[s];
+    const sig = f.lnA - d * invLam;
+    if (sig < P.DET) continue;
+    const u = uo + s * HQ;
+    const score = 0.5 * (hunger * U[u] + qn * U[u + 1] + isFor * U[u + 2] + drop * U[u + 3] + U[u + 4]);
+    let feas = 1 - d / reach;
+    if (feas < 0.02) feas = 0.02;
+    const l = beta * (score + 0.5 * (sig - P.DET) + kappa * Math.log(feas));
+    tokS[nT] = s; tokL[nT] = l; tokD[nT] = d; tokSc[nT] = score; tokFe[nT] = feas; tokSig[nT] = sig;
+    nT++;
+    if (l > maxl) maxl = l;
+  }
+  const en = Math.exp(nullL - maxl);
+  let sum = en;
+  for (let t = 0; t < nT; t++){ const w = Math.exp(tokL[t] - maxl); tokA[t] = w; sum += w; }
+  const inv = 1 / sum, aNull = en * inv;
+  let gx = 0, gy = 0, amax = 0;
+  for (let t = 0; t < nT; t++){
+    const a = tokA[t] * inv;
+    tokA[t] = a;
+    if (a > amax) amax = a;
+    if (a < 0.015) continue;
+    const s = tokS[t], d = tokD[t];
+    let dxp = d, dxm = d, dyp = d, dym = d, v;
+    if (x < W - 1 && !wall[i + 1]){ v = DIST[base + MAXF + s]; dxp = v < INF ? v : d + 1; }
+    if (x > 0 && !wall[i - 1]){ v = DIST[base - MAXF + s]; dxm = v < INF ? v : d + 1; }
+    if (y < H - 1 && !wall[i + W]){ v = DIST[base + W * MAXF + s]; dyp = v < INF ? v : d + 1; }
+    if (y > 0 && !wall[i - W]){ v = DIST[base - W * MAXF + s]; dym = v < INF ? v : d + 1; }
+    const vx = dxm - dxp, vy = dym - dyp;
+    const m = Math.sqrt(vx * vx + vy * vy);
+    if (m > 1e-6){ gx += a * vx / m; gy += a * vy / m; }
+  }
+  if (aNull > 0.015){
+    // The null token: explore away from kin (autoinducer) and from explored, slimed ground,
+    // with run-and-tumble persistence (keep heading, occasionally tumble).
+    let ex = 0, ey = 0;
+    if (x > 0 && x < W - 1) ex = (Q[i - 1] - Q[i + 1]) + 0.6 * (slime[i - 1] - slime[i + 1]);
+    if (y > 0 && y < H - 1) ey = (Q[i - W] - Q[i + W]) + 0.6 * (slime[i - W] - slime[i + W]);
+    const m = Math.sqrt(ex * ex + ey * ey);
+    const ang = rng() * 6.283185307179586;
+    let vx = Math.cos(ang) * 0.6, vy = Math.sin(ang) * 0.6;
+    if (m > 1e-6){ vx += ex / m; vy += ey / m; }
+    const m2 = Math.sqrt(vx * vx + vy * vy) || 1;
+    vx /= m2; vy /= m2;
+    const px = gxA[i], py = gyA[i], pm = Math.sqrt(px * px + py * py);
+    if (isFor && pm > 0.2 && rng() > 0.08){ vx = 0.75 * px / pm + 0.25 * vx; vy = 0.75 * py / pm + 0.25 * vy; }
+    const m3 = Math.sqrt(vx * vx + vy * vy) || 1;
+    gx += aNull * vx / m3; gy += aNull * vy / m3;
+  }
+  gxA[i] = gx; gyA[i] = gy; salA[i] = 1 - aNull; sensA[i] = nT > 0 ? 1 : 0;
+  if (nT > 0){ st.focusSum += amax / (1 - aNull + 1e-9); st.focusN++; }
+  if (i === insp.idx){
+    const toks = [];
+    for (let t = 0; t < nT; t++){
+      const f = foods[tokS[t]];
+      toks.push({ slot: tokS[t], type: f.type, x: f.x, y: f.y, d: tokD[t], sig: tokSig[t], score: tokSc[t],
+        feas: tokFe[t], logit: tokL[t], alpha: tokA[t] });
+    }
+    toks.sort((a, b) => b.alpha - a.alpha);
+    insp.tokens = toks; insp.nullA = aNull; insp.beta = beta; insp.lambda = lam; insp.hunger = hunger;
+    insp.qn = qn; insp.drop = drop; insp.motile = isFor; insp.gx = gx; insp.gy = gy; insp.reach = reach;
+    insp.stamp = tick; insp.x = x; insp.y = y;
+  }
+}
+
+function senseMax(i, L){
+  const lam = P.LAMBDA0 * (1 + genes[L * G + G_BRAIN]) * P.senseMult, invLam = 1 / lam;
+  const base = i * MAXF;
+  let best = -INF;
+  for (let a = 0; a < nActive; a++){
+    const s = activeSlots[a], d = DIST[base + s];
+    if (d >= INF) continue;
+    const sig = foods[s].lnA - d * invLam;
+    if (sig > best) best = sig;
+  }
+  return best;
+}
+
+// ---------------------------------------------------------------- local placement policy
+// Where to put a daughter or take a step: softmax over the free Moore neighbours.
+const DX8 = [1, 1, 0, -1, -1, -1, 0, 1], DY8 = [0, 1, 1, 1, 0, -1, -1, -1];
+const INVL8 = DX8.map((dx, k) => 1 / Math.hypot(dx, DY8[k]));
+const cand = new Int32Array(8), candL = new Float64Array(8), contact = new Int32Array(4);
+function chooseSite(i, x, y, L, hunger, sal){
+  const o = L * G;
+  const chemo = genes[o + G_CHEMO];
+  const slimeW = genes[o + G_SLIME] * (0.25 + 0.75 * (1 - sal));
+  const toxW = 4 * (1 - hunger * genes[o + G_RISK]);
+  const br = genes[o + G_BRANCH] * 0.6;
+  const gx = gxA[i], gy = gyA[i];
+  let c = 0, maxl = -INF;
+  for (let k = 0; k < 8; k++){
+    const nx = x + DX8[k], ny = y + DY8[k];
+    if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+    const n = ny * W + nx;
+    if (wall[n] || state[n] || hardMask[n]) continue;
+    if ((k & 1) && wall[y * W + nx] && wall[ny * W + x]) continue;
+    let s = chemo * (DX8[k] * gx + DY8[k] * gy) * INVL8[k];
+    s -= slimeW * slime[n];
+    s -= toxW * toxin[n];
+    let fa = F[n];
+    if (foodId[n] >= 0) fa += foodN[n];
+    s += fa > 8 ? 2 : fa * 0.25;
+    let occ = 0;
+    if (nx > 0 && state[n - 1]) occ++;
+    if (nx < W - 1 && state[n + 1]) occ++;
+    if (ny > 0 && state[n - W]) occ++;
+    if (ny < H - 1 && state[n + W]) occ++;
+    s -= br * (occ - 1);
+    cand[c] = n; candL[c] = s; if (s > maxl) maxl = s; c++;
+  }
+  if (c === 0) return -1;
+  let sum = 0;
+  for (let k = 0; k < c; k++){ const w = Math.exp(candL[k] - maxl); candL[k] = w; sum += w; }
+  let r = rng() * sum;
+  for (let k = 0; k < c; k++){ r -= candL[k]; if (r <= 0) return cand[k]; }
+  return cand[c - 1];
+}
+
+// ---------------------------------------------------------------- life events
+function kill(i){
+  let e = energy[i];
+  if (e < 0){ burn(e, C_MAINT); e = 0; }   // a cell cannot spend energy it did not have
+  const rec = P.B0 * P.RECYCLE;
+  F[i] += rec + e;                     // lysis: reserves and part of the biomass become nutrient
+  st.recycled += rec + e;
+  ledger.heat += P.B0 - rec;           // the rest is lost to decomposition
+  removeFromLin(lin[i]);
+  state[i] = EMPTY; energy[i] = 0; cid[i] = 0;
+  st.deaths++;
+  if (insp.idx === i) insp.idx = -1;
+}
+function moveCell(i, n){
+  state[n] = state[i]; energy[n] = energy[i]; lin[n] = lin[i]; age[n] = age[i];
+  rS[n] = rS[i]; rL[n] = rL[i]; cid[n] = cid[i];
+  gxA[n] = gxA[i]; gyA[n] = gyA[i]; salA[n] = salA[i]; sensA[n] = sensA[i]; acted[n] = tick;
+  state[i] = EMPTY; energy[i] = 0; cid[i] = 0;
+  const sl = slime[i] + 0.25; slime[i] = sl > 1.5 ? 1.5 : sl;
+  if (insp.idx === i) insp.idx = n;
+}
+function divide(i, n){
+  const L = lin[i], o = L * G;
+  let e = energy[i] - P.B0 - P.DIV_HEAT;  // B0 becomes the daughter's structure
+  burn(P.DIV_HEAT, C_GROW);
+  const eD = e * genes[o + G_INVEST];
+  e -= eD;
+  energy[i] = e;
+  const L2 = maybeMutate(L);            // mutation only at birth
+  state[n] = VEG; energy[n] = eD; lin[n] = L2; addToLin(L2);
+  age[n] = 0; rS[n] = rS[i] * 0.5; rL[n] = rL[i]; cid[n] = ++cidCounter; acted[n] = tick;
+  gxA[n] = gxA[i]; gyA[n] = gyA[i]; salA[n] = salA[i]; sensA[n] = sensA[i];
+  st.births++;
+}
+function lineClear(x0, y0, x1, y1){
+  let dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+  const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy, x = x0, y = y0;
+  for (let g = 0; g < 600; g++){
+    if (wall[y * W + x]) return false;
+    if (x === x1 && y === y1) return true;
+    const e2 = 2 * err;
+    if (e2 >= dy){ err += dy; x += sx; }
+    if (e2 <= dx){ err += dx; y += sy; }
+  }
+  return true;
+}
+function sporulate(i, x, y, L){
+  const o = L * G;
+  let e = energy[i] - P.SPORE_COST;
+  burn(P.SPORE_COST, C_DORM);
+  const qv = Q[i], qn = qv / (qv + 1);
+  const Rd = 2 + 26 * genes[o + G_DISP] * (0.25 + 0.75 * qn);   // taller fruiting bodies in crowds
+  let target = i;
+  for (let t = 0; t < 10; t++){
+    const ang = rng() * 6.283185307179586, rr = Rd * Math.sqrt(rng());
+    const tx = Math.round(x + Math.cos(ang) * rr), ty = Math.round(y + Math.sin(ang) * rr);
+    if (tx < 0 || ty < 0 || tx >= W || ty >= H) continue;
+    const n = ty * W + tx;
+    if (n === i || wall[n] || state[n] || hardMask[n]) continue;
+    if (!lineClear(x, y, tx, ty)) continue;
+    const cost = 0.04 * rr;
+    if (e - cost < 1) continue;
+    e -= cost; burn(cost, C_DORM); target = n;
+    break;
+  }
+  energy[i] = e; state[i] = SPORE;
+  if (target !== i) moveCell(i, target);
+  st.spor++;
+}
+
+// ---------------------------------------------------------------- one cell, one tick
+function updateCell(i){
+  const s0 = state[i];
+  const L = lin[i], o = L * G;
+  let e = energy[i];
+  age[i]++;
+  const x = i % W, y = (i - x) / W;
+
+  if (s0 === SPORE){
+    const c = P.SPORE_BASAL * P.metabMult;
+    e -= c; burn(c, C_DORM);
+    if (e <= 0){ energy[i] = e; kill(i); st.starved++; return; }
+    if (rng() < 0.08){
+      const near = F[i] + (foodId[i] >= 0 && !hardMask[i] ? foodN[i] : 0);
+      let wake = near > 2;
+      if (!wake) wake = senseMax(i, L) > P.DET + 1.2;
+      if (wake && e > P.GERM_COST + 1){
+        e -= P.GERM_COST; burn(P.GERM_COST, C_DORM);
+        state[i] = VEG; rS[i] = 0; rL[i] = 0.3; st.germ++;
+      }
+    }
+    energy[i] = e;
+    return;
+  }
+
+  if (rng() < P.MORT){ kill(i); st.bg++; return; }
+
+  const isFor = s0 === FOR ? 1 : 0;
+  const brain = genes[o + G_BRAIN];
+  const cMaint = P.BASAL * P.metabMult, cBrain = P.BASAL * P.BRAIN_COST * brain * P.metabMult;
+  const cMove = isFor ? (cMaint + cBrain) * (P.FOR_MULT - 1) : 0;
+  const cTox = P.TOX_DMG * toxin[i], cSig = P.Q_COST + P.SLIME_COST;
+  e -= cMaint + cBrain + cMove + cTox + cSig;
+  burn(cMaint, C_MAINT); burn(cBrain, C_BRAIN); if (cMove) burn(cMove, C_MOVE); if (cTox) burn(cTox, C_TOX); burn(cSig, C_SIG);
+  Q[i] += P.Q_EMIT;
+  const sl = slime[i] + P.SLIME_DEP; slime[i] = sl > 1.5 ? 1.5 : sl;
+
+  // uptake: Michaelis–Menten from the food under the cell, dissolved nutrient, and
+  // (at half efficiency) soft food it touches across its membrane (contact feeding)
+  let u = 0;
+  const fid = foodId[i];
+  const soft = (fid >= 0 && !hardMask[i]) ? foodN[i] : 0;
+  let cN = 0, cSum = 0;
+  if (e < P.EMAX){
+    for (let k = 0; k < 4; k++){
+      let n;
+      if (k === 0){ if (x <= 0) continue; n = i - 1; }
+      else if (k === 1){ if (x >= W - 1) continue; n = i + 1; }
+      else if (k === 2){ if (y <= 0) continue; n = i - W; }
+      else { if (y >= H - 1) continue; n = i + W; }
+      if (foodId[n] >= 0 && !hardMask[n] && !state[n]){ contact[cN++] = n; cSum += foodN[n]; }
+    }
+  }
+  const avail = soft + F[i] + 0.5 * cSum;
+  if (avail > 1e-9 && e < P.EMAX){
+    u = P.VMAX * avail / (P.KM + avail);
+    if (u > avail) u = avail;
+    const room = P.EMAX - e;
+    if (u > room) u = room;
+    const frac = u / avail;
+    const ts = frac * soft;
+    foodN[i] -= ts;
+    let tc = 0;
+    for (let k = 0; k < cN; k++){ const n = contact[k], t = frac * 0.5 * foodN[n]; foodN[n] -= t; tc += t; }
+    F[i] -= frac * F[i];
+    e += u; st.intake += u; st.fromFood += ts + tc; st.fromF += u - ts - tc;
+  }
+  rS[i] = rS[i] * 0.8 + u * 0.2;
+  rL[i] = rL[i] * 0.985 + u * 0.015;
+  if (e <= 0){ energy[i] = e; kill(i); st.starved++; return; }
+
+  let empties = 0, hardAdj = -1;
+  for (let k = 0; k < 8; k++){
+    const nx = x + DX8[k], ny = y + DY8[k];
+    if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+    const n = ny * W + nx;
+    if (hardMask[n]){ hardAdj = foodId[n]; continue; }
+    if (!wall[n] && !state[n]) empties++;
+  }
+  if (fid >= 0) foods[fid].crowdAcc++;
+  else if (hardAdj >= 0) foods[hardAdj].crowdAcc++;
+
+  if (empties > 0 || isFor || ((tick + i) & 3) === 0 || i === insp.idx) attend(i, x, y, L, e, isFor);
+  const sal = salA[i], sensed = sensA[i];
+  const hunger = 1 - e / P.EMAX;
+
+  // dormancy: starving and nothing to smell
+  if ((!sensed || rL[i] < 0.03) && u < 0.05 && e < genes[o + G_SPORE] * P.EMAX && e > P.SPORE_COST + 0.5 && rng() < 0.06){
+    energy[i] = e; sporulate(i, x, y, L); return;
+  }
+  // programmed death that feeds starving kin
+  if (!sensed && hunger > 0.85 && Q[i] > 1.2 && rng() < genes[o + G_ALTRU] * 0.02){
+    energy[i] = e; kill(i); st.lysis++; return;
+  }
+  // phenotype switch: sessile ⇄ motile (marginal value theorem)
+  if (!isFor){
+    if (empties > 0 && fid < 0 && hardAdj < 0 && hunger > 0.25 && (u < 0.02 || rS[i] < genes[o + G_MVT] * rL[i])){
+      if (sal > 0.5){ if (e > 8 && rng() < genes[o + G_FORAGE] * 0.08) state[i] = FOR; }       // go for a smelled target
+      else if (e > 15 && hunger > 0.4){                                                           // run-and-tumble search
+        const ex = genes[o + G_EXPLORE];
+        if (rng() < genes[o + G_FORAGE] * 0.02 / (1 + Math.exp(-(ex + 2)))) state[i] = FOR;
+      }
+    }
+  } else if (u > 0.4 || fid >= 0 || hardAdj >= 0 || e < 6) state[i] = VEG;
+
+  // cooperative digestion: quorum-gated exoenzyme at hard prey
+  if (hardAdj >= 0){
+    const th = genes[o + G_QS], qv = Q[i];
+    const sec = genes[o + G_ENZ] * P.ENZ_MAX * (qv * qv / (th * th + qv * qv));
+    if (sec > 1e-4 && e > sec + 3){ e -= sec; burn(sec, C_ENZ); EZ[i] += sec; st.enz += sec; }
+  }
+
+  // grow or move
+  if (empties > 0){
+    // Invest in growth when food is sensed, hold back when nothing is. Crowded cells that are
+    // not feeding enter a stationary phase (quorum- and nutrient-gated cell cycle).
+    const fed = rL[i] > 0.5 ? 1 : rL[i] * 2;
+    const qn = Q[i] / (Q[i] + 1);
+    const thr = Math.max((genes[o + G_DIVTHR] + (sensed ? -0.08 * sal : genes[o + G_RESTR]) + 0.3 * qn * (1 - fed)) * P.EMAX,
+      P.B0 + P.DIV_HEAT + 2 * P.RESERVE);
+    if (e >= thr){
+      const n = chooseSite(i, x, y, L, hunger, sal);
+      if (n >= 0){ energy[i] = e; divide(i, n); return; }
+    } else if (state[i] === FOR && e > P.MOVE + 2){
+      const n = chooseSite(i, x, y, L, hunger, sal);
+      if (n >= 0){ e -= P.MOVE; burn(P.MOVE, C_MOVE); energy[i] = e; moveCell(i, n); st.moves++; return; }
+    }
+  }
+  energy[i] = e;
+}
+
+// ---------------------------------------------------------------- colony-level physics
+function shareEnergy(){
+  dE.fill(0);
+  const eta = P.ETA;
+  let loss = 0;
+  for (let y = 0; y < H; y++){
+    const row = y * W;
+    for (let x = 0; x < W; x++){
+      const i = row + x, si = state[i];
+      if (si !== VEG && si !== FOR) continue;
+      const Li = lin[i], ki = genes[Li * G + G_SHARE];
+      if (ki <= 0) continue;
+      const spi = linSp[Li], ei = energy[i];
+      for (let side = 0; side < 2; side++){
+        let j;
+        if (side === 0){ if (x >= W - 1) continue; j = i + 1; }
+        else { if (y >= H - 1) continue; j = i + W; }
+        const sj = state[j];
+        if (sj !== VEG && sj !== FOR) continue;
+        const Lj = lin[j];
+        if (linSp[Lj] !== spi) continue;
+        let k = genes[Lj * G + G_SHARE];
+        if (k > ki) k = ki;                 // gap junctions need connexins on both sides
+        // diffusive exchange plus streaming toward each cell's attention goal
+        const gi = side === 0 ? gxA[i] : gyA[i], gj = side === 0 ? gxA[j] : gyA[j];
+        const pushI = gi > 0 ? 0.2 * k * ei * gi * salA[i] : 0;
+        const pushJ = gj < 0 ? -0.2 * k * energy[j] * gj * salA[j] : 0;
+        const f = k * (ei - energy[j]) * 0.25 + pushI - pushJ;
+        if (f > 0){ dE[i] -= f; dE[j] += f * eta; loss += f * (1 - eta); }
+        else if (f < 0){ dE[j] += f; dE[i] -= f * eta; loss -= f * (1 - eta); }
+      }
+    }
+  }
+  for (let i = 0; i < N; i++){ const d = dE[i]; if (d !== 0) energy[i] += d; }
+  burn(loss, C_SHARE);
+}
+
+function digest(){
+  // Exoenzymes act at the surface of insoluble prey: each exposed prey pixel is digested
+  // according to the enzyme in the open pixels touching it (Hill n = 3, cooperative),
+  // and the released nutrient goes to those open pixels, where the cells are.
+  const K3 = P.ENZ_K * P.ENZ_K * P.ENZ_K;
+  for (let a = 0; a < nActive; a++){
+    const f = foods[activeSlots[a]];
+    if (!f || !f.hard) continue;
+    const px = f.pixels, s = f.slot;
+    for (let k = 0; k < px.length; k++){
+      const p = px[k];
+      if (foodId[p] !== s) continue;
+      const x = p % W, y = (p - x) / W;
+      let ez = 0, no = 0;
+      if (x > 0 && !wall[p - 1] && !hardMask[p - 1]){ ez += EZ[p - 1]; open4[no++] = p - 1; }
+      if (x < W - 1 && !wall[p + 1] && !hardMask[p + 1]){ ez += EZ[p + 1]; open4[no++] = p + 1; }
+      if (y > 0 && !wall[p - W] && !hardMask[p - W]){ ez += EZ[p - W]; open4[no++] = p - W; }
+      if (y < H - 1 && !wall[p + W] && !hardMask[p + W]){ ez += EZ[p + W]; open4[no++] = p + W; }
+      if (no === 0 || ez < 0.01) continue;
+      const e3 = ez * ez * ez;
+      let d = P.DIG_MAX * e3 / (K3 + e3);
+      const v = foodN[p];
+      if (d > v) d = v;
+      foodN[p] = v - d;
+      const share = d / no;
+      for (let m = 0; m < no; m++) F[open4[m]] += share;
+      st.digested += d;
+    }
+  }
+}
+const open4 = new Int32Array(4);
+
+function diffuse(A, B, D, keep){
+  // Explicit, conservative diffusion (Fick's law). Walls and undigested prey block flux;
+  // anything inside prey stays trapped until that pixel is digested.
+  for (let y = 0; y < H; y++){
+    const row = y * W;
+    for (let x = 0; x < W; x++){
+      const i = row + x;
+      if (wall[i]){ B[i] = 0; continue; }
+      if (hardMask[i]){ B[i] = A[i]; continue; }
+      const c = A[i];
+      let s = 0;
+      if (x > 0 && !wall[i - 1] && !hardMask[i - 1]) s += A[i - 1] - c;
+      if (x < W - 1 && !wall[i + 1] && !hardMask[i + 1]) s += A[i + 1] - c;
+      if (y > 0 && !wall[i - W] && !hardMask[i - W]) s += A[i - W] - c;
+      if (y < H - 1 && !wall[i + W] && !hardMask[i + W]) s += A[i + W] - c;
+      B[i] = (c + D * s) * keep;
+    }
+  }
+}
+function diffuseAll(){
+  diffuse(F, F2, P.F_D, 1);          { const t = F; F = F2; F2 = t; }
+  diffuse(Q, Q2, P.Q_D, P.Q_KEEP);   { const t = Q; Q = Q2; Q2 = t; }
+  diffuse(EZ, EZ2, P.E_D, P.E_KEEP); { const t = EZ; EZ = EZ2; EZ2 = t; }
+  const keep = P.SLIME_KEEP;
+  for (let i = 0; i < N; i++){ const v = slime[i]; if (v > 0) slime[i] = v > 0.003 ? v * keep : 0; }
+}
+
+function pickType(m){
+  const tot = m[0] + m[1] + m[2];
+  if (tot <= 0) return SUGAR;
+  const q = rng() * tot;
+  return q < m[0] ? SUGAR : (q < m[0] + m[1] ? PROTEIN : PREY);
+}
+function rainTick(){
+  if (P.rain <= 0 || rng() >= P.rain / 100) return;
+  for (let t = 0; t < 25; t++){
+    const x = 3 + rng() * (W - 6), y = 3 + rng() * (H - 6);
+    const i = (y | 0) * W + (x | 0);
+    if (wall[i] || foodId[i] >= 0) continue;
+    let r = rng() < P.rainSize ? 3 + Math.floor(Math.pow(rng(), 1.8) * 10) : 1 + Math.floor(rng() * 2.5);
+    const type = pickType(P.rainMix);
+    if (type === PREY && r < 5) r = 5;
+    if (placeFood(x, y, r, type, { defer: true }) >= 0) st.rain++;
+    break;
+  }
+}
+
+// ---------------------------------------------------------------- statistics
+const HMAX = 420, SAMPLE_EVERY = 10;
+const hist = { t: [], pop: [], spores: [], foragers: [], nSp: [], nGen: [], brain: [], focus: [], eff: [], coop: [],
+  runway: [], energy: [], food: [], diversity: [], top: [] };
+let emaIntake = 0, emaBurn = 0, emaFocus = 0, emaDig = 0, emaFood = 0, emaRec = 0;
+const totals = { births: 0, deaths: 0, spor: 0, germ: 0, muts: 0, specs: 0, digested: 0 };
+let last = null;
+
+function sample(){
+  let pop = 0, spores = 0, foragers = 0, eSum = 0, brainSum = 0, enzSum = 0, frontier = 0;
+  for (let i = 0; i < N; i++){
+    const s = state[i];
+    if (!s) continue;
+    eSum += energy[i];
+    if (s === SPORE){ spores++; continue; }
+    pop++;
+    if (s === FOR) foragers++;
+    const o = lin[i] * G;
+    brainSum += genes[o + G_BRAIN]; enzSum += genes[o + G_ENZ];
+  }
+  let foodStock = 0;
+  for (let s = 0; s < MAXF; s++) if (foods[s]) foodStock += foods[s].N;
+  const alive = [];
+  let tot = 0;
+  for (let k = 0; k < species.length; k++){ const S = species[k]; if (S.count > 0){ alive.push(S); tot += S.count; } }
+  alive.sort((a, b) => b.count - a.count);
+  let Hs = 0;
+  for (const S of alive){ const p = S.count / tot; Hs -= p * Math.log(p); }
+  const diversity = alive.length > 1 ? Hs / Math.log(alive.length) : 0;
+  const top = alive.slice(0, 8).map(S => [S.id, S.count]);
+  const other = tot - top.reduce((a, b) => a + b[1], 0);
+  const brain = pop ? brainSum / pop : NaN;
+  const coop = pop ? enzSum / pop : NaN;
+  const eff = emaBurn > 1e-9 ? emaIntake / emaBurn : 0;
+  const runway = emaBurn > 1e-9 ? eSum / emaBurn : 0;
+  last = { tick, pop, spores, foragers, nSp: nSpAlive, nGen: nLin, brain, coop, focus: emaFocus, eff, runway,
+    energy: eSum, food: foodStock, diversity, top, other, nFood: nActive };
+  const push = (k, v) => { const a = hist[k]; a.push(v); if (a.length > HMAX) a.shift(); };
+  push('t', tick); push('pop', pop); push('spores', spores); push('foragers', foragers); push('nSp', nSpAlive);
+  push('nGen', nLin); push('brain', brain); push('focus', emaFocus); push('eff', eff); push('coop', coop);
+  push('runway', runway); push('energy', eSum); push('food', foodStock); push('diversity', diversity);
+  push('top', { top, other });
+}
+
+function stock(){
+  let s = 0, cells = 0;
+  for (let i = 0; i < N; i++){
+    if (state[i]){ s += energy[i]; cells++; }
+    s += foodN[i] + F[i];
+  }
+  return s + cells * P.B0;
+}
+
+// ---------------------------------------------------------------- the tick
+let env = null, envState = {};
+let api = null;
+function step(){
+  tick++;
+  resetTickStats();
+  updateFoods();
+  let n = 0;
+  for (let i = 0; i < N; i++) if (state[i]) order[n++] = i;
+  for (let k = n - 1; k > 0; k--){ const j = (rng() * (k + 1)) | 0; const t = order[k]; order[k] = order[j]; order[j] = t; }
+  for (let k = 0; k < n; k++){
+    const i = order[k];
+    if (!state[i] || acted[i] === tick) continue;
+    acted[i] = tick;
+    updateCell(i);
+  }
+  shareEnergy();
+  digest();
+  diffuseAll();
+  if (env && env.tick) env.tick(envState);
+  rainTick();
+  emaIntake = emaIntake * 0.97 + st.intake * 0.03;
+  emaBurn = emaBurn * 0.97 + st.burn * 0.03;
+  emaDig = emaDig * 0.97 + st.digested * 0.03;
+  emaFood = emaFood * 0.97 + st.fromFood * 0.03;
+  if (st.focusN > 0) emaFocus = emaFocus * 0.95 + (st.focusSum / st.focusN) * 0.05;
+  for (let c = 0; c < emaCost.length; c++) emaCost[c] = emaCost[c] * 0.97 + st.cost[c] * 0.03;
+  emaRec = emaRec * 0.97 + st.recycled * 0.03;
+  totals.births += st.births; totals.deaths += st.deaths; totals.spor += st.spor; totals.germ += st.germ;
+  totals.muts += st.muts; totals.specs += st.specs; totals.digested += st.digested;
+  if (tick % SAMPLE_EVERY === 0 || !last) sample();
+}
+
+// ---------------------------------------------------------------- founders
+const PRESETS = {
+  wild:       { name: 'Wild type',           blurb: 'Innate wiring and balanced traits.', genes: {} },
+  cerebral:   { name: 'Cerebral forager',    blurb: 'Large sensory investment; scouts far for rich food.', genes: { brain: 1.5, chemo: 4, explore: -0.5, forage: 0.5, mvt: 0.7, budget: 1.5 } },
+  breeder:    { name: 'Small-brain breeder', blurb: 'Cheap to run, divides early, stays put.', genes: { brain: 0.05, divThr: 0.55, restraint: 0.03, forage: 0.1, chemo: 2.2 } },
+  cooperator: { name: 'Cooperator',          blurb: 'Secretes exoenzyme at a quorum and shares with kin.', genes: { enzyme: 0.9, qsThr: 0.45, share: 0.2, altru: 0.25 } },
+  cheater:    { name: 'Cheater',             blurb: 'Makes no enzyme and keeps its energy.', genes: { enzyme: 0, share: 0.03, altru: 0 } },
+  nomad:      { name: 'Nomad',               blurb: 'Motile, quick to leave, spores travel far.', genes: { forage: 0.8, mvt: 0.9, disperse: 0.9, sporeThr: 0.2, explore: -0.3 } },
+  mycelial:   { name: 'Mycelial',            blurb: 'Branching fronts and strong internal transport.', genes: { branch: 1.2, share: 0.22, forage: 0.18, divThr: 0.66 } },
+  random:     { name: 'Random mutant',       blurb: 'Every gene drawn at random within its range.', genes: null },
+};
+
+let previewMode = false;
+
+function seedColony(cx, cy, key, radius, e0){
+  radius = radius == null ? 3 : radius;
+  e0 = e0 == null ? 60 : e0;
+  const L = allocLin();
+  if (L < 0) return -1;
+  const o = L * G;
+  for (let k = 0; k < G; k++) genes[o + k] = GDEF[k];
+  const pr = PRESETS[key] || PRESETS.wild;
+  if (pr.genes){ for (const g in pr.genes) genes[o + GENE_INDEX[g]] = pr.genes[g]; }
+  else {
+    for (let k = 0; k < G; k++){
+      if (k === G_HUE) continue;
+      if (k < NS) genes[o + k] = GMIN[k] + rng() * (GMAX[k] - GMIN[k]);
+      else genes[o + k] = Math.max(-3, Math.min(3, GDEF[k] + gauss() * 0.8));
+    }
+    genes[o + G_MUT] = 0.01 + rng() * 0.05;
+  }
+  const hue = (founderCount * 137.508 + 28) % 360;
+  founderCount++;
+  genes[o + G_HUE] = hue;
+  linCount[L] = 0; Ustamp[L] = 0; linGen[L] = 0;
+  const sp = newSpecies(L, hue, -1);
+  species[sp].founder = pr.name;
+  linSp[L] = sp; linGHC[L] = ghc(L);
+  let placed = 0;
+  const r2 = radius * radius + radius * 0.8;
+  const ix = Math.round(cx), iy = Math.round(cy);
+  for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++){
+    if (dx * dx + dy * dy > r2) continue;
+    const x = ix + dx, y = iy + dy;
+    if (x < 0 || y < 0 || x >= W || y >= H) continue;
+    const i = y * W + x;
+    if (wall[i] || state[i] || hardMask[i]) continue;
+    state[i] = VEG; energy[i] = e0; lin[i] = L; addToLin(L);
+    age[i] = 0; rS[i] = 0; rL[i] = 0; cid[i] = ++cidCounter; acted[i] = tick;
+    gxA[i] = 0; gyA[i] = 0; salA[i] = 0; sensA[i] = 0;
+    ledger.injected += e0 + P.B0;
+    placed++;
+  }
+  if (!placed){ freeLin(L); species[sp].extinct = tick; return -1; }
+  return sp;
+}
+
+// ---------------------------------------------------------------- tools
+function markAllDist(){ for (let s = 0; s < MAXF; s++) if (foods[s]){ foods[s].distReady = false; queueDist(s); } }
+function paint(tool, cx, cy, r){
+  const lim = r * r + r * 0.8;
+  const x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(W - 1, Math.ceil(cx + r));
+  const y0 = Math.max(0, Math.floor(cy - r)), y1 = Math.min(H - 1, Math.ceil(cy + r));
+  let wallsChanged = false, n = 0;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++){
+    const dx = x - cx, dy = y - cy;
+    if (dx * dx + dy * dy > lim) continue;
+    const i = y * W + x;
+    if (tool === 'wall'){
+      if (wall[i]) continue;
+      if (state[i]) kill(i);
+      ledger.removed += F[i] + foodN[i];
+      F[i] = 0; foodN[i] = 0; foodId[i] = -1; hardMask[i] = 0; Q[i] = 0; EZ[i] = 0; toxin[i] = 0; slime[i] = 0;
+      wall[i] = 1; wallCount++; wallsChanged = true; n++;
+    } else if (tool === 'toxin'){
+      if (wall[i]) continue;
+      toxin[i] = Math.min(1, toxin[i] + 0.35); n++;
+    } else if (tool === 'erase'){
+      if (wall[i]){ wall[i] = 0; wallCount--; wallsChanged = true; }
+      if (foodId[i] >= 0){ ledger.removed += foodN[i]; foodN[i] = 0; foodId[i] = -1; hardMask[i] = 0; }
+      toxin[i] = 0; slime[i] = 0; n++;
+    } else if (tool === 'wound'){
+      if (state[i]){ kill(i); n++; }
+    }
+  }
+  if (wallsChanged){ markAllDist(); P.distPerTick = 8; }
+  return n;
+}
+
+// ---------------------------------------------------------------- environment helpers
+function dishWalls(){
+  const cx = (W - 1) / 2, cy = (H - 1) / 2, rx = W / 2 - 1.5, ry = H / 2 - 1.5;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    const dx = (x - cx) / rx, dy = (y - cy) / ry;
+    if (dx * dx + dy * dy > 1) wall[y * W + x] = 1;
+  }
+}
+function borderWalls(){
+  for (let x = 0; x < W; x++){ wall[x] = 1; wall[(H - 1) * W + x] = 1; }
+  for (let y = 0; y < H; y++){ wall[y * W] = 1; wall[y * W + W - 1] = 1; }
+}
+function setRect(arr, x0, y0, x1, y1, v){
+  for (let y = Math.max(0, y0); y <= Math.min(H - 1, y1); y++)
+    for (let x = Math.max(0, x0); x <= Math.min(W - 1, x1); x++) arr[y * W + x] = v;
+}
+function toxDisc(cx, cy, r, v, mode){
+  for (let y = Math.max(0, Math.floor(cy - r)); y <= Math.min(H - 1, Math.ceil(cy + r)); y++)
+    for (let x = Math.max(0, Math.floor(cx - r)); x <= Math.min(W - 1, Math.ceil(cx + r)); x++){
+      const d = Math.hypot(x - cx, y - cy);
+      if (d > r) continue;
+      const i = y * W + x;
+      if (wall[i]) continue;
+      if (mode === 'clear') toxin[i] = Math.min(toxin[i], Math.max(0, (d - r + 3) / 3) * toxin[i]);
+      else toxin[i] = Math.max(toxin[i], v * Math.min(1, (r - d + 1) / 3));
+    }
+}
+function openSpot(lr, margin){
+  for (let t = 0; t < 200; t++){
+    const x = margin + lr() * (W - 2 * margin), y = margin + lr() * (H - 2 * margin);
+    const i = (y | 0) * W + (x | 0);
+    if (!wall[i] && foodId[i] < 0 && !state[i]) return [x, y];
+  }
+  return [W / 2, H / 2];
+}
+function shuffleArr(a, lr){ for (let k = a.length - 1; k > 0; k--){ const j = (lr() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; } return a; }
+function buildMaze(lr){
+  // Braided maze: a depth-first spanning tree over CW×CH chambers, then most dead ends
+  // are opened into a neighbour so several routes exist (as in Nakagaki's agar mazes).
+  const CW = 8, CH = 5, wt = 3;
+  const xs = [], ys = [];
+  for (let c = 0; c <= CW; c++) xs.push(Math.round(c * W / CW));
+  for (let c = 0; c <= CH; c++) ys.push(Math.round(c * H / CH));
+  wall.fill(1);
+  const nC = CW * CH, visited = new Uint8Array(nC), adj = [];
+  for (let k = 0; k < nC; k++) adj.push([]);
+  const link = (a, b) => { if (adj[a].indexOf(b) < 0){ adj[a].push(b); adj[b].push(a); } };
+  const nbrs = c => { const cx = c % CW, cy = (c - cx) / CW, r = [];
+    if (cx > 0) r.push(c - 1); if (cx < CW - 1) r.push(c + 1); if (cy > 0) r.push(c - CW); if (cy < CH - 1) r.push(c + CW); return r; };
+  const stack = [0]; visited[0] = 1;
+  while (stack.length){
+    const c = stack[stack.length - 1];
+    const nb = nbrs(c).filter(d => !visited[d]);
+    if (!nb.length){ stack.pop(); continue; }
+    const d = nb[(lr() * nb.length) | 0];
+    visited[d] = 1; link(c, d); stack.push(d);
+  }
+  for (let c = 0; c < nC; c++) if (adj[c].length === 1 && lr() < 0.6){
+    const opts = nbrs(c).filter(d => adj[c].indexOf(d) < 0);
+    if (opts.length) link(c, opts[(lr() * opts.length) | 0]);
+  }
+  for (let c = 0; c < nC; c++){
+    const cx = c % CW, cy = (c - cx) / CW;
+    const x0 = xs[cx] + wt, x1 = xs[cx + 1] - 1, y0 = ys[cy] + wt, y1 = ys[cy + 1] - 1;
+    setRect(wall, x0, y0, x1, y1, 0);
+    for (const d of adj[c]){
+      if (d === c + 1) setRect(wall, xs[cx + 1], y0, xs[cx + 1] + wt - 1, y1, 0);
+      if (d === c + CW) setRect(wall, x0, ys[cy + 1], x1, ys[cy + 1] + wt - 1, 0);
+    }
+  }
+  const depth = new Int32Array(nC).fill(-1);
+  depth[0] = 0;
+  const q = [0];
+  while (q.length){ const c = q.shift(); for (const d of adj[c]) if (depth[d] < 0){ depth[d] = depth[c] + 1; q.push(d); } }
+  const centre = c => { const cx = c % CW, cy = (c - cx) / CW; return [(xs[cx] + wt + xs[cx + 1] - 1) / 2, (ys[cy] + wt + ys[cy + 1] - 1) / 2]; };
+  return { adj, depth, centre, nC };
+}
+function rootOf(id){ let s = species[id], guard = 0; while (s && s.parent >= 0 && guard++ < 10000) s = species[s.parent]; return s ? s.id : id; }
+function countByRoot(){
+  const m = new Map();
+  for (const S of species){ if (S.count > 0){ const r = rootOf(S.id); m.set(r, (m.get(r) || 0) + S.count); } }
+  return m;
+}
+function cellsInDisc(cx, cy, r){
+  let n = 0;
+  for (let y = Math.max(0, Math.floor(cy - r)); y <= Math.min(H - 1, Math.ceil(cy + r)); y++)
+    for (let x = Math.max(0, Math.floor(cx - r)); x <= Math.min(W - 1, Math.ceil(cx + r)); x++)
+      if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r && state[y * W + x]) n++;
+  return n;
+}
+function foodNear(cx, cy, r){ for (const f of foods) if (f && Math.hypot(f.x - cx, f.y - cy) < r) return true; return false; }
+
+// ---------------------------------------------------------------- environments
+const ENVS = [
+  {
+    id: 'dish', rim: 'dish', name: 'Open agar', seed: 11,
+    blurb: 'One founder colony on a lean plate with scattered sugar, protein and a single prey particle. Each cell smells the particles through their diffusing attractant and attends to the best one it can afford to reach.',
+    watch: 'Growth fronts bending toward food, interior cells feeding the front through gap junctions, spores forming once the plate is spent. Wound the colony and watch the survivors regrow.',
+    refs: ['Adler 1966, bacterial chemotaxis', 'Mordvintsev et al. 2020, Growing NCA'],
+    setup(lr){
+      dishWalls();
+      seedColony(96, 64, 'wild', 3, 70);
+      const spec = [[40, 40, 6, SUGAR], [150, 36, 5, SUGAR], [60, 98, 7, PROTEIN], [142, 92, 9, PREY], [96, 20, 4, SUGAR],
+        [26, 70, 5, PROTEIN], [170, 64, 6, SUGAR], [112, 104, 4, SUGAR], [74, 58, 3, SUGAR], [120, 70, 3, PROTEIN]];
+      for (const s of spec) placeFood(s[0], s[1], s[2], s[3]);
+    },
+    hud(){ return nActive + ' food particles left'; },
+  },
+  {
+    id: 'maze', name: 'Maze', seed: 5,
+    blurb: 'Rich protein waits at the deepest point of a maze, with decoys in dead ends. Attractant only reaches so far, so the colony has to explore and use its own slime as a memory of where it has been.',
+    watch: 'Searching without a signal, then a decisive turn once the goal gradient is picked up. Foragers stream along corridors while dead ends are marked and avoided.',
+    refs: ['Nakagaki, Yamada & Tóth 2000', 'Reid et al. 2012, slime as external memory', 'Tweedy et al. 2020, cells solving mazes'],
+    setup(lr, S){
+      const M = buildMaze(lr);
+      const s0 = M.centre(0);
+      placeFood(s0[0], s0[1], 7, SUGAR);
+      seedColony(s0[0], s0[1], 'wild', 4, 70);
+      // goal: a far-looking chamber about seven steps into the maze
+      let maxD = 0;
+      for (let c = 0; c < M.nC; c++) if (M.depth[c] > maxD) maxD = M.depth[c];
+      const want = Math.min(maxD, 7);
+      let goal = 0, best = -1;
+      for (let c = 0; c < M.nC; c++) if (M.depth[c] === want){ const p = M.centre(c), d = Math.hypot(p[0] - s0[0], p[1] - s0[1]); if (d > best){ best = d; goal = c; } }
+      const g = M.centre(goal);
+      placeFood(g[0], g[1], 9, PROTEIN);
+      S.goal = g;
+      // breadcrumbs: a few on the shortest route, the rest scattered; decoys in dead ends
+      const path = [goal];
+      while (path[path.length - 1] !== 0){ const c = path[path.length - 1]; let nx = c; for (const d of M.adj[c]) if (M.depth[d] === M.depth[c] - 1){ nx = d; break; } if (nx === c) break; path.push(nx); }
+      const used = new Set([0, goal]);
+      for (const fr of [0.3, 0.6]){ const c = path[Math.max(1, Math.min(path.length - 2, Math.round(path.length * fr)))]; if (!used.has(c)){ used.add(c); const p = M.centre(c); placeFood(p[0], p[1], 3, SUGAR); } }
+      const dead = [];
+      for (let c = 1; c < M.nC; c++) if (M.adj[c].length === 1 && !used.has(c)) dead.push(c);
+      shuffleArr(dead, lr);
+      for (let k = 0; k < Math.min(3, dead.length); k++){ used.add(dead[k]); const p = M.centre(dead[k]); placeFood(p[0], p[1], 4, SUGAR); }
+      const mids = [];
+      for (let c = 1; c < M.nC; c++) if (!used.has(c)) mids.push(c);
+      shuffleArr(mids, lr);
+      for (let k = 0; k < Math.min(8, mids.length); k++){ const p = M.centre(mids[k]); placeFood(p[0] + lr() * 6 - 3, p[1] + lr() * 6 - 3, 2, SUGAR); }
+    },
+    tick(S){ if (!S.reached && tick % 5 === 0 && cellsInDisc(S.goal[0], S.goal[1], 11) > 0) S.reached = tick; },
+    hud(S){ return S.reached ? 'Goal reached at tick ' + S.reached : 'Goal not reached yet'; },
+  },
+  {
+    id: 'network', rim: 'dish', name: 'Mycelial network', seed: 3,
+    blurb: 'A branching founder sits at the centre of a ring of food sources that regrow after they are eaten. Energy moves between kin through gap junctions, so branches that link food keep flowing while dead ends starve.',
+    watch: 'Dendritic fronts, links forming between sources, unproductive branches regressing into a transport network.',
+    refs: ['Tero et al. 2010, adaptive network design', 'Fricker et al. 2017, the mycelium as a network'],
+    setup(lr, S){
+      dishWalls();
+      placeFood(96, 64, 5, PROTEIN);
+      seedColony(96, 64, 'mycelial', 3, 70);
+      const n = 9;
+      S.ring = [];
+      for (let k = 0; k < n; k++){
+        const a = k / n * 2 * Math.PI + 0.3;
+        const p = [96 + Math.cos(a) * 70, 64 + Math.sin(a) * 44, k % 3 === 0 ? 6 : 5, k % 2 ? SUGAR : PROTEIN];
+        S.ring.push(p);
+        placeFood(p[0], p[1], p[2], p[3]);
+      }
+    },
+    tick(S){
+      // food sources regrow, so links between them keep paying
+      if (tick % 500 !== 0) return;
+      for (const p of S.ring) if (!foodNear(p[0], p[1], 6) && rng() < 0.7) placeFood(p[0], p[1], p[2], p[3], { defer: true });
+    },
+    hud(){ let t = 0, n = 0; for (const f of foods) if (f){ n++; if (f.crowd > 0) t++; } return t + ' of ' + n + ' food sources in contact'; },
+  },
+  {
+    id: 'seasons', rim: 'dish', name: 'Feast and famine', seed: 21,
+    blurb: 'Food arrives in a pulse every 900 ticks and then runs out. Survival depends on knowing when to grow, when to stop, and when to wait as a spore.',
+    watch: 'Booms after each harvest, sporulation as the plate empties, spores germinating as soon as the next harvest can be smelled.',
+    refs: ['Errington 2003, sporulation', 'Potrykus & Cashel 2008, the stringent response'],
+    setup(lr, S){
+      dishWalls();
+      seedColony(96, 64, 'wild', 3, 70);
+      S.period = 900; S.lr = lr;
+      S.harvest = () => {
+        for (let k = 0; k < 14; k++){
+          const p = openSpot(S.lr, 14);
+          const q = S.lr();
+          placeFood(p[0], p[1], 3 + Math.floor(S.lr() * 5), q < 0.6 ? SUGAR : (q < 0.9 ? PROTEIN : PREY), { defer: true });
+        }
+      };
+      S.harvest();
+    },
+    tick(S){ if (tick % S.period === 0) S.harvest(); },
+    hud(S){ const left = S.period - (tick % S.period); return 'Next harvest in ' + left + ' ticks'; },
+  },
+  {
+    id: 'wolfpack', rim: 'dish', name: 'Wolf pack', seed: 8,
+    blurb: 'Large prey that no single cell can digest: exoenzyme only works above a quorum. Cooperators start on the left, enzyme-free cheaters on the right and a wild type below.',
+    watch: 'Cooperators besieging prey and eroding it from the outside in. Cheaters stall on their own but prosper if they reach prey someone else is digesting.',
+    refs: ['Berleman & Kirby 2009, bacterial wolf packs', 'Griffin, West & Buckling 2004, cheats', 'Miller & Bassler 2001, quorum sensing'],
+    params: { rain: 0.6, rainSize: 1, rainMix: [0.2, 0.1, 0.7] },
+    setup(){
+      dishWalls();
+      placeFood(60, 64, 14, PREY); placeFood(132, 64, 14, PREY); placeFood(96, 22, 10, PREY);
+      placeFood(26, 30, 3, SUGAR); placeFood(166, 98, 3, SUGAR); placeFood(26, 98, 3, SUGAR); placeFood(166, 30, 3, SUGAR);
+      seedColony(26, 64, 'cooperator', 4, 70);
+      seedColony(166, 64, 'cheater', 4, 70);
+      seedColony(96, 104, 'wild', 3, 70);
+    },
+    hud(){ return Math.round(totals.digested) + ' energy digested from prey'; },
+  },
+  {
+    id: 'islands', rim: 'dish', name: 'Archipelago', seed: 13,
+    blurb: 'Food islands in a toxic sea. Crossing costs energy, so colonisation needs well-fed foragers or spores lifted on tall fruiting bodies.',
+    watch: 'Spores landing on distant islands and germinating when they smell food; islands recolonised as their food regrows.',
+    refs: ['MacArthur & Wilson 1967, island biogeography', 'Bonner 2009, social amoebae'],
+    setup(lr, S){
+      dishWalls();
+      for (let i = 0; i < N; i++) if (!wall[i]) toxin[i] = 0.35;
+      S.islands = [[30, 34], [92, 20], [158, 32], [26, 96], [88, 68], [150, 100], [124, 52], [60, 110], [174, 70], [56, 62]];
+      S.islands.forEach((p, k) => { toxDisc(p[0], p[1], 11, 0, 'clear'); placeFood(p[0], p[1], 4, k % 2 ? SUGAR : PROTEIN); });
+      seedColony(30, 34, 'nomad', 3, 70);
+    },
+    tick(S){
+      if (tick % 700 !== 0) return;
+      for (const p of S.islands) if (!foodNear(p[0], p[1], 7) && rng() < 0.6)
+        placeFood(p[0] + rng() * 4 - 2, p[1] + rng() * 4 - 2, 4, rng() < 0.6 ? SUGAR : PROTEIN, { defer: true });
+    },
+    hud(S){ let k = 0; for (const p of S.islands) if (cellsInDisc(p[0], p[1], 11) > 0) k++; return k + ' of ' + S.islands.length + ' islands occupied'; },
+  },
+  {
+    id: 'tissue', rim: 'dish', name: 'Expensive brains', seed: 17,
+    blurb: 'A cerebral forager (left) against a small-brained breeder (right) under a steady rain of rich, patchy food. Cognition widens sensing and sharpens attention but costs maintenance every tick.',
+    watch: 'Which lineage takes the plate and where mean cognition settles. Switch the rain to crumbs and the balance tips toward cheap brains.',
+    refs: ['Aiello & Wheeler 1995, expensive-tissue hypothesis', 'Charnov 1976, marginal value theorem'],
+    params: { rain: 3, rainSize: 1, rainMix: [0.5, 0.4, 0.1], MORT: 0.0004 },
+    setup(lr, S){
+      dishWalls();
+      S.a = seedColony(30, 64, 'cerebral', 3, 70);
+      S.b = seedColony(162, 64, 'breeder', 3, 70);
+      for (let k = 0; k < 12; k++){
+        const p = openSpot(lr, 16), q = lr();
+        placeFood(p[0], p[1], 4 + Math.floor(lr() * 5), q < 0.5 ? SUGAR : (q < 0.9 ? PROTEIN : PREY));
+      }
+    },
+    hud(S){ const m = countByRoot(); return 'Cerebral line ' + (m.get(S.a) || 0) + ', breeder line ' + (m.get(S.b) || 0); },
+  },
+  {
+    id: 'frontier', name: 'Toxic frontier', seed: 2,
+    blurb: 'Rich protein lies behind a toxic band, with a safe but longer route along the top. Hunger changes which route a cell takes.',
+    watch: 'Well-fed fronts sliding along the band toward the safe corridor while starving cells cut straight through it.',
+    refs: ['Caraco, Martindale & Whittam 1980, risk-sensitive foraging', 'Stephens & Krebs 1986, the energy-budget rule'],
+    setup(){
+      borderWalls();
+      setRect(toxin, 88, 22, 106, H - 2, 0.55);
+      seedColony(50, 90, 'wild', 3, 55);
+      placeFood(50, 106, 5, SUGAR);
+      placeFood(30, 70, 4, SUGAR);
+      placeFood(130, 92, 9, PROTEIN);
+      placeFood(150, 44, 7, PROTEIN);
+    },
+    hud(){ let n = 0; for (let y = 0; y < H; y++) for (let x = 109; x < W; x++) if (state[y * W + x]) n++; return n + ' cells beyond the band'; },
+  },
+  {
+    id: 'monsoon', name: 'Monsoon', seed: 31,
+    blurb: 'Food falls at random in sizes from crumbs to feasts, and toxic puddles come and go. An open-ended run for watching lineages and species turn over.',
+    watch: 'Species rising and falling in the lineage chart; drift in cognition, cooperation and motility as the weather changes.',
+    refs: ['Fretwell & Lucas 1970, ideal free distribution', 'Jain, Reimers & Nichele 2026, SONCA'],
+    params: { rain: 5, rainSize: 0.6, rainMix: [0.55, 0.35, 0.10], MORT: 0.0006 },
+    setup(lr){
+      borderWalls();
+      seedColony(48, 64, 'wild', 3, 70);
+      seedColony(144, 64, 'nomad', 3, 70);
+      for (let k = 0; k < 8; k++){ const p = openSpot(lr, 10); placeFood(p[0], p[1], 3 + Math.floor(lr() * 5), lr() < 0.6 ? SUGAR : PROTEIN); }
+    },
+    tick(){
+      if (tick % 1500 === 750){ const x = 20 + rng() * (W - 40), y = 20 + rng() * (H - 40); toxDisc(x, y, 9, 0.6); }
+      if (tick % 10 === 0) for (let i = 0; i < N; i++){ const v = toxin[i]; if (v > 0) toxin[i] = v > 0.01 ? v * 0.99 : 0; }
+    },
+    hud(){ return 'Rain ' + P.rain.toFixed(1) + ' drops per 100 ticks'; },
+  },
+  {
+    id: 'sandbox', rim: 'dish', name: 'Sandbox', seed: 1,
+    blurb: 'An empty dish. Seed colonies, place food, draw walls and toxins.',
+    watch: 'Whatever you design. Try two food patches of different richness at different distances.',
+    refs: [],
+    setup(){ dishWalls(); },
+    hud(){ return nActive + ' food particles'; },
+  },
+];
+
+function clearWorld(){
+  wall.fill(0); toxin.fill(0); foodN.fill(0); foodId.fill(-1); hardMask.fill(0);
+  F.fill(0); F2.fill(0); Q.fill(0); Q2.fill(0); EZ.fill(0); EZ2.fill(0); slime.fill(0);
+  state.fill(0); energy.fill(0); lin.fill(0); age.fill(0); rS.fill(0); rL.fill(0); cid.fill(0);
+  gxA.fill(0); gyA.fill(0); salA.fill(0); sensA.fill(0); acted.fill(0); DIST.fill(INF); signal.fill(0);
+  linCount.fill(0); Ustamp.fill(0); linFree = []; linTop = 0; nLin = 0;
+  species = []; nSpAlive = 0; foods = new Array(MAXF).fill(null); nActive = 0; distQueue = [];
+  tick = 0; cidCounter = 0; founderCount = 0; wallCount = 0;
+  ledger.injected = 0; ledger.removed = 0; ledger.heat = 0;
+  for (const k in hist) hist[k].length = 0;
+  emaIntake = 0; emaBurn = 0; emaFocus = 0; emaDig = 0; emaFood = 0; emaRec = 0; emaCost.fill(0);
+  for (const k in totals) totals[k] = 0;
+  last = null; insp.idx = -1; insp.tokens = [];
+  resetTickStats();
+  envState = {};
+}
+
+function loadEnv(id, opts){
+  opts = opts || {};
+  const E = ENVS.find(e => e.id === id) || ENVS[0];
+  clearWorld();
+  seedState = (opts.seed != null ? opts.seed : (Date.now() & 0x7fffffff)) | 0;
+  env = E;
+  P.rain = 0; P.rainSize = 0.7; P.rainMix = [0.55, 0.35, 0.10]; P.MORT = P_DEFAULT.MORT; P.distPerTick = 2;
+  if (E.params) Object.assign(P, JSON.parse(JSON.stringify(E.params)));
+  previewMode = !!opts.preview;
+  E.setup(mkRng(E.seed || 7), envState);
+  previewMode = false;
+  wallCount = 0;
+  for (let i = 0; i < N; i++) if (wall[i]) wallCount++;
+  if (!opts.preview){ updateFoods(); sample(); }
+  return E;
+}
+
+// ---------------------------------------------------------------- rendering
+function computeSignal(){
+  const invLam = 1 / (P.LAMBDA0 * 1.6 * P.senseMult);
+  for (let i = 0; i < N; i++){
+    let best = -INF;
+    const base = i * MAXF;
+    for (let a = 0; a < nActive; a++){
+      const s = activeSlots[a], d = DIST[base + s];
+      if (d >= INF) continue;
+      const v = foods[s].lnA - d * invLam;
+      if (v > best) best = v;
+    }
+    const g = (best - P.DET) / 7;
+    signal[i] = g > 1 ? 1 : (g < 0 ? 0 : g);
+  }
+}
+
+function render(buf, opt){
+  const pal = opt.palette || {};
+  const bg = pal.bg || [8, 14, 22], wl = pal.wall || [38, 46, 62];
+  const mode = opt.color || 'species';
+  const showSlime = opt.slime, showQ = opt.quorum, showE = opt.enzyme, showS = opt.signal;
+  const EM = P.EMAX;
+  for (let i = 0; i < N; i++){
+    const o = i << 2;
+    let r, g, b;
+    if (wall[i]){ r = wl[0]; g = wl[1]; b = wl[2]; }
+    else {
+      r = bg[0]; g = bg[1]; b = bg[2];
+      if (showSlime){ const sl = slime[i]; if (sl > 0.01){ const a = sl > 1 ? 1 : sl; r += 40 * a; g += 34 * a; b += 16 * a; } }
+      const tx = toxin[i];
+      if (tx > 0){ r += 34 * tx; g += 70 * tx; b += 18 * tx; }
+      if (showS){ const sg = signal[i]; if (sg > 0){ const band = (sg * 9) % 1, ln = band < 0.12 ? 1 : 0;
+        r += 4 * sg + 28 * ln * sg; g += 26 * sg + 64 * ln * sg; b += 40 * sg + 80 * ln * sg; } }
+      if (showQ){ const qv = Q[i], qq = qv / (qv + 1.2); r += 110 * qq; g += 26 * qq; b += 120 * qq; }
+      if (showE){ let ez = EZ[i] / 5; if (ez > 1) ez = 1; r += 190 * ez; g += 110 * ez; b += 20 * ez; }
+      const fv = F[i];
+      if (fv > 0.05){ let a = fv / 25; if (a > 1) a = 1; r += 70 * a; g += 58 * a; b += 24 * a; }
+      const fid = foodId[i];
+      if (fid >= 0){
+        const T = FOOD_TYPES[foods[fid].type];
+        let a = foodN[i] / (T.density * P.foodMult);
+        a = 0.3 + 0.7 * (a > 1 ? 1 : a);
+        r = T.rgb[0] * a; g = T.rgb[1] * a; b = T.rgb[2] * a;
+      }
+      const s = state[i];
+      if (s){
+        const L = lin[i];
+        let cr, cg, cb;
+        if (mode === 'ghc'){ const h = linGHC[L]; cr = (h >> 16) & 255; cg = (h >> 8) & 255; cb = h & 255; }
+        else if (mode === 'energy'){ const t = Math.min(1, energy[i] / EM); cr = 40 + 215 * t * t; cg = 50 + 190 * t; cb = 170 - 120 * t; }
+        else if (mode === 'phenotype'){ if (s === VEG){ cr = 70; cg = 196; cb = 168; } else if (s === FOR){ cr = 245; cg = 245; cb = 255; } else { cr = 214; cg = 150; cb = 60; } }
+        else { const c = species[linSp[L]].rgb; cr = c[0]; cg = c[1]; cb = c[2]; }
+        if (s === SPORE){
+          if (mode === 'phenotype'){ r = cr; g = cg; b = cb; }
+          else { r = cr * 0.4 + 18; g = cg * 0.4 + 18; b = cb * 0.4 + 22; }
+        } else if (mode === 'energy' || mode === 'phenotype'){ r = cr; g = cg; b = cb; }
+        else {
+          const en = energy[i] / EM, k = 0.42 + 0.58 * (en > 1 ? 1 : en);
+          r = cr * k; g = cg * k; b = cb * k;
+          if (s === FOR){ r = r * 0.5 + 125; g = g * 0.5 + 125; b = b * 0.5 + 125; }
+        }
+      }
+    }
+    buf[o] = r; buf[o + 1] = g; buf[o + 2] = b; buf[o + 3] = 255;
+  }
+}
+
+// ---------------------------------------------------------------- queries
+function inspectAt(x, y){
+  let best = -1, bd = 1e9;
+  for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++){
+    const cx = Math.round(x) + dx, cy = Math.round(y) + dy;
+    if (cx < 0 || cy < 0 || cx >= W || cy >= H) continue;
+    const i = cy * W + cx;
+    if (!state[i]) continue;
+    const d = dx * dx + dy * dy;
+    if (d < bd){ bd = d; best = i; }
+  }
+  insp.idx = best; insp.tokens = []; insp.stamp = 0;
+  insp.cid = best >= 0 ? cid[best] : 0;
+  return best;
+}
+function cellInfo(i){
+  if (i < 0 || !state[i]) return null;
+  const L = lin[i], o = L * G;
+  return { i, x: i % W, y: (i / W) | 0, state: state[i], energy: energy[i], age: age[i], lineage: L,
+    generation: linGen[L], ghc: linGHC[L], species: species[linSp[L]], genes: genes.slice(o, o + G),
+    intakeShort: rS[i], intakeLong: rL[i], quorum: Q[i], enzyme: EZ[i], slime: slime[i], toxin: toxin[i] };
+}
+function ledgerCheck(){
+  const s = stock();
+  const err = s + ledger.heat + ledger.removed - ledger.injected;
+  return { stock: s, heat: ledger.heat, injected: ledger.injected, removed: ledger.removed, err,
+    rel: Math.abs(err) / Math.max(1, ledger.injected) };
+}
+function speciesList(){ return species; }
+function envHud(){ return env && env.hud ? env.hud(envState) : ''; }
+
+api = {
+  W, H, N, MAXF, EMPTY, VEG, FOR, SPORE, SUGAR, PROTEIN, PREY,
+  FOOD_TYPES, GENE_DEFS, NS, G, WQ0, WK0, HQ, FK, DQ, H_LABELS, F_LABELS, GMIN, GMAX, GDEF,
+  PRESETS, P, P_DEFAULT,
+  ENVS: ENVS.map(e => ({ id: e.id, name: e.name, blurb: e.blurb, watch: e.watch, refs: e.refs, params: e.params || null, rim: e.rim || null })),
+  loadEnv, step, placeFood, seedColony, paint, render, computeSignal, inspectAt, cellInfo, ledgerCheck,
+  speciesList, envHud, rootOf,
+  inspector: () => insp,
+  clearInspect: () => { insp.idx = -1; insp.tokens = []; },
+  getTick: () => tick,
+  stats: () => last,
+  tickStats: () => st,
+  history: hist, totals,
+  foodsList: () => foods.filter(Boolean),
+  arrays: { state, energy, lin, gxA, gyA, salA, sensA, wall, toxin, foodId, linSp, genes, linGHC },
+  get F(){ return F; }, get Q(){ return Q; }, get EZ(){ return EZ; },
+  get nActive(){ return nActive; },
+  sampleNow: sample,
+  COSTS,
+  budget: () => ({ cost: emaCost, food: emaFood, dissolved: emaIntake - emaFood, digested: emaDig, recycled: emaRec, intake: emaIntake, burn: emaBurn }),
+};
+return api;
+})();
+if (typeof module !== 'undefined') module.exports = FLI;
+
+</script>
+<script>
+(() => {
+'use strict';
+const E = window.FLI || FLI;
+const W = E.W, H = E.H;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+const S = {
+  env: 'dish', playing: true, speed: 1, tool: 'food', foodType: 0, foodR: 6, brush: 4, preset: 'wild',
+  color: 'species', ov: { arrows: false, signal: false, quorum: false, enzyme: false, slime: true },
+  tab: 'world', seed: (Math.random() * 1e9) | 0, frame: 0, px: -1, py: -1, hover: false, dirty: true,
+};
+const FOODCOL = E.FOOD_TYPES.map(t => t.rgb);
+const rgba = (c, a) => `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+const fmt = (v, d = 0) => (v == null || !isFinite(v)) ? '–' : v.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// ------------------------------------------------------------------ theme
+(function initTheme(){
+  let t = null;
+  try { t = localStorage.getItem('fli-theme'); } catch (e) {}
+  if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  $('#theme').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = cur ? cur === 'dark' : sysDark;
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('fli-theme', next); } catch (e) {}
+    chartsDirty = true; updateUI(true);
+  });
+})();
+
+// ------------------------------------------------------------------ canvases
+const view = $('#view'), vctx = view.getContext('2d');
+const sim = document.createElement('canvas'); sim.width = W; sim.height = H;
+const sctx = sim.getContext('2d');
+const img = sctx.createImageData(W, H);
+let vw = 1, vh = 1, dpr = 1;
+function resize(){
+  const r = view.getBoundingClientRect();
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  const nw = Math.max(1, Math.round(r.width * dpr)), nh = Math.max(1, Math.round(r.height * dpr));
+  if (nw !== vw || nh !== vh){ vw = nw; vh = nh; view.width = vw; view.height = vh; }
+  S.dirty = true;
+}
+if (window.ResizeObserver) new ResizeObserver(resize).observe(view); else window.addEventListener('resize', resize);
+
+// ------------------------------------------------------------------ world thumbnails
+const thumbs = {};
+function makeThumbs(){
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const cx = c.getContext('2d'), im = cx.createImageData(W, H);
+  for (const env of E.ENVS){
+    try {
+      E.loadEnv(env.id, { preview: true, seed: 3 });
+      E.render(im.data, { color: 'species' });
+      cx.putImageData(im, 0, 0);
+      thumbs[env.id] = c.toDataURL('image/png');
+    } catch (err) { thumbs[env.id] = ''; }
+  }
+}
+function buildWorldGrid(){
+  const g = $('#worlds');
+  g.innerHTML = '';
+  for (const env of E.ENVS){
+    const b = document.createElement('button');
+    b.className = 'world'; b.dataset.env = env.id; b.type = 'button';
+    b.innerHTML = `<img alt="" src="${thumbs[env.id] || ''}"><span>${env.name}</span>`;
+    b.addEventListener('click', () => { loadWorld(env.id); });
+    g.appendChild(b);
+  }
+}
+
+// ------------------------------------------------------------------ world loading
+function loadWorld(id, keepSeed){
+  S.env = id;
+  if (!keepSeed) S.seed = (Math.random() * 1e9) | 0;
+  E.loadEnv(id, { seed: S.seed });
+  const env = E.ENVS.find(e => e.id === id);
+  $('#envName').textContent = env.name;
+  S.rim = env.rim || null;
+  $('#wTitle').textContent = env.name;
+  $('#wBlurb').textContent = env.blurb;
+  $('#wWatch').textContent = env.watch;
+  $('#wRefs').textContent = env.refs.length ? env.refs.join(' · ') : '';
+  $$('.world').forEach(b => b.setAttribute('aria-current', b.dataset.env === id ? 'true' : 'false'));
+  refreshSliders();
+  E.clearInspect();
+  chartsDirty = true; lastHistLen = -1;
+  S.dirty = true;
+  updateUI(true);
+}
+
+// ------------------------------------------------------------------ drawing
+let sigFrame = -99;
+function draw(){
+  if (S.ov.signal && (S.frame - sigFrame > 8 || S.dirty)){ E.computeSignal(); sigFrame = S.frame; }
+  E.render(img.data, { color: S.color, slime: S.ov.slime, signal: S.ov.signal, quorum: S.ov.quorum, enzyme: S.ov.enzyme });
+  sctx.putImageData(img, 0, 0);
+  vctx.imageSmoothingEnabled = false;
+  vctx.clearRect(0, 0, vw, vh);
+  vctx.drawImage(sim, 0, 0, vw, vh);
+  const sx = vw / W, sy = vh / H;
+  if (S.rim === 'dish') drawRim(sx, sy);
+  if (S.ov.arrows) drawArrows(sx, sy);
+  drawInspector(sx, sy);
+  drawCursor(sx, sy);
+  S.dirty = false;
+}
+function drawRim(sx, sy){
+  // a smooth glass rim over the pixel dish edge (cosmetic: cells never occupy wall pixels)
+  const cx = W / 2 * sx, cy = H / 2 * sy, rx = (W / 2 - 1.2) * sx, ry = (H / 2 - 1.2) * sy;
+  vctx.save();
+  vctx.beginPath(); vctx.rect(0, 0, vw, vh); vctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  vctx.fillStyle = 'rgb(16,22,33)'; vctx.fill('evenodd');
+  vctx.beginPath(); vctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  vctx.lineWidth = 1.6 * dpr; vctx.strokeStyle = 'rgba(176,196,226,0.30)'; vctx.stroke();
+  vctx.beginPath(); vctx.ellipse(cx, cy, rx + 3 * dpr, ry + 3 * dpr, 0, 0, Math.PI * 2);
+  vctx.lineWidth = 1 * dpr; vctx.strokeStyle = 'rgba(176,196,226,0.10)'; vctx.stroke();
+  vctx.restore();
+}
+function drawArrows(sx, sy){
+  const A = E.arrays, st = A.state, gx = A.gxA, gy = A.gyA, sal = A.salA;
+  const step = vw < 700 ? 4 : 3;
+  const len = Math.min(sx, sy) * step * 1.05;
+  vctx.lineCap = 'round';
+  vctx.lineWidth = Math.max(1, dpr * 1.3);
+  vctx.strokeStyle = 'rgba(236,246,255,0.85)';
+  vctx.beginPath();
+  const tips = [];
+  for (let y = 1; y < H; y += step) for (let x = 1; x < W; x += step){
+    const i = y * W + x, s = st[i];
+    if (s !== 1 && s !== 2) continue;
+    const a = sal[i];
+    if (a < 0.12) continue;
+    const m = Math.hypot(gx[i], gy[i]);
+    if (m < 0.05) continue;
+    const cx = (x + 0.5) * sx, cy = (y + 0.5) * sy;
+    const L = len * Math.min(1, m) * (0.45 + 0.55 * a);
+    const ex = cx + gx[i] / m * L, ey = cy + gy[i] / m * L;
+    vctx.moveTo(cx, cy); vctx.lineTo(ex, ey);
+    tips.push(ex, ey);
+  }
+  vctx.stroke();
+  vctx.fillStyle = 'rgba(255,255,255,0.95)';
+  const r = Math.max(1, dpr * 1.2);
+  for (let k = 0; k < tips.length; k += 2) vctx.fillRect(tips[k] - r, tips[k + 1] - r, 2 * r, 2 * r);
+}
+function drawInspector(sx, sy){
+  const I = E.inspector();
+  if (I.idx < 0) return;
+  const x = I.idx % W, y = (I.idx / W) | 0;
+  const cx = (x + 0.5) * sx, cy = (y + 0.5) * sy;
+  vctx.lineCap = 'round';
+  for (const t of I.tokens){
+    if (t.alpha < 0.02) continue;
+    vctx.strokeStyle = rgba(FOODCOL[t.type], 0.3 + 0.7 * t.alpha);
+    vctx.lineWidth = (1 + 7 * t.alpha) * dpr;
+    vctx.beginPath(); vctx.moveTo(cx, cy); vctx.lineTo((t.x + 0.5) * sx, (t.y + 0.5) * sy); vctx.stroke();
+  }
+  const m = Math.hypot(I.gx, I.gy);
+  if (m > 0.05){
+    const L = Math.min(sx, sy) * 12 * Math.min(1, m);
+    const ex = cx + I.gx / m * L, ey = cy + I.gy / m * L;
+    vctx.strokeStyle = '#FFFFFF'; vctx.lineWidth = 2.2 * dpr;
+    vctx.beginPath(); vctx.moveTo(cx, cy); vctx.lineTo(ex, ey); vctx.stroke();
+    const ang = Math.atan2(ey - cy, ex - cx), hs = 7 * dpr;
+    vctx.beginPath(); vctx.moveTo(ex, ey);
+    vctx.lineTo(ex - hs * Math.cos(ang - 0.45), ey - hs * Math.sin(ang - 0.45));
+    vctx.lineTo(ex - hs * Math.cos(ang + 0.45), ey - hs * Math.sin(ang + 0.45));
+    vctx.closePath(); vctx.fillStyle = '#FFFFFF'; vctx.fill();
+  }
+  vctx.strokeStyle = '#FFFFFF'; vctx.lineWidth = 2 * dpr;
+  vctx.beginPath(); vctx.arc(cx, cy, Math.max(7 * dpr, sx * 2.4), 0, Math.PI * 2); vctx.stroke();
+  vctx.strokeStyle = 'rgba(0,0,0,0.6)'; vctx.lineWidth = 1 * dpr;
+  vctx.beginPath(); vctx.arc(cx, cy, Math.max(7 * dpr, sx * 2.4) + 2 * dpr, 0, Math.PI * 2); vctx.stroke();
+}
+function toolRadius(){
+  if (S.tool === 'food') return S.foodR;
+  if (S.tool === 'seed') return 3;
+  if (S.tool === 'inspect') return 1.5;
+  return S.brush;
+}
+function drawCursor(sx, sy){
+  if (!S.hover || S.px < 0) return;
+  const r = toolRadius();
+  const cx = (S.px + 0.5) * sx, cy = (S.py + 0.5) * sy;
+  let col = 'rgba(255,255,255,0.8)';
+  if (S.tool === 'food') col = rgba(FOODCOL[S.foodType], 0.95);
+  else if (S.tool === 'toxin') col = 'rgba(123,211,90,0.95)';
+  else if (S.tool === 'wound') col = 'rgba(255,120,120,0.95)';
+  vctx.strokeStyle = col; vctx.lineWidth = 1.5 * dpr;
+  vctx.setLineDash(S.tool === 'food' || S.tool === 'seed' ? [] : [4 * dpr, 3 * dpr]);
+  vctx.beginPath(); vctx.arc(cx, cy, Math.max(3 * dpr, (r + 0.5) * sx), 0, Math.PI * 2); vctx.stroke();
+  vctx.setLineDash([]);
+}
+
+// ------------------------------------------------------------------ pointer tools
+let down = false, lastP = null;
+const PAINT = { wall: 1, toxin: 1, erase: 1, wound: 1 };
+function toSim(e){
+  const r = view.getBoundingClientRect();
+  return { x: Math.floor((e.clientX - r.left) / r.width * W), y: Math.floor((e.clientY - r.top) / r.height * H) };
+}
+function paintLine(a, b){
+  const d = Math.hypot(b.x - a.x, b.y - a.y), n = Math.max(1, Math.ceil(d / Math.max(1, S.brush * 0.6)));
+  for (let k = 1; k <= n; k++) E.paint(S.tool, a.x + (b.x - a.x) * k / n, a.y + (b.y - a.y) * k / n, S.brush);
+}
+function applyTool(p, first){
+  if (p.x < 0 || p.y < 0 || p.x >= W || p.y >= H) return;
+  if (S.tool === 'food' && first){
+    const r = E.placeFood(p.x, p.y, S.foodR, S.foodType);
+    if (r < 0) toast(E.foodsList().length >= E.MAXF ? 'The dish holds at most 48 food particles' : 'No room for food there');
+  } else if (S.tool === 'seed' && first){
+    const sp = E.seedColony(p.x, p.y, S.preset, 3, 60);
+    if (sp < 0) toast('No room for a colony there');
+    else { const s = E.speciesList()[sp]; toast('Seeded ' + s.name); }
+  } else if (PAINT[S.tool]){
+    if (first || !lastP) E.paint(S.tool, p.x, p.y, S.brush); else paintLine(lastP, p);
+    lastP = p;
+  } else if (S.tool === 'inspect' && first){
+    const idx = E.inspectAt(p.x, p.y);
+    if (idx < 0) toast('No cell there. Try clicking on a colony');
+    else { setTab('attn'); if (!S.playing) E.step(); }
+  }
+  S.dirty = true;
+}
+view.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  try { view.setPointerCapture(e.pointerId); } catch (err) {}
+  down = true; lastP = null;
+  const p = toSim(e); S.px = p.x; S.py = p.y; S.hover = true;
+  applyTool(p, true);
+});
+view.addEventListener('pointermove', e => {
+  const p = toSim(e); S.px = p.x; S.py = p.y; S.hover = true; S.dirty = true;
+  if (down && PAINT[S.tool]) applyTool(p, false);
+});
+const endPtr = () => { down = false; lastP = null; };
+view.addEventListener('pointerup', endPtr);
+view.addEventListener('pointercancel', endPtr);
+view.addEventListener('pointerleave', () => { S.hover = false; S.dirty = true; });
+
+let toastT = 0;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ------------------------------------------------------------------ tool dock
+const TOOL_HINT = {
+  wall: 'Drag to draw walls. Scent flows around them, never through.',
+  toxin: 'Drag to spill toxin. It damages cells, but hungry ones may still cross.',
+  erase: 'Drag to remove walls, toxin, food and slime.',
+  wound: 'Drag to kill cells, as in SONCA\u2019s wound test, and watch the colony respond.',
+  inspect: 'Click a cell to follow its attention in the Attention tab.',
+};
+function setTool(t){
+  S.tool = t;
+  $$('.tool').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t ? 'true' : 'false'));
+  const o = $('#opts');
+  if (t === 'food'){
+    o.innerHTML = `<div class="chips" role="group" aria-label="Food type">${E.FOOD_TYPES.map((f, k) =>
+      `<button class="chip" data-ft="${k}" aria-pressed="${k === S.foodType}"><i style="background:${rgba(f.rgb, 1)}"></i>${f.name}</button>`).join('')}</div>
+      <label class="range">Radius <input type="range" id="rFood" min="1" max="16" step="1" value="${S.foodR}"><output id="oFood">${S.foodR}</output></label>
+      <span class="hint" id="foodNote">${E.FOOD_TYPES[S.foodType].note}</span>`;
+    $$('[data-ft]', o).forEach(b => b.addEventListener('click', () => {
+      S.foodType = +b.dataset.ft;
+      $$('[data-ft]', o).forEach(c => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+      $('#foodNote').textContent = E.FOOD_TYPES[S.foodType].note;
+    }));
+    $('#rFood').addEventListener('input', ev => { S.foodR = +ev.target.value; $('#oFood').textContent = S.foodR; });
+  } else if (t === 'seed'){
+    o.innerHTML = `<label class="range">Founder <select id="preset">${Object.keys(E.PRESETS).map(k =>
+      `<option value="${k}" ${k === S.preset ? 'selected' : ''}>${E.PRESETS[k].name}</option>`).join('')}</select></label>
+      <span class="hint" id="presetNote">${E.PRESETS[S.preset].blurb} Click to seed.</span>`;
+    $('#preset').addEventListener('change', ev => { S.preset = ev.target.value; $('#presetNote').textContent = E.PRESETS[S.preset].blurb + ' Click to seed.'; });
+  } else if (PAINT[t]){
+    o.innerHTML = `<label class="range">Brush <input type="range" id="rBrush" min="1" max="12" step="1" value="${S.brush}"><output id="oBrush">${S.brush}</output></label>
+      <span class="hint">${TOOL_HINT[t]}</span>`;
+    $('#rBrush').addEventListener('input', ev => { S.brush = +ev.target.value; $('#oBrush').textContent = S.brush; });
+  } else {
+    o.innerHTML = `<span class="hint">${TOOL_HINT.inspect}</span>`;
+  }
+  S.dirty = true;
+}
+$$('.tool').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+$$('[data-ov]').forEach(b => b.addEventListener('click', () => {
+  const k = b.dataset.ov; S.ov[k] = !S.ov[k]; b.setAttribute('aria-pressed', S.ov[k] ? 'true' : 'false'); S.dirty = true;
+}));
+$('#colorMode').addEventListener('change', ev => { S.color = ev.target.value; S.dirty = true; });
+
+// ------------------------------------------------------------------ transport
+function setPlaying(p){
+  S.playing = p;
+  const b = $('#play');
+  b.setAttribute('aria-label', p ? 'Pause' : 'Play');
+  b.innerHTML = p
+    ? '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg><span>Pause</span>'
+    : '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.2v11.6L13.5 8z"/></svg><span>Play</span>';
+}
+$('#play').addEventListener('click', () => setPlaying(!S.playing));
+$('#step').addEventListener('click', () => { setPlaying(false); E.step(); S.dirty = true; updateUI(true); });
+$('#reset').addEventListener('click', () => loadWorld(S.env));
+$$('[data-speed]').forEach(b => b.addEventListener('click', () => {
+  S.speed = +b.dataset.speed;
+  $$('[data-speed]').forEach(c => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+}));
+
+// ------------------------------------------------------------------ tabs
+function setTab(t){
+  S.tab = t;
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  $$('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + t));
+  const tb = $('.tabbody'); if (tb) tb.scrollTop = 0;
+  chartsDirty = true; updateUI(true);
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$('#iClear').addEventListener('click', () => { E.clearInspect(); S.dirty = true; updateUI(true); });
+
+// ------------------------------------------------------------------ biology dials
+const P = E.P;
+const DIALS = [
+  { get: () => P.metabMult, set: v => P.metabMult = v, label: 'Metabolic cost', min: 0.5, max: 2, step: 0.05, f: v => '×' + v.toFixed(2), note: 'Scales every cell\u2019s maintenance and cognition costs.' },
+  { get: () => P.foodMult, set: v => P.foodMult = v, label: 'Food richness', min: 0.5, max: 2, step: 0.05, f: v => '×' + v.toFixed(2), note: 'Energy per pixel of food placed from now on.' },
+  { get: () => P.senseMult, set: v => P.senseMult = v, label: 'Scent range', min: 0.5, max: 2, step: 0.05, f: v => '×' + v.toFixed(2), note: 'How far attractant carries before it fades (λ).' },
+  { get: () => P.mutScale, set: v => P.mutScale = v, label: 'Mutation rate', min: 0, max: 4, step: 0.1, f: v => '×' + v.toFixed(1), note: 'Multiplies each lineage\u2019s inherited rate. Zero freezes evolution.' },
+  { get: () => P.rain, set: v => P.rain = v, label: 'Food rain', min: 0, max: 10, step: 0.1, f: v => v.toFixed(1) + ' per 100 ticks', note: 'Food falling at random on the dish.' },
+  { get: () => P.rainSize, set: v => P.rainSize = v, label: 'Rain grain', min: 0, max: 1, step: 0.05, f: v => v < 0.25 ? 'crumbs' : (v > 0.75 ? 'feasts' : 'mixed'), note: 'Crumbs everywhere favour cheap brains; rare feasts reward sensing.' },
+  { get: () => P.rainMix[0], set: v => P.rainMix[0] = v, label: 'Rain: sugar', min: 0, max: 1, step: 0.05, f: v => v.toFixed(2) },
+  { get: () => P.rainMix[1], set: v => P.rainMix[1] = v, label: 'Rain: protein', min: 0, max: 1, step: 0.05, f: v => v.toFixed(2) },
+  { get: () => P.rainMix[2], set: v => P.rainMix[2] = v, label: 'Rain: prey', min: 0, max: 1, step: 0.05, f: v => v.toFixed(2), note: 'Relative shares of each food type in the rain.' },
+  { get: () => P.MORT, set: v => P.MORT = v, label: 'Background mortality', min: 0, max: 0.002, step: 0.0001, f: v => (v * 1000).toFixed(1) + ' per 1000 ticks', note: 'Chance that any cell dies of other causes.' },
+];
+function buildSliders(){
+  const box = $('#sliders');
+  box.innerHTML = DIALS.map((d, k) => `<div class="slider"><label for="dial${k}">${d.label}</label><output id="dialo${k}"></output>
+    <input type="range" id="dial${k}" min="${d.min}" max="${d.max}" step="${d.step}">${d.note ? `<div class="note">${d.note}</div>` : ''}</div>`).join('')
+    + '<div class="inline-btns"><button class="btn" id="dialReset">Reset dials</button></div>';
+  DIALS.forEach((d, k) => {
+    $('#dial' + k).addEventListener('input', ev => { d.set(+ev.target.value); $('#dialo' + k).textContent = d.f(+ev.target.value); });
+  });
+  $('#dialReset').addEventListener('click', () => {
+    P.metabMult = 1; P.foodMult = 1; P.senseMult = 1; P.mutScale = 1; P.MORT = E.P_DEFAULT.MORT;
+    const env = E.ENVS.find(e => e.id === S.env);
+    P.rain = 0; P.rainSize = 0.7; P.rainMix = [0.55, 0.35, 0.10];
+    if (env && env.params) Object.assign(P, JSON.parse(JSON.stringify(env.params)));
+    refreshSliders();
+  });
+}
+function refreshSliders(){
+  DIALS.forEach((d, k) => { const el = $('#dial' + k); if (!el) return; el.value = d.get(); $('#dialo' + k).textContent = d.f(d.get()); });
+}
+
+// ------------------------------------------------------------------ charts
+let chartsDirty = true, lastHistLen = -1;
+function setupCanvas(c){
+  const r = c.getBoundingClientRect();
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (c.width !== w || c.height !== h){ c.width = w; c.height = h; }
+  const ctx = c.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function drawPop(){
+  const c = $('#popChart'); if (!c.offsetParent) return;
+  const { ctx, w, h } = setupCanvas(c);
+  const hist = E.history, n = hist.t.length;
+  const line = cssVar('--line'), ink3 = cssVar('--ink-3');
+  ctx.strokeStyle = line; ctx.lineWidth = dpr;
+  ctx.beginPath(); ctx.moveTo(0, h - 0.5 * dpr); ctx.lineTo(w, h - 0.5 * dpr); ctx.stroke();
+  if (n < 2){ return; }
+  const tot = new Map();
+  for (const e of hist.top) for (const [id, cnt] of e.top) tot.set(id, (tot.get(id) || 0) + cnt);
+  const ids = [...tot.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7).map(a => a[0]);
+  const sums = hist.top.map(e => e.top.reduce((a, b) => a + b[1], 0) + e.other);
+  const maxY = Math.max(20, ...sums) * 1.08;
+  const X = k => k / (n - 1) * w, Y = v => h - 2 * dpr - v / maxY * (h - 6 * dpr);
+  const cum = new Float64Array(n);
+  const sp = E.speciesList();
+  const layers = ids.map(id => ({ id, col: sp[id] ? sp[id].rgb : [150, 150, 150] }));
+  layers.push({ id: -1, col: [120, 128, 140] });
+  for (const L of layers){
+    const vals = hist.top.map((e, k) => {
+      if (L.id === -1) return sums[k] - ids.reduce((a, id) => { const f = e.top.find(q => q[0] === id); return a + (f ? f[1] : 0); }, 0);
+      const f = e.top.find(q => q[0] === L.id); return f ? f[1] : 0;
+    });
+    ctx.beginPath();
+    for (let k = 0; k < n; k++){ const y = Y(cum[k] + vals[k]); if (k) ctx.lineTo(X(k), y); else ctx.moveTo(X(k), y); }
+    for (let k = n - 1; k >= 0; k--) ctx.lineTo(X(k), Y(cum[k]));
+    ctx.closePath();
+    ctx.fillStyle = rgba(L.col, L.id === -1 ? 0.35 : 0.85);
+    ctx.fill();
+    for (let k = 0; k < n; k++) cum[k] += vals[k];
+  }
+  ctx.fillStyle = ink3; ctx.font = `${12 * dpr}px ${cssVar('--ui')}`;
+  ctx.textBaseline = 'top'; ctx.fillText(fmt(Math.round(maxY / 1.08)) + ' cells', 4 * dpr, 3 * dpr);
+  ctx.textAlign = 'right'; ctx.fillText('tick ' + fmt(hist.t[n - 1]), w - 4 * dpr, 3 * dpr); ctx.textAlign = 'left';
+  $('#popLegend').innerHTML = layers.filter(L => L.id >= 0).map(L => `<span><i style="background:${rgba(L.col, 1)}"></i><em style="font-family:var(--prose)">${sp[L.id].name}</em></span>`).join('');
+}
+function drawTraits(){
+  const c = $('#traitChart'); if (!c.offsetParent) return;
+  const { ctx, w, h } = setupCanvas(c);
+  const hist = E.history, n = hist.t.length;
+  const line = cssVar('--line'), ink3 = cssVar('--ink-3');
+  ctx.strokeStyle = line; ctx.lineWidth = dpr;
+  for (const f of [0, 0.5, 1]){ const y = Math.round(h - 3 * dpr - f * (h - 8 * dpr)) + 0.5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+  if (n < 2) return;
+  const X = k => k / (n - 1) * w, Y = v => h - 3 * dpr - Math.max(0, Math.min(1, v)) * (h - 8 * dpr);
+  const series = [
+    { col: '#E85480', v: k => hist.brain[k] / 2 },
+    { col: '#3FB6E8', v: k => hist.focus[k] },
+    { col: '#EEB03E', v: k => Math.min(hist.eff[k], 3) / 3 },
+    { col: '#8A68EC', v: k => hist.coop[k] },
+  ];
+  ctx.lineWidth = 1.8 * dpr; ctx.lineJoin = 'round';
+  for (const s of series){
+    ctx.strokeStyle = s.col; ctx.beginPath();
+    let pen = false;
+    for (let k = 0; k < n; k++){
+      const v = s.v(k);
+      if (!isFinite(v)){ pen = false; continue; }
+      if (pen) ctx.lineTo(X(k), Y(v)); else { ctx.moveTo(X(k), Y(v)); pen = true; }
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle = ink3; ctx.font = `${12 * dpr}px ${cssVar('--ui')}`; ctx.textBaseline = 'top';
+  ctx.fillText('scaled 0 to 1', 4 * dpr, 2 * dpr);
+}
+
+// ------------------------------------------------------------------ panels
+const COST_LABEL = { maintenance: 'Maintenance', cognition: 'Cognition', motility: 'Motility', growth: 'Growth heat',
+  enzymes: 'Exoenzymes', transport: 'Transport losses', dormancy: 'Spores', toxins: 'Toxin damage', signalling: 'Signalling' };
+const COST_COL = { maintenance: '#7D8A9E', cognition: '#E85480', motility: '#3FB6E8', growth: '#48C6A6', enzymes: '#8A68EC',
+  transport: '#C9A227', dormancy: '#B07A4F', toxins: '#7BD35A', signalling: '#98A2B6' };
+function updateBudget(){
+  const b = E.budget(), s = E.stats();
+  const rows = [];
+  const mx = Math.max(1e-6, b.intake, b.burn);
+  const row = (name, v, col) => `<span class="n">${name}</span><span class="bar"><b style="width:${Math.min(100, v / mx * 100).toFixed(1)}%;background:${col}"></b></span><span class="val">${v >= 10 ? fmt(v, 1) : fmt(v, 2)}</span>`;
+  rows.push('<span class="grp">Income</span>');
+  rows.push(row('Eating food', b.food, '#EEB03E'));
+  rows.push(row('Dissolved nutrient', Math.max(0, b.dissolved), '#D8BE83'));
+  rows.push('<span class="grp">Spending</span>');
+  E.COSTS.forEach((c, k) => { if (b.cost[k] > 0.0005 || k < 4) rows.push(row(COST_LABEL[c], b.cost[k], COST_COL[c])); });
+  $('#budget').innerHTML = rows.join('');
+  const net = b.intake - b.burn;
+  $('#balance').innerHTML = `<span>Net <b style="color:${net >= 0 ? 'var(--good)' : 'var(--warn)'}">${net >= 0 ? '+' : ''}${fmt(net, 2)}</b> per tick</span>
+    <span>Prey digested <b>${fmt(b.digested, 2)}</b></span><span>Runway <b>${s && s.runway ? fmt(s.runway) : '–'}</b> ticks</span>`;
+}
+function metric(v, k){ return `<div class="metric"><div class="v">${v}</div><div class="k">${k}</div></div>`; }
+function updateMetrics(){
+  const s = E.stats(); if (!s) return;
+  $('#metrics').innerHTML = metric(fmt(s.pop), 'Living cells') + metric(fmt(s.spores), 'Spores') + metric(fmt(s.foragers), 'Motile foragers')
+    + metric(fmt(s.nSp), 'Species') + metric(fmt(s.nGen), 'Distinct genomes') + metric(s.eff ? fmt(s.eff, 2) : '–', 'Intake per unit spent');
+}
+function updateSpecies(){
+  const sp = E.speciesList().filter(s => s.count > 0).sort((a, b) => b.count - a.count).slice(0, 8);
+  const all = E.speciesList();
+  if (!sp.length){ $('#splist').innerHTML = '<li><span></span><span class="empty">No survivors. Seed a colony or restart the world.</span></li>'; return; }
+  $('#splist').innerHTML = sp.map(s => {
+    const p = s.proto;
+    const origin = s.parent >= 0 ? `split from <em>${all[s.parent].name}</em> at tick ${fmt(s.born)}` : (s.founder ? `${s.founder} founder` : 'founder');
+    return `<li><span class="sw" style="background:${rgba(s.rgb, 1)}"></span><span class="nm">${s.name}</span><span class="ct">${fmt(s.count)}</span>
+      <span class="tr">${origin} · cognition ${p[0].toFixed(2)} · enzyme ${p[10].toFixed(2)} · motility ${p[9].toFixed(2)} · divides at ${Math.round(p[5] * 100)}%</span></li>`;
+  }).join('');
+}
+const STATE_NAME = ['Empty', 'Sessile cell', 'Motile forager', 'Spore'];
+const KEY_GENES = ['brain', 'divThr', 'forage', 'mvt', 'enzyme', 'qsThr', 'share', 'explore', 'budget', 'sporeThr', 'mut'];
+function updateInspector(){
+  const I = E.inspector();
+  const c = I.idx >= 0 ? E.cellInfo(I.idx) : null;
+  $('#inspEmpty').hidden = !!c; $('#inspBody').hidden = !c;
+  if (!c) return;
+  const s = c.species;
+  $('#iTitle').innerHTML = `<em style="font-family:var(--prose)">${s.name}</em> <small>${STATE_NAME[c.state]}</small>`;
+  const kv = [
+    ['Energy', fmt(c.energy, 1) + ' of 100'], ['Age', fmt(c.age) + ' ticks'], ['Generation of genome', fmt(c.generation)],
+    ['Recent intake', fmt(c.intakeShort, 2) + ' per tick'], ['Quorum signal', fmt(c.quorum, 2)],
+    ['Scent range λ', fmt(I.lambda, 1) + ' cells'], ['Focus β', fmt(I.beta, 2)], ['Could travel', fmt(I.reach, 0) + ' cells'],
+  ];
+  $('#iKv').innerHTML = kv.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+  $('#iE').style.width = Math.min(100, c.energy) + '%';
+  const toks = I.tokens.slice(0, 7);
+  let html = '';
+  if (c.state === 3) html += '<p class="empty">Dormant spores do not attend. It will wake when food scent is strong enough.</p>';
+  else {
+    for (const t of toks){
+      const f = E.FOOD_TYPES[t.type];
+      html += `<div class="tok"><i style="background:${rgba(f.rgb, 1)}"></i><span>${f.name}, ${fmt(t.d, 0)} cells away</span>
+        <span class="bar"><b style="width:${(t.alpha * 100).toFixed(1)}%;background:${rgba(f.rgb, 1)}"></b></span><span class="a">${Math.round(t.alpha * 100)}%</span>
+        <span class="d">scent ${t.sig.toFixed(2)} · value q·k ${t.score.toFixed(2)} · affordable ${Math.round(t.feas * 100)}%</span></div>`;
+    }
+    html += `<div class="tok"><i style="background:#FFFFFF;border:1px solid var(--line-2)"></i><span>Explore (null token)</span>
+      <span class="bar"><b style="width:${(I.nullA * 100).toFixed(1)}%;background:var(--ink-3)"></b></span><span class="a">${Math.round(I.nullA * 100)}%</span>
+      <span class="d">hunger ${I.hunger.toFixed(2)} · quorum ${I.qn.toFixed(2)} · ${I.motile ? 'moving' : 'growing'}${I.drop ? ' · intake falling' : ''}</span></div>`;
+    if (!toks.length) html = '<p class="empty">No food scent reaches this cell, so it relies on exploring.</p>' + html;
+  }
+  const g = c.genes;
+  html += '<h3 style="margin-top:14px">Genome highlights <small>bar = value, tick = wild type</small></h3><div class="genes">';
+  for (const key of KEY_GENES){
+    const k = E.GENE_DEFS.findIndex(d => d[0] === key), d = E.GENE_DEFS[k];
+    const span = E.GMAX[k] - E.GMIN[k], v = g[k];
+    const pct = (v - E.GMIN[k]) / span * 100, def = (E.GDEF[k] - E.GMIN[k]) / span * 100;
+    html += `<span class="g" title="${d[5]}">${d[1]}</span><span class="gb"><b style="left:0;width:${pct.toFixed(1)}%"></b><u style="left:${def.toFixed(1)}%"></u></span><span class="gv">${v.toFixed(Math.abs(v) < 1 ? 2 : 1)}</span>`;
+  }
+  html += '</div>';
+  $('#iToks').innerHTML = html;
+}
+
+let lastSp = 0;
+function updateUI(force){
+  const s = E.stats();
+  if (s){
+    $('#hTick').textContent = fmt(E.getTick());
+    $('#hPop').textContent = fmt(s.pop);
+    $('#hSpo').textContent = fmt(s.spores);
+    $('#hSp').textContent = fmt(s.nSp);
+  }
+  const hud = E.envHud();
+  $('#envHud').textContent = (s && s.pop === 0 && s.spores === 0) ? 'Extinct. Seed a colony or restart' : hud;
+  const L = E.ledgerCheck();
+  $('#ledger').innerHTML = L.rel < 1e-6 ? `<span class="ok">Energy conserved</span> · error ${L.rel.toExponential(0)}` : `Energy ledger off by ${L.rel.toExponential(1)}`;
+  if (S.tab === 'life'){
+    updateMetrics(); updateBudget();
+    const n = E.history.t.length;
+    if (force || chartsDirty || n !== lastHistLen){ drawPop(); drawTraits(); lastHistLen = n; chartsDirty = false; }
+    const now = performance.now();
+    if (force || now - lastSp > 900){ updateSpecies(); lastSp = now; }
+  } else if (S.tab === 'attn'){
+    updateInspector();
+  }
+}
+
+// ------------------------------------------------------------------ keyboard
+document.addEventListener('keydown', e => {
+  const tg = e.target, tag = tg && tg.tagName;
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === ' '){ e.preventDefault(); setPlaying(!S.playing); }
+  else if (e.key === 'ArrowRight'){ setPlaying(false); E.step(); S.dirty = true; updateUI(true); }
+  else if (e.key === 'r' || e.key === 'R'){ loadWorld(S.env); }
+  else if (e.key >= '1' && e.key <= '7'){ setTool(['food', 'seed', 'wall', 'toxin', 'erase', 'wound', 'inspect'][+e.key - 1]); }
+  else if (e.key === '[' || e.key === ']'){
+    const d = e.key === ']' ? 1 : -1;
+    if (S.tool === 'food'){ S.foodR = Math.max(1, Math.min(16, S.foodR + d)); const r = $('#rFood'); if (r){ r.value = S.foodR; $('#oFood').textContent = S.foodR; } }
+    else { S.brush = Math.max(1, Math.min(12, S.brush + d)); const r = $('#rBrush'); if (r){ r.value = S.brush; $('#oBrush').textContent = S.brush; } }
+    S.dirty = true;
+  }
+});
+
+// ------------------------------------------------------------------ main loop
+let lastT = 0, acc = 0, lastUI = 0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  const dt = lastT ? Math.min(100, ts - lastT) : 16;
+  lastT = ts;
+  S.frame++;
+  if (S.playing){
+    acc += dt * 0.06 * S.speed;
+    let n = Math.min(24, Math.floor(acc));
+    acc -= n;
+    if (acc > 4) acc = 4;
+    const t0 = performance.now();
+    while (n-- > 0){ E.step(); if (performance.now() - t0 > 24) { acc = 0; break; } }
+    S.dirty = true;
+  }
+  if (S.dirty) draw();
+  if (ts - lastUI > 250){ lastUI = ts; updateUI(false); }
+}
+
+// ------------------------------------------------------------------ boot
+makeThumbs();
+buildWorldGrid();
+buildSliders();
+setTool('food');
+resize();
+loadWorld('dish');
+requestAnimationFrame(loop);
+setTimeout(() => toast('Click anywhere in the dish to drop food'), 900);
+})();
+
+</script>
+</body>
+</html>
