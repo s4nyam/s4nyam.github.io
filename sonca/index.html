@@ -1169,15 +1169,17 @@ saturated once &sigma; &gt; 4</div>
 
       <div class="panel">
         <div class="panel-head">
-          <h3>For the curious: SONCA on an energy budget</h3>
+          <h3>For the curious: the substrate on an energy budget</h3>
           <span class="badge illus">Extension &mdash; not in the paper</span>
         </div>
-        <p><b>Food-Led Intelligence</b> takes one of the fixed choices above, the life budget, and replaces it
-          with an energy budget. Cells pay every tick for maintenance, thinking, moving and building, and can
-          only refill by eating. Each cell weighs the food it smells with a small attention head of 44 inherited
-          weights, the same size as a SONCA agent, and mutation still happens only at birth. It runs in your
-          browser across ten preset worlds, with tools to place food, walls and toxins, wound a colony, and
-          inspect a single cell as it decides where to go.</p>
+        <p><b>Food-Led Intelligence</b> replaces the life budget, whose coarse ladder
+          {4,&nbsp;8,&nbsp;&infin;} is one of the fixed choices above, with an energy budget. Cells pay every
+          tick for maintenance and thinking, and pay again to move and to build a daughter cell. Energy enters
+          only as food: a cell refills by eating, or from kin through gap junctions. Each cell weighs the food it
+          smells with a small attention head of 44 inherited weights, the same parameter count as the agent in
+          section&nbsp;1, and mutation still happens only at birth. It runs in your browser across ten preset
+          worlds, with tools to place food, walls and toxins, wound a colony, and inspect a single cell as it
+          decides where to go.</p>
         <p class="note">A side project built on the substrate, not a result of the paper: nothing in it is
           reported in the article or measured by the metrics above.</p>
         <div class="links" style="margin:14px 0 0">
@@ -1305,7 +1307,8 @@ ER  -
         are in the paper. The substrate in the hero and in section&nbsp;3 is a live port of
         <span class="mono">nca.py</span> and is labelled Live; it is a demonstration of the rule, not a
         reproduction of the paper's numbers. Panels built for this page rather than taken from the paper carry
-        an Illustration badge.</p>
+        an Illustration badge. The panel at the end of section&nbsp;9 is badged Extension: it points to
+        Food-Led Intelligence, a separate side project, and nothing in it comes from the paper.</p>
       <p><b>Acknowledgements.</b> The authors thank the Department of Computer Science and Communication at
         &Oslash;stfold University of Applied Sciences, Simula Research Laboratory, OsloMet &mdash; Oslo
         Metropolitan University and the Norwegian Artificial Intelligence Research Consortium (NORA) for
