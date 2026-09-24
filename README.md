@@ -118,6 +118,12 @@ plots never state: every run's GHC count at generation 1 equals `init_prob × 40
 founder count by construction. The 200 × 200 grids under `sonca/assets/runs/` are the rasters
 extracted from those same figures, at their native lattice resolution.
 
+`sonca/fli.html` is a side project, not part of the paper: *Food-Led Intelligence*, which swaps
+SONCA's fixed life budget for an energy budget and gives each cell a 44-weight attention head over
+the food it smells. It is a single self-contained file with its own inline CSS and JS. The SONCA page
+links to it from a panel at the end of section 9, badged `Extension — not in the paper`, and
+from the footer.
+
 ---
 
 ## Working on it locally
