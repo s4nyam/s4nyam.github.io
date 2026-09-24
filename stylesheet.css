@@ -354,16 +354,3 @@ body.sections-ready table[width="1000"] > tbody > tr > td > table:first-of-type 
 .subrole-title {
   font-weight: 700;
 }
-
-/* Text stand-in for an institution without a local logo file.
-   Drop a logo image into the repo and swap this out if you prefer. */
-.logo-text {
-  display: inline-block;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1.35;
-  text-align: center;
-}
