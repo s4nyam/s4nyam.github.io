@@ -1,0 +1,108 @@
+// Cloud Firestore security rules for project panodiff-42e4a, as deployed on 2026-09-25.
+// They protect the challenge on this page (challenge.js) and lock the 2024 observer-study
+// collection to the Admin SDK. Deploy changes from the Firebase console (Firestore > Rules).
+
+rules_version = '2';
+
+// PanoDiff project page: "Real or synthetic?" challenge + the 2024 observer study.
+//
+// No sign-in is used. A browser owns a session because the session's document id is a
+// random 24-character token that only that browser knows: sessions can never be read or
+// listed, so the id cannot be discovered, and a finished session is frozen.
+// A leaderboard entry reuses its session's id and must agree with that frozen session.
+// Deleting an entry needs the player's code: the browser sends SHA-256(entryId + ":" + code)
+// in the same batch as the delete, and the rule compares it with the hash stored (unreadably)
+// when the entry was created.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function strLen(s, lo, hi) { return s is string && s.size() >= lo && s.size() <= hi; }
+    function intIn(x, lo, hi) { return x is int && x >= lo && x <= hi; }
+    function testSize(n) { return n == 50 || n == 100 || n == 200; }
+
+    // ---------------------------------------------------------------- observer study (2024)
+    // Written and read only by the study server through the Admin SDK, which bypasses rules.
+    match /submissions/{rest=**} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------------- challenge sessions
+    function sessionShape(d) {
+      return d.keys().hasOnly(['v', 'name', 'n', 'status', 'startedAt', 'updatedAt', 'finishedAt',
+                               'answered', 'correct', 'correctReal', 'correctSynth', 'answers',
+                               'items', 'client', 'fullscreenUsed', 'tools', 'breaks', 'activeMs'])
+          && d.keys().hasAll(['v', 'name', 'n', 'status', 'startedAt', 'updatedAt', 'answered', 'correct',
+                              'correctReal', 'correctSynth', 'answers', 'items'])
+          && strLen(d.name, 1, 24) && testSize(d.n)
+          && d.status in ['started', 'in_progress', 'completed', 'abandoned']
+          && intIn(d.answered, 0, d.n) && intIn(d.correct, 0, d.answered)
+          && intIn(d.correctReal, 0, d.n / 2) && intIn(d.correctSynth, 0, d.n / 2)
+          && d.correctReal + d.correctSynth == d.correct
+          && d.answers is list && d.answers.size() == d.answered
+          && d.items is list && d.items.size() == d.n
+          && d.updatedAt == request.time
+          && (d.status != 'completed' || d.answered == d.n);
+    }
+    match /challenge_sessions/{sid} {
+      allow get, list, delete: if false;
+      allow create: if sid.size() == 24 && sessionShape(request.resource.data)
+                    && request.resource.data.startedAt == request.time;
+      allow update: if resource.data.status != 'completed'
+                    && sessionShape(request.resource.data)
+                    && request.resource.data.name == resource.data.name
+                    && request.resource.data.n == resource.data.n
+                    && request.resource.data.items == resource.data.items
+                    && request.resource.data.startedAt == resource.data.startedAt
+                    && request.resource.data.answered >= resource.data.answered;
+    }
+
+    // ---------------------------------------------------------------- leaderboard
+    function entryMatchesSession(eid, d) {
+      let s = get(/databases/$(database)/documents/challenge_sessions/$(eid)).data;
+      return s.status == 'completed' && s.name == d.name && s.n == d.n
+          && s.correct == d.correct && s.correctReal == d.correctReal && s.correctSynth == d.correctSynth;
+    }
+    match /challenge_leaderboard/{eid} {
+      allow read: if true;
+      allow update: if false;
+      allow create: if eid.size() == 24
+                    && request.resource.data.keys().hasOnly(['v', 'name', 'nameLower', 'n', 'correct', 'correctReal',
+                                                             'correctSynth', 'score', 'medianMs', 'fullscreen', 'createdAt'])
+                    && strLen(request.resource.data.name, 1, 24)
+                    && request.resource.data.nameLower == request.resource.data.name.lower()
+                    && testSize(request.resource.data.n)
+                    && intIn(request.resource.data.correct, 0, request.resource.data.n)
+                    && (request.resource.data.score is int || request.resource.data.score is float)
+                    && math.abs(float(request.resource.data.score)
+                                - float(request.resource.data.correct + 5) * 100.0 / float(request.resource.data.n + 10)) < 0.001
+                    && intIn(request.resource.data.medianMs, 0, 600000)
+                    && request.resource.data.fullscreen is bool
+                    && request.resource.data.createdAt == request.time
+                    && entryMatchesSession(eid, request.resource.data)
+                    && existsAfter(/databases/$(database)/documents/challenge_secrets/$(eid));
+      allow delete: if getAfter(/databases/$(database)/documents/challenge_deletions/$(eid)).data.codeHash
+                       == get(/databases/$(database)/documents/challenge_secrets/$(eid)).data.codeHash;
+    }
+
+    // Hash of the player's delete code; never readable.
+    match /challenge_secrets/{eid} {
+      allow read, update: if false;
+      allow create: if !exists(/databases/$(database)/documents/challenge_leaderboard/$(eid))
+                    && existsAfter(/databases/$(database)/documents/challenge_leaderboard/$(eid))
+                    && request.resource.data.keys().hasOnly(['codeHash'])
+                    && strLen(request.resource.data.codeHash, 64, 64);
+      allow delete: if !existsAfter(/databases/$(database)/documents/challenge_leaderboard/$(eid));
+    }
+
+    // Written only in the same batch that deletes the entry; carries the hash being checked.
+    match /challenge_deletions/{eid} {
+      allow read, update, delete: if false;
+      allow create: if exists(/databases/$(database)/documents/challenge_leaderboard/$(eid))
+                    && !existsAfter(/databases/$(database)/documents/challenge_leaderboard/$(eid))
+                    && request.resource.data.keys().hasOnly(['codeHash', 'at'])
+                    && strLen(request.resource.data.codeHash, 64, 64)
+                    && request.resource.data.at == request.time;
+    }
+  }
+}
