@@ -289,7 +289,6 @@ function showItem(i) {
       }));
     });
   };
-  };
   el.img.onerror = () => { el.loading.textContent = 'Could not load this image. Check your connection; it will retry.'; setTimeout(() => { el.img.src = src + '?r=' + Date.now(); }, 2500); };
   const src = 'assets/challenge/' + it.id + '.jpg';
   el.real.disabled = el.synth.disabled = true;
