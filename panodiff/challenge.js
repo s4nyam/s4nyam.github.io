@@ -274,7 +274,7 @@ function showItem(i) {
   cancelAnimationFrame(rafId);
   el.bar.style.transform = 'scaleX(1)'; el.cdRing.style.strokeDashoffset = 0; el.cdNum.textContent = LIMIT / 1000;
   el.stage.classList.add('waiting');                    // no countdown until the radiograph is on screen
-  el.loading.textContent = 'Loading the radiograph\u2026';
+  el.loading.textContent = 'Loading the radiograph…';
   el.img.onload = () => {
     const decoded = el.img.decode ? el.img.decode().catch(() => { }) : Promise.resolve();
     decoded.then(() => {
@@ -288,6 +288,7 @@ function showItem(i) {
         rafId = requestAnimationFrame(tick);
       }));
     });
+  };
   };
   el.img.onerror = () => { el.loading.textContent = 'Could not load this image. Check your connection; it will retry.'; setTimeout(() => { el.img.src = src + '?r=' + Date.now(); }, 2500); };
   const src = 'assets/challenge/' + it.id + '.jpg';
