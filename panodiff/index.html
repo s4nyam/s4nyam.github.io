@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PanoDiff-SR &mdash; Synthesizing Dental Panoramic Radiographs using Diffusion and Super-resolution</title>
-  <meta name="description" content="PanoDiff-SR: a two-stage pipeline that generates complete dental panoramic radiographs — a DDIM diffusion model draws a 256x128 seed, a fine-tuned HAT transformer carries it to 1024x512. Six dentists scored 68.5% at telling the results from real radiographs. Take the same test.">
+  <meta name="description" content="PanoDiff-SR: a two-stage pipeline that generates complete dental panoramic radiographs — a DDIM diffusion model draws a 256x128 seed, a fine-tuned HAT transformer carries it to 1024x512. Six dentists scored 68.5% at telling the results from real radiographs. Take the challenge and join the leaderboard.">
   <link rel="icon" href="https://em-content.zobj.net/thumbs/120/apple/354/tooth_1f9b7.png" type="image/png">
 
   <meta property="og:type" content="website">
@@ -16,7 +16,7 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="style.css?v=2" rel="stylesheet">
+  <link href="style.css?v=3" rel="stylesheet">
 
   <script>
     // Resolve the theme before paint. Shares the 'theme' key with the main site,
@@ -39,7 +39,8 @@
       <span class="crumb">/ panodiff</span>
       <span class="spacer"></span>
       <nav id="topnav">
-        <a href="#test">Test</a>
+        <a href="#test">Challenge</a>
+        <a href="#leaderboard">Leaderboard</a>
         <a href="#pipeline">Pipeline</a>
         <a href="#data">Data</a>
         <a href="#diffusion">Diffusion</a>
@@ -110,84 +111,295 @@
   <!-- ============================ 1 THE TEST ============================ -->
   <section id="test">
     <div class="wrap">
-      <h2><span class="num">1</span>Before anything else, take the test</h2>
-      <p class="lede">Six dentists sat the same test on these exact images. Twelve seconds per radiograph,
-        one hundred real and one hundred synthetic, no second look. Their mean accuracy was 68.5%. Chance
-        is 50%.</p>
+      <h2><span class="num">1</span>Before anything else, take the challenge</h2>
+      <p class="lede">Real radiograph or synthetic? Twelve seconds per image, two buttons, no second look.
+        Choose 50, 100 or 200 images, put your name on the live leaderboard, and see which generators
+        fooled you.</p>
 
-      <p>The images below are drawn from that study, in the resolution the observers saw. Twelve are real
-        radiographs from the pooled public corpus; twelve came out of PanoDiff-SR. After each answer you
-        see the ground truth and, more interestingly, what each of the six clinicians said about that same
-        image.</p>
+      <div class="notice" id="chNotStudy">
+        <span class="ico" data-icon="info"></span>
+        <div>
+          <b>This is not the observer study in the paper.</b> In the paper, six dentists each judged 100
+          real and 100 PanoDiff-SR radiographs drawn at random, so that the comparison was fair; they
+          reached 68.5%. Here the synthetic half is the hardest material we could find among ten generators
+          we trained &mdash; GANs and diffusion models alike, including the PanoDiff-SR images that fooled
+          the most dentists &mdash; and the real half comes from the public DENTEX dataset. The two numbers
+          are not comparable. <a href="#chHow">How the images were chosen</a>.
+        </div>
+      </div>
 
-      <div class="panel">
+      <div class="panel challenge" id="challenge">
         <div class="panel-head">
           <h3>Real or synthetic?</h3>
           <span class="badge live">Live</span>
-          <span class="hint">Keyboard: R for real, S for synthetic, &rarr; for the next image.</span>
-        </div>
-        <div class="controls">
-          <div class="switch" role="group" aria-label="Viewing time" id="quizMode">
-            <button type="button" data-mode="free" aria-pressed="true">Take your time</button>
-            <button type="button" data-mode="timed" aria-pressed="false">12-second limit, as in the study</button>
-          </div>
-          <span class="note" id="quizModeNote"></span>
+          <span class="hint">Keyboard: R or &larr; for real, S or &rarr; for synthetic, F for full screen.</span>
         </div>
 
-        <div class="quiz">
-          <div>
-            <div class="quizframe" id="quizFrame">
-              <img id="quizImg" src="assets/quiz/q00.jpg" alt="A dental panoramic radiograph, real or synthetic">
-              <span class="counter" id="quizCounter">1 / 24</span>
-              <div class="timer" id="quizTimer" hidden></div>
-              <div class="gone">Twelve seconds are up. Answer from memory &mdash; that is the
-                decision the six dentists were making.</div>
-              <div class="veil">
-                <div>
-                  <div class="qbig" id="quizVerdict"></div>
-                  <p class="qsm" id="quizDetail"></p>
-                </div>
+        <!-- ---------- setup ---------- -->
+        <div class="ch-view" id="chSetup">
+          <div class="ch-setup">
+            <div>
+              <label class="field">
+                <span class="flabel"><span class="ico" data-icon="user"></span>Your name on the leaderboard <em>(required)</em></span>
+                <input id="chName" type="text" maxlength="24" autocomplete="nickname" spellcheck="false" placeholder="e.g. Dr. Molar">
+                <span class="fhelp" id="chNameHelp">1&ndash;24 characters: letters, digits, spaces and . _ ' -</span>
+              </label>
+              <label class="field">
+                <span class="flabel"><span class="ico" data-icon="key"></span>Delete code <em>(optional)</em></span>
+                <input id="chCode" type="text" maxlength="32" autocomplete="off" spellcheck="false" placeholder="a word or number only you know">
+                <span class="fhelp">With your name, this code removes your entry later from any device. Leave it
+                  empty and this browser keeps a code for you.</span>
+              </label>
+
+              <div class="flabel" style="margin-top:14px"><span class="ico" data-icon="list"></span>Test length</div>
+              <div class="lengths" role="radiogroup" aria-label="Test length" id="chLengths">
+                <button type="button" role="radio" aria-checked="true" data-n="50">
+                  <span class="big">50</span><span>images</span><span class="est" data-est="50"></span></button>
+                <button type="button" role="radio" aria-checked="false" data-n="100">
+                  <span class="big">100</span><span>images</span><span class="est" data-est="100"></span></button>
+                <button type="button" role="radio" aria-checked="false" data-n="200">
+                  <span class="big">200</span><span>images</span><span class="est" data-est="200"></span></button>
+              </div>
+
+              <label class="check" id="chFsRow">
+                <input type="checkbox" id="chFs" checked>
+                <span><span class="ico" data-icon="maximize"></span>Play in full screen <span class="fhelp">(bigger image, magnifier and window/level tools; Esc leaves full screen and the test simply continues)</span></span>
+              </label>
+
+              <div class="qbtns">
+                <button class="btn primary big" id="chStart" type="button" disabled><span class="ico" data-icon="play"></span>Start the test</button>
+                <span class="note" id="chStartNote">Enter a name to start.</span>
               </div>
             </div>
-            <div class="qbtns">
-              <button class="btn real big" id="btnReal" type="button">Real</button>
-              <button class="btn synth big" id="btnSynth" type="button">Synthetic</button>
-              <button class="btn primary" id="btnNext" type="button" hidden>Next &rarr;</button>
-              <button class="btn" id="btnReset" type="button">Start over</button>
+
+            <div class="rules">
+              <div class="kicker">How it works</div>
+              <ul class="iconlist">
+                <li><span class="ico" data-icon="timer"></span><span>Each radiograph is shown for <b>12 seconds</b>,
+                  as in the study. Then it disappears and you answer from memory.</span></li>
+                <li><span class="ico" data-icon="split"></span><span><b>Two choices only</b>: real or synthetic. No
+                  &ldquo;unsure&rdquo; &mdash; if in doubt, go with your gut.</span></li>
+                <li><span class="ico" data-icon="scale"></span><span>Exactly <b>half real, half synthetic</b>, in random
+                  order, with the same mix of generators at every test length.</span></li>
+                <li><span class="ico" data-icon="coffee"></span><span>100- and 200-image tests have a <b>break every 50
+                  images</b>. Breaks do not count towards your time.</span></li>
+                <li><span class="ico" data-icon="alert"></span><span><b>Progress cannot be saved.</b> Please finish in
+                  one sitting; leaving the page ends the test.</span></li>
+                <li><span class="ico" data-icon="eye-off"></span><span>No feedback until the end, as in the study. Then
+                  you get your score, your rank and every image with its answer.</span></li>
+              </ul>
+              <p class="note">Your name, score and answers are stored (Google Firebase) and used to study how people
+                judge synthetic radiographs. Your name and score appear publicly on the leaderboard below.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- running test (this box goes full screen) ---------- -->
+        <div class="ch-view ch-run" id="chRun" hidden>
+          <div class="hud">
+            <div class="hud-l">
+              <span class="hud-count"><b id="chIdx">1</b> / <span id="chN">50</span></span>
+              <span class="hud-block" id="chBlock">Block 1 of 1</span>
+            </div>
+            <div class="hud-r">
+              <span class="hud-time" title="Active time (breaks excluded) and estimated time left"><span class="ico" data-icon="clock"></span><span id="chElapsed">0:00</span><span class="sep">&middot;</span><span id="chLeft">~8 min left</span></span>
+              <button type="button" class="iconbtn" id="chFsBtn" title="Full screen (F)" aria-label="Toggle full screen"><span class="ico" data-icon="maximize"></span></button>
+              <button type="button" class="iconbtn" id="chKeysBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts"><span class="ico" data-icon="keyboard"></span></button>
+            </div>
+            <div class="progress" id="chProgress" aria-hidden="true"><div class="pfill" id="chPfill"></div></div>
+          </div>
+
+          <div class="stagewrap">
+            <div class="stage" id="chStage">
+              <img id="chImg" alt="A panoramic radiograph: real or synthetic?" draggable="false">
+              <div class="lens" id="chLens" hidden></div>
+              <div class="cd" id="chCd"><svg viewBox="0 0 36 36"><circle class="cd-bg" cx="18" cy="18" r="15.5"/><circle class="cd-fg" id="chCdRing" cx="18" cy="18" r="15.5"/></svg><span id="chCdNum">12</span></div>
+              <div class="gone"><div><span class="ico big" data-icon="eye-off"></span><div>Time is up. Answer from memory.</div></div></div>
+              <div class="loading" id="chLoading" hidden>Loading&hellip;</div>
+              <div class="bar12" id="chBar"></div>
+            </div>
+
+            <div class="tools" id="chTools">
+              <button type="button" class="tool" id="tLens" aria-pressed="false" title="Magnifier (Z)"><span class="ico" data-icon="zoom"></span><span class="tl">Magnifier</span></button>
+              <label class="tool tslider" title="Magnification"><span class="ico" data-icon="zoom"></span><span class="tl">Zoom <b id="tZoomV">2.5&times;</b></span><input type="range" id="tZoom" min="1.5" max="5" step="0.5" value="2.5"></label>
+              <label class="tool tslider" title="Brightness"><span class="ico" data-icon="sun"></span><span class="tl">Brightness</span><input type="range" id="tBright" min="50" max="160" step="5" value="100"></label>
+              <label class="tool tslider" title="Contrast"><span class="ico" data-icon="contrast"></span><span class="tl">Contrast</span><input type="range" id="tContrast" min="50" max="220" step="5" value="100"></label>
+              <button type="button" class="tool" id="tInvert" aria-pressed="false" title="Invert (I)"><span class="ico" data-icon="invert"></span><span class="tl">Invert</span></button>
+              <button type="button" class="tool" id="tReset" title="Reset view (0)"><span class="ico" data-icon="reset"></span><span class="tl">Reset</span></button>
             </div>
           </div>
 
-          <div>
-            <div class="qscore">
-              <div><span class="statnum" id="quizYou">&ndash;</span><span class="lab">your accuracy</span></div>
-              <div><span class="statnum" id="quizSeen">0</span><span class="lab">images answered</span></div>
+          <div class="answer">
+            <button class="btn real big" id="chReal" type="button"><span class="ico" data-icon="check"></span>Real <kbd>R</kbd></button>
+            <button class="btn synth big" id="chSynth" type="button"><span class="ico" data-icon="cpu"></span>Synthetic <kbd>S</kbd></button>
+          </div>
+          <div class="savestate" id="chSave" aria-live="polite"></div>
+
+          <div class="keys" id="chKeys" hidden>
+            <div class="keys-in">
+              <div class="kicker">Keyboard</div>
+              <table>
+                <tr><td><kbd>R</kbd> <kbd>&larr;</kbd></td><td>Real</td></tr>
+                <tr><td><kbd>S</kbd> <kbd>&rarr;</kbd></td><td>Synthetic</td></tr>
+                <tr><td><kbd>F</kbd></td><td>Full screen on / off</td></tr>
+                <tr><td><kbd>Z</kbd></td><td>Magnifier on / off (move the pointer over the image)</td></tr>
+                <tr><td><kbd>+</kbd> <kbd>&minus;</kbd></td><td>Magnification</td></tr>
+                <tr><td><kbd>I</kbd></td><td>Invert</td></tr>
+                <tr><td><kbd>0</kbd></td><td>Reset brightness, contrast and invert</td></tr>
+                <tr><td><kbd>?</kbd></td><td>This help</td></tr>
+              </table>
+              <button type="button" class="btn" id="chKeysClose">Close</button>
+            </div>
+          </div>
+
+          <!-- break screen, inside the full-screen box -->
+          <div class="breakview" id="chBreak" hidden>
+            <div class="break-in">
+              <span class="ico huge" data-icon="coffee"></span>
+              <h3 id="chBreakTitle">Block 1 of 4 done</h3>
+              <p>Take a pause: look away from the screen, stretch, blink. The clock is stopped.</p>
+              <p class="note" id="chBreakNote"></p>
+              <button class="btn primary big" id="chContinue" type="button"><span class="ico" data-icon="play"></span>Continue <kbd>Enter</kbd></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- results ---------- -->
+        <div class="ch-view" id="chDone" hidden>
+          <div class="result-top">
+            <div class="scorebox">
+              <span class="kicker">Leaderboard score</span>
+              <span class="statnum huge" id="rScore">&ndash;</span>
+              <span class="note" id="rScoreNote"></span>
+            </div>
+            <div class="tiles4">
+              <div class="tile"><span class="statnum" id="rAcc">&ndash;</span><span class="lab">accuracy</span></div>
+              <div class="tile"><span class="statnum" id="rSens">&ndash;</span><span class="lab">fakes caught</span></div>
+              <div class="tile"><span class="statnum" id="rSpec">&ndash;</span><span class="lab">reals trusted</span></div>
+              <div class="tile"><span class="statnum" id="rRank">&ndash;</span><span class="lab" id="rRankLab">rank</span></div>
+            </div>
+          </div>
+          <div class="status" id="rStatus"></div>
+
+          <div class="two even">
+            <div class="readout">
+              <div class="kicker">For scale</div>
+              <div class="barrow"><div class="barlabel"><span>You</span><span class="barval" id="rbYouV">&ndash;</span></div>
+                <div class="bartrack"><div class="barfill" id="rbYou" style="background:var(--diff)"></div></div></div>
+              <div class="barrow"><div class="barlabel"><span>Our ViT detector, on your images</span><span class="barval" id="rbDetV">&ndash;</span></div>
+                <div class="bartrack"><div class="barfill" id="rbDet" style="background:var(--sr)"></div></div></div>
+              <div class="barrow"><div class="barlabel"><span>Six dentists, paper study (other images)</span><span class="barval">68.5%</span></div>
+                <div class="bartrack"><div class="barfill" id="rbDent" style="background:var(--real)"></div></div></div>
+              <div class="barrow"><div class="barlabel"><span>Guessing</span><span class="barval">50.0%</span></div>
+                <div class="bartrack"><div class="barfill" id="rbChance" style="background:var(--text-mute)"></div></div></div>
+              <p class="note" id="rStudy"></p>
             </div>
             <div class="readout">
-              <div class="kicker">What the six dentists said about this image</div>
-              <div id="quizObs"><p class="note">Answer first &mdash; the responses appear here.</p></div>
-              <div class="kicker">Benchmarks</div>
-              <div class="barrow">
-                <div class="barlabel"><span>You, so far</span><span class="barval" id="bYouV">&ndash;</span></div>
-                <div class="bartrack"><div class="barfill" id="bYou" style="background:var(--diff)"></div></div>
-              </div>
-              <div class="barrow">
-                <div class="barlabel"><span>Six dentists, this study</span><span class="barval">68.5%</span></div>
-                <div class="bartrack"><div class="barfill" id="bDent" style="background:var(--real)"></div></div>
-              </div>
-              <div class="barrow">
-                <div class="barlabel"><span>Readers vs. StyleGAN2-ADA PRs</span><span class="barval">78.2%</span></div>
-                <div class="bartrack"><div class="barfill" id="bGan" style="background:var(--gan)"></div></div>
-              </div>
-              <div class="barrow">
-                <div class="barlabel"><span>Guessing</span><span class="barval">50.0%</span></div>
-                <div class="bartrack"><div class="barfill" id="bChance" style="background:var(--text-mute)"></div></div>
-              </div>
-              <p class="note" style="margin-top:8px">Your score is over 24 images, theirs over 200, and you are
-                free to take as long as you like. It is a demonstration, not a measurement.</p>
+              <div class="kicker">Which generators fooled you</div>
+              <table class="data compact" id="rModels"><thead><tr><th>Source</th><th>Shown</th><th>You said real</th></tr></thead><tbody></tbody></table>
+              <p class="note">&ldquo;You said real&rdquo; on a synthetic row means the generator fooled you; on the DENTEX row it
+                means you trusted a real radiograph.</p>
             </div>
           </div>
+
+          <div class="qbtns">
+            <button class="btn primary" id="rAgain" type="button"><span class="ico" data-icon="reset"></span>Play again</button>
+            <a class="btn" href="#leaderboard"><span class="ico" data-icon="trophy"></span>Leaderboard</a>
+            <button class="btn" id="rShare" type="button"><span class="ico" data-icon="copy"></span>Copy my result</button>
+            <button class="btn" id="rRetry" type="button" hidden><span class="ico" data-icon="upload"></span>Retry saving</button>
+          </div>
+
+          <details class="review" id="rReview">
+            <summary><span class="ico" data-icon="grid"></span>Review every image &mdash; truth, your answer and where it came from</summary>
+            <div class="revfilter switch" role="group" aria-label="Filter review">
+              <button type="button" data-rf="all" aria-pressed="true">All</button>
+              <button type="button" data-rf="wrong" aria-pressed="false">My mistakes</button>
+              <button type="button" data-rf="synthetic" aria-pressed="false">Synthetic</button>
+              <button type="button" data-rf="real" aria-pressed="false">Real</button>
+            </div>
+            <div class="revgrid" id="rGrid"></div>
+          </details>
         </div>
       </div>
+
+      <!-- ---------- leaderboard ---------- -->
+      <div class="panel" id="leaderboard">
+        <div class="panel-head">
+          <h3><span class="ico" data-icon="trophy"></span>Leaderboard</h3>
+          <span class="badge live" id="lbLive"><span class="dot"></span>connecting&hellip;</span>
+          <button type="button" class="iconbtn" id="lbInfoBtn" aria-expanded="false" aria-controls="lbInfo" title="How ranks are calculated"><span class="ico" data-icon="info"></span></button>
+          <span class="hint">One ranking for all test lengths. Updates live.</span>
+        </div>
+
+        <div class="lbinfo" id="lbInfo" hidden>
+          <p><b>How the rank is calculated.</b> A single score ranks every run, whatever its length:</p>
+          <p class="formula">score = 100 &times; (correct + 5) / (images + 10)</p>
+          <p>It is your accuracy after adding ten imaginary answers at chance level, five right and five wrong.
+            In statistical terms it is the Bayesian estimate of your true accuracy under a Beta(5,&nbsp;5) prior
+            centred on guessing. A short test is pulled more towards 50% than a long one, because a lucky streak
+            is more likely over 50 images than over 200; with more images the score converges on your plain
+            accuracy.</p>
+          <table class="data compact">
+            <thead><tr><th>Run</th><th>Accuracy</th><th>Score</th></tr></thead>
+            <tbody>
+              <tr><td>45 of 50</td><td>90.0%</td><td>(45 + 5) / 60 = <b>83.3</b></td></tr>
+              <tr><td>90 of 100</td><td>90.0%</td><td>(90 + 5) / 110 = <b>86.4</b></td></tr>
+              <tr><td>180 of 200</td><td>90.0%</td><td>(180 + 5) / 210 = <b>88.1</b></td></tr>
+              <tr><td>48 of 50</td><td>96.0%</td><td>(48 + 5) / 60 = <b>88.3</b></td></tr>
+              <tr><td>25 of 50</td><td>50.0%</td><td>(25 + 5) / 60 = <b>50.0</b></td></tr>
+            </tbody>
+          </table>
+          <p>Every test is fair to compare: all lengths draw from the same pool of 300 images, always half real and
+            half synthetic, and always with the same share of each generator and of the harder and easier real
+            radiographs. Ties are broken by the longer test, then by the faster median decision time, then by
+            who finished first. Each finished run is a separate entry.</p>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data lb" id="lbTable">
+            <thead><tr><th>#</th><th>Name</th><th>Score</th><th>Correct</th><th>Fakes caught</th><th>Reals trusted</th><th>Median time</th><th>When</th><th></th></tr></thead>
+            <tbody><tr><td colspan="9" class="note">Loading the leaderboard&hellip;</td></tr></tbody>
+          </table>
+        </div>
+
+        <details class="remove">
+          <summary><span class="ico" data-icon="trash"></span>Remove an entry</summary>
+          <p class="note">Enter the name and the delete code you used. Entries made in this browser without a code can
+            also be removed with the <span class="ico inline" data-icon="trash"></span> button in their row.</p>
+          <div class="removeform">
+            <input id="delName" type="text" maxlength="24" placeholder="Name" autocomplete="off" spellcheck="false">
+            <input id="delCode" type="text" maxlength="32" placeholder="Delete code" autocomplete="off" spellcheck="false">
+            <button class="btn" id="delBtn" type="button"><span class="ico" data-icon="trash"></span>Remove</button>
+          </div>
+          <p class="note" id="delMsg" aria-live="polite"></p>
+        </details>
+      </div>
+
+      <!-- ---------- how the images were chosen ---------- -->
+      <details class="how" id="chHow">
+        <summary><span class="ico" data-icon="flask"></span>How the images were chosen</summary>
+        <div class="how-in">
+          <p>The pool holds <b>300 radiographs: 150 real and 150 synthetic</b>. Each test draws its images from it,
+            half and half, keeping the proportions below at every length.</p>
+          <p><b>Synthetic.</b> We generated 7243 radiographs with each of the ten models in the paper's comparisons and
+            looked for the ones that are hardest to catch. For every image we measured (1) how sure a vision
+            transformer, trained to tell that model's images from real ones, was that it is synthetic, scored on
+            images the transformer never trained on; and (2) the realism score of Kynk&auml;&auml;nniemi et al.
+            (2019), which is how deep the image sits inside the cloud of real radiographs in Inception feature space.
+            The images that ranked highest on both went in. We removed any that were nearly identical to a
+            training radiograph (that would be a copy, not a synthesis) and any with burned-in labels or markers,
+            and kept only images whose closest real neighbours come from DENTEX, so that the synthetic half looks
+            like the same kind of radiograph as the real half. The sixteen PanoDiff-SR images from the paper's study
+            that at least two of the six dentists called real are all included.</p>
+          <p><b>Real.</b> All real images come from DENTEX (Hamamci et al., 2023; CC BY-NC-SA 4.0), processed exactly as
+            the training data were. Fourteen are the DENTEX radiographs from the paper's study that half or more of
+            the dentists thought were synthetic, 63 are the ones our transformers found most synthetic-looking, and
+            the rest are an ordinary random draw.</p>
+          <table class="data compact" id="howTable"><thead><tr><th>Source</th><th>Family</th><th>In the pool</th><th>What it is</th></tr></thead><tbody></tbody></table>
+        </div>
+      </details>
+
+      <h3 class="subhead">The paper's observer study, for reference</h3>
 
       <div class="takeaways">
         <div class="takeaway">
@@ -1400,7 +1612,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
   <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
   <script src="assets/data/data.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
+  <script src="assets/data/challenge.js?v=1"></script>
+  <script type="module" src="challenge.js?v=1"></script>
 </body>
 
 </html>
