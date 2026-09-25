@@ -121,9 +121,9 @@
         <div>
           <b>This is not the observer study in the paper.</b> In the paper, six dentists each judged 100
           real and 100 PanoDiff-SR radiographs drawn at random, so that the comparison was fair; they
-          reached 68.5%. Here the synthetic half is the hardest material we could find among ten generators
-          we trained &mdash; GANs and diffusion models alike, including the PanoDiff-SR images that fooled
-          the most dentists &mdash; and the real half comes from the public DENTEX dataset. The two numbers
+          reached 68.5%. Here the synthetic half is the hardest material we could find among the generators we trained
+          &mdash; GANs and diffusion models alike &mdash; and the real half comes from the public DENTEX dataset.
+          Every image, real or synthetic, passed the same sharpness check at 1024 &times; 512. The two numbers
           are not comparable. <a href="#chHow">How the images were chosen</a>.
         </div>
       </div>
@@ -381,20 +381,28 @@
         <div class="how-in">
           <p>The pool holds <b>300 radiographs: 150 real and 150 synthetic</b>. Each test draws its images from it,
             half and half, keeping the proportions below at every length.</p>
-          <p><b>Synthetic.</b> We generated 7243 radiographs with each of the ten models in the paper's comparisons and
-            looked for the ones that are hardest to catch. For every image we measured (1) how sure a vision
+          <p><b>Quality first.</b> Every image is a native 1024 &times; 512 radiograph that is as sharp as a typical
+            good DENTEX radiograph and no grainier than one. We measure sharpness as the share of the image's contrast
+            that is finer than a 512 &times; 256 image could hold, and noise with Immerk&aelig;r's (1996) estimator; the
+            thresholds are the 40th percentile of sharpness and the 95th percentile of noise among DENTEX radiographs,
+            and they apply to the real and the synthetic half alike. Three of our generators never reach them &mdash;
+            PanoDiff with SwinIR, FastGAN with SwinIR and FastGAN trained at full size produce visibly soft
+            images &mdash; so they are not in the challenge.</p>
+          <p><b>Synthetic.</b> We generated 7243 radiographs with each of the remaining seven models and, among the
+            images that pass the quality check, looked for the ones that are hardest to catch. For every image we measured (1) how sure a vision
             transformer, trained to tell that model's images from real ones, was that it is synthetic, scored on
             images the transformer never trained on; and (2) the realism score of Kynk&auml;&auml;nniemi et al.
             (2019), which is how deep the image sits inside the cloud of real radiographs in Inception feature space.
             The images that ranked highest on both went in. We removed any that were nearly identical to a
             training radiograph (that would be a copy, not a synthesis) and any with burned-in labels or markers,
             and kept only images whose closest real neighbours come from DENTEX, so that the synthetic half looks
-            like the same kind of radiograph as the real half. The sixteen PanoDiff-SR images from the paper's study
-            that at least two of the six dentists called real are all included.</p>
+            like the same kind of radiograph as the real half. Three PanoDiff-SR images from the paper's study that two of
+            the six dentists called real are included; the study images that fooled more dentists are not sharp enough
+            to pass the quality check.</p>
           <p><b>Real.</b> All real images come from DENTEX (Hamamci et al., 2023; CC BY-NC-SA 4.0), processed exactly as
-            the training data were. Fourteen are the DENTEX radiographs from the paper's study that half or more of
-            the dentists thought were synthetic, 63 are the ones our transformers found most synthetic-looking, and
-            the rest are an ordinary random draw.</p>
+            the training data were. Seven are DENTEX radiographs from the paper's study that half or more of the
+            dentists thought were synthetic, 60 are the ones our transformers found most synthetic-looking, and the
+            rest are an ordinary random draw from the DENTEX radiographs that pass the quality check.</p>
           <table class="data compact" id="howTable"><thead><tr><th>Source</th><th>Family</th><th>In the pool</th><th>What it is</th></tr></thead><tbody></tbody></table>
         </div>
       </details>
@@ -1613,7 +1621,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
   <script src="assets/data/data.js?v=2"></script>
   <script src="app.js?v=3"></script>
-  <script src="assets/data/challenge.js?v=1"></script>
+  <script src="assets/data/challenge.js?v=2"></script>
   <script type="module" src="challenge.js?v=2"></script>
 </body>
 
