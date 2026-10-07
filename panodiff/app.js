@@ -562,7 +562,7 @@
       DIFFHATSR: ['Diffusion + HAT-SR', 'The pipeline of this paper, and the closest of the four arms to real high-resolution radiographs on every measure: FID 40.5, KID 40.8, precision 0.56 and recall 0.29.'],
       DIFFSWINIR: ['Diffusion + SwinIR', 'The same seeds through SwinIR, fine-tuned on the same radiographs. FID rises to 94.4. SwinIR returns something close to a smooth enlargement of its input: it keeps about 4% of the high-frequency energy of real radiographs, against about 80% for HAT-SR. Its Inception score (2.89) is nonetheless the highest of the four.'],
       GANHATSR: ['FastGAN + HAT-SR', 'A GAN seed carried by the same super-resolution model. FID 102.3. The upscaler cannot repair anatomy the seed did not have, and recall stays below 1%.'],
-      GANSWINIR: ['FastGAN + SwinIR', 'Both weaker halves together: FID 109.7, the furthest arm from the real radiographs. It sits 54.8 FID from FastGAN + HAT-SR, so the choice of upscaler matters less for GAN seeds, which limit what either upscaler can recover.']
+      GANSWINIR: ['FastGAN + SwinIR', 'Both weaker halves together: FID 109.7, the furthest arm from the real radiographs, against 102.3 with HAT-SR. The choice of upscaler matters less for GAN seeds, which limit what either upscaler can recover.']
     };
     D.srarms.forEach(function (r, i) {
       var b = document.createElement('button');
@@ -758,12 +758,12 @@
     var COLOR = { DR: '--real', PR: '--real', U: '--text-mute', PF: '--synth', DF: '--synth' };
     var ALPHA = { DR: 1, PR: .5, U: .75, PF: .5, DF: 1 };
     var BODY = {
-      EC1: 'Used the midpoint more than anyone: 48 of 200 responses were unsure. That is an experienced clinician stating plainly that a quarter of the images gave no evidence either way.',
-      EC2: 'Used the midpoint only three times in each class: a committed reader who almost always chose a side. Also holds the single lowest agreement in the whole table, κ = 0.18 with EP1.',
+      EC1: 'Used the midpoint more than anyone: 48 of 200 responses were unsure. That is a practising clinician stating plainly that a quarter of the images gave no evidence either way.',
+      EC2: 'Used the midpoint only three times in each class: a committed reader who almost always chose a side. Also holds the single lowest agreement in the whole table, κ = 0.42 with EC1.',
       EC3: 'Called almost nothing definitely real — zero definitely-real responses on either class. The highest recall of the six at 0.80, bought with a high false-positive rate.',
       EP1: 'An unusual signature: 83 of 100 synthetic images landed on probably fake and only 4 on definitely fake. Confident about direction, never about magnitude.',
       EP2: 'The best reader of the six on every metric — precision 0.78, recall 0.81, accuracy 0.79 — and never used the midpoint at all.',
-      EP3: 'Agrees with EC3 more closely than any other pair on the page (κ = 0.43), and the two also used the scale most alike. Weighted κ is measured against each rater’s own marginals, so response style moves it independently of skill.'
+      EP3: 'Agrees with EC3 more closely than any other pair on the page (κ = 0.62). Weighted κ is measured against each rater’s own marginals, so response style moves it independently of skill.'
     };
     D.observer.names.forEach(function (u, i) {
       var t = D.observer.tally[u];
@@ -954,7 +954,7 @@
         var cells = names.map(function (cn, j) {
           var v = K[i][j];
           if (i === j) return '<td class="cell" style="color:var(--text-mute)">&mdash;</td>';
-          var t = Math.max(0, Math.min(1, (v - 0.15) / 0.30));
+          var t = Math.max(0, Math.min(1, (v - 0.40) / 0.25));
           var bgc = rgba(css('--diff'), t * 0.78);
           return '<td class="cell' + (t > .72 ? ' lightink' : '') + '" style="background:' + bgc + '" title="' +
             rn + ' vs ' + cn + '">' + v.toFixed(2) + '</td>';

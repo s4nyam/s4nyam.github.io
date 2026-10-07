@@ -416,9 +416,9 @@
             and half an incorrect decision.</p>
         </div>
         <div class="takeaway">
-          <span class="statnum">&kappa; = 0.18&ndash;0.43</span>
-          <p>Pairwise agreement between observers, which is <em>fair</em> at best. They were not converging on
-            the same tell-tale features.</p>
+          <span class="statnum">&kappa; = 0.42&ndash;0.62</span>
+          <p>Pairwise agreement between observers, which is <em>moderate</em>: above chance, but not high. The
+            readers shared some cues, yet a sizeable fraction of the synthetic images were not reliably separable.</p>
         </div>
         <div class="takeaway">
           <span class="statnum">157</span>
@@ -1105,7 +1105,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
       <h3>The one convention that moves the number</h3>
       <p>A five-level scale needs a rule for what an <em>unsure</em> response is worth, and it is fair to ask
-        whether that rule is carrying the headline result. The paper reports all four candidate rules.</p>
+        whether that rule is carrying the headline result. The paper reports the first three; the fourth is
+        shown here only.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -1118,7 +1119,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           <div class="kicker" id="convKicker"></div>
           <p id="convBody"></p>
         </div>
-        <p class="note" style="margin-top:10px">Three of the four agree to within 3.4 points, so the reported
+        <p class="note" style="margin-top:10px">Three of the four agree to within 3.5 points, so the reported
           accuracy is a property of the responses rather than of the weighting. The fourth &mdash; discarding
           unsure responses &mdash; lifts the mean to 78.5% and lands it exactly on the 78.2% GAN benchmark the
           paper's central claim rests on being below. It does that not because the radiographs became easier to
@@ -1157,7 +1158,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         <p class="note" style="margin-top:8px" id="rocNote"></p>
       </div>
 
-      <h3>They did not agree with each other either</h3>
+      <h3>They agreed with each other only moderately</h3>
       <div class="panel">
         <div class="panel-head">
           <h3>Weighted Cohen's &kappa; between every pair</h3>
@@ -1167,12 +1168,11 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         <div class="tablewrap">
           <table class="data heat" id="kappaTable"><thead></thead><tbody></tbody></table>
         </div>
-        <p class="note">Values run from 0.18 to 0.43, which is <em>fair</em> at best on the Landis&ndash;Koch scale,
-          and there is no meaningful difference between the early-career and experienced groups. In a
-          real-versus-synthetic task this is the favourable direction: high agreement would mean the observers were
-          all spotting the same artefact. Low agreement, together with 68.5% accuracy, says a sizeable fraction of
-          the synthetic radiographs carried no consistent tell at all. The highest pair, EC3 and EP3 at 0.43, is
-          also the pair whose response distributions look most alike.</p>
+        <p class="note">Values run from 0.42 to 0.62, which is <em>moderate</em> on the Landis&ndash;Koch scale for
+          14 of the 15 pairs and <em>substantial</em> for one, EC3 and EP3 at 0.62, and there is no meaningful
+          difference between the early-career and experienced groups. The observers agreed clearly above chance,
+          so they shared some cues, but the agreement is not high: together with the 68.5% accuracy, it says that a
+          sizeable fraction of the synthetic radiographs were not reliably separable from real ones.</p>
       </div>
 
       <div class="panel">
@@ -1271,9 +1271,10 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         </div>
         <div id="attnBars"></div>
         <p class="note" style="margin-top:10px">Each map is scored against fixed anatomical templates &mdash; the
-          1000 expert teeth and jaw masks of the TUFTS dataset, averaged and thresholded at 0.5 &mdash; so the regions
-          are identical for every image. With 1449 images per group every difference is significant; the effect sizes
-          (rank-biserial) are the quantity to read, and only entropy (+0.607) is large.</p>
+          TUFTS expert masks of the teeth (the 968 that are not empty) and of the jaw (all 1000), each averaged and
+          thresholded at 0.5 &mdash; so the regions are identical for every image. With 1449 images per group every
+          difference is significant; the effect sizes (rank-biserial) are the quantity to read, and only entropy
+          (+0.607) is large.</p>
       </div>
 
       <figure class="fig">
@@ -1294,16 +1295,16 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       <p class="lede">The classifier above was trained to find differences. MedSAM was not. Prompted identically on
         real and synthetic radiographs, it segments synthetic teeth exactly as it segments real ones.</p>
 
-      <p>MedSAM is a general medical segmentation model, fine-tuned from SAM on about 1.5 million image&ndash;mask
-        pairs from other modalities and organs. Given a box around an object it returns a mask and a score for how
+      <p>MedSAM is a general medical segmentation model, fine-tuned from SAM on over 1.5 million image&ndash;mask
+        pairs from various imaging modalities and organs. Given a box around an object it returns a mask and a score for how
         good it believes that mask to be. If synthetic teeth look like real teeth to such a model, it should segment
         them with the same confidence and accuracy. It was run on all 7243 synthetic radiographs and on the 2697
         real radiographs that have a manual tooth mask: 500 ADLD, 634 DENTEX, 598 TSXK and 1000 TUFTS, less 35 with
         an empty mask. The real radiographs were prepared exactly as the training corpus was, so both sets are
         framed alike &mdash; straight from the source files, their dentition would cover a quarter less of the
-        image, and every measure would read that as anatomy. Every image received the same three kinds of box prompt: a <em>fixed</em> box at the same
-        position in every image, a <em>dentition</em> box around the tooth region, and one box per
-        <em>tooth region</em>.</p>
+        image, and every measure would read that as anatomy. Every image received the same two kinds of box prompt: a <em>fixed</em> box at the same
+        position in every image and a <em>dentition</em> box around the tooth region, found by a U-Net trained on
+        the manual masks.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -1320,30 +1321,27 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         <p class="note" style="margin-top:8px">r is the effect size of the real&ndash;synthetic difference
           (rank-biserial; r&nbsp;&gt;&nbsp;0 means higher on real; |r|&nbsp;&lt;&nbsp;0.1 negligible,
           0.1&ndash;0.3 small, above 0.3 medium) and p the two-sided Mann&ndash;Whitney value. The last column gives, for scale, the range of |r| when each real
-          device is compared with the other three on the same measure. Dice is the overlap with the tooth region
-          the prompt was built from; against the manual masks MedSAM reaches 0.83 with tooth-region prompts and
-          0.78 with the dentition box.</p>
+          device is compared with the other three on the same measure. Dice is the overlap between MedSAM's mask
+          and the U-Net tooth region; against the manual masks MedSAM reaches 0.78 with the dentition box.</p>
       </div>
 
       <figure class="fig">
-        <img loading="lazy" decoding="async" src="assets/img/medsam_probe.jpg" alt="MedSAM masks on twelve real and twelve synthetic radiographs with tooth-region prompts">
-        <figcaption><b>Same prompts, same model, both sets.</b> MedSAM with tooth-region prompts on real radiographs,
-          three from each labelled device, and on PanoDiff-SR radiographs. Yellow boxes are the prompts, cyan the
-          union of MedSAM's masks; the badge is its mean predicted mask quality.
+        <img loading="lazy" decoding="async" src="assets/img/medsam_probe.jpg" alt="MedSAM masks on twelve real and twelve synthetic radiographs with the dentition-box prompt">
+        <figcaption><b>Same prompt, same model, both sets.</b> MedSAM with the dentition-box prompt on real
+          radiographs, three from each labelled device, and on PanoDiff-SR radiographs. The yellow box is the
+          prompt, drawn around the U-Net tooth region in the same way on both sets; the cyan contour is MedSAM's
+          mask; the badge is its predicted mask quality.
           <span class="note">Paper Figure 15.</span></figcaption>
       </figure>
 
       <div class="callout">
-        <p><b>MedSAM cannot tell them apart.</b> Under all three prompts its predicted quality is almost the same
-          on both sets &mdash; 0.464 against 0.466 with the fixed box, 0.480 against 0.472 with the dentition box,
-          0.505 against 0.507 per tooth region &mdash; every difference negligible (|r|&nbsp;&le;&nbsp;0.08), and
-          not even in a consistent direction. The real devices differ from each other by more than that. The one
-          effect above negligible is that synthetic dentitions break into slightly more regions (4.2 against 3.4
-          per image), still inside the range of the real devices. A classifier trained on the two classes separates
-          them at 97.5% (&sect;<a href="#attention">8</a>); a general segmentation model does not, so what separates
-          them is a signature a detector can learn, not a property such a model relies on. The reference regions
-          come from the authors' own U-Net, used identically on both sets, and tooth regions are connected regions
-          rather than individual teeth.</p>
+        <p><b>MedSAM cannot tell them apart.</b> Under both prompts its predicted quality is almost the same
+          on both sets &mdash; 0.464 against 0.466 with the fixed box and 0.480 against 0.472 with the dentition
+          box &mdash; both differences negligible (|r|&nbsp;&le;&nbsp;0.08), and not even in a consistent
+          direction. The real devices differ from each other by more than that. A classifier trained on the two
+          classes separates them at 97.5% (&sect;<a href="#attention">8</a>); a general segmentation model does
+          not, so what separates them is a signature a detector can learn, not a property such a model relies on.
+          The reference regions come from the authors' own U-Net, used identically on both sets.</p>
       </div>
     </div>
   </section>
@@ -1421,7 +1419,15 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       <h3>Does it look like a jaw?</h3>
       <p>FID and IS have no idea what a mandible is, so four global anatomical measures were computed over 1500
         images per model: bilateral symmetry, the periodicity of the tooth row, the number of distinct enamel
-        crowns, and occlusal separation.</p>
+        crowns, and occlusal separation. All four are computed automatically from pixel intensities, in the same
+        way for every model and for the real images, in fixed regions built from the TUFTS expert masks: the tooth
+        region, made up of the pixels marked as tooth in more than 35% of the 968 non-empty teeth masks, and the
+        jaw region, made up of the pixels marked as jaw in more than half of the 1000 jaw masks. Symmetry is the
+        correlation between the jaw region and its left&ndash;right mirror image; periodicity is the share of the
+        brightness variation along the tooth row that repeats every 20 to 60 pixels, the spacing of individual
+        teeth at 1024&nbsp;&times;&nbsp;512; the crown count is the number of separate blobs formed by the tooth
+        region's brightest pixels (above its 88th percentile); and occlusal separation is how much darker the line
+        between the upper and lower tooth rows is than the fainter of the two rows.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -1434,14 +1440,14 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         </div>
         <p class="note">* differs from real at p &lt; 0.05, ** at p &lt; 10<sup>&minus;4</sup> (Mann&ndash;Whitney
           U). The last row is the fraction of images falling outside the central 98% of real radiographs on any of
-          the four measures, so the real column's 7.3% is the floor that statistic can reach. LDM's 53.9% and its
-          26.1 enamel crowns are the signature of the repeated tooth rows visible in the figure below. These
-          measures reject degenerate output reliably; they are global, and they say nothing about crown-to-root
-          proportion or root morphology.</p>
+          the four measures, so the real column's 7.3% is what a generator matching the real distribution would
+          score. LDM's 53.9% and its 26.1 enamel crowns are the signature of the repeated tooth rows visible in the
+          figure below. These measures reject noise-like output reliably; they are global, and they say nothing
+          about crown-to-root proportion or root morphology.</p>
       </div>
 
       <figure class="fig">
-        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Random samples from each direct high-resolution baseline alongside real radiographs and the two-stage pipeline">
+        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Examples from each direct high-resolution baseline alongside real radiographs and the two-stage pipeline">
         <figcaption><b>One row per model.</b> Examples from each direct high-resolution model, with real radiographs
           and the two-stage pipeline for reference. The PanoDiff-SR panels are synthetic radiographs that a majority of
           the six dentists judged real; the other rows show the examples that best meet one anatomical criterion applied
@@ -1619,8 +1625,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
   <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-  <script src="assets/data/data.js?v=2"></script>
-  <script src="app.js?v=3"></script>
+  <script src="assets/data/data.js?v=3"></script>
+  <script src="app.js?v=4"></script>
   <script src="assets/data/challenge.js?v=2"></script>
   <script type="module" src="challenge.js?v=2"></script>
 </body>
