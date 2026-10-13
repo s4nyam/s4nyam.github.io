@@ -1826,4 +1826,15 @@
     });
   })();
 
+  /* ---------------- the engine, for the question boards ----------------
+     boards/*.js build section 9 on the same substrate code and the same
+     chart helpers, so nothing there is a second implementation. */
+
+  window.SONCA = {
+    NCA: NCA, P: P, XA1: XA1, XA2: XA2, sigmoid: sigmoid, xavier: xavier, founderGenome: founderGenome,
+    magma: magma, paint: paint, histOf: histOf, gepFrom: gepFrom, sigmaSize: sigmaSize, uniqueColours: uniqueColours,
+    $: $, $$: $$, css: css, el: el, clear: clear, fmt: fmt, group: group, tipAt: tipAt, hideTip: hideTip, rgba: rgba,
+    reduceMotion: reduceMotion
+  };
+
 })();

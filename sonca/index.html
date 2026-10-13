@@ -63,6 +63,7 @@
         <a href="#runs">24 runs</a>
         <a href="#tradeoff">Trade-off</a>
         <a href="#lineage">Lineage</a>
+        <a href="#questions">Questions</a>
         <a href="#limits">Limits</a>
         <a href="#cite">Cite</a>
       </nav>
@@ -1113,10 +1114,112 @@ saturated once &sigma; &gt; 4</div>
     </div>
   </section>
 
-  <!-- ============================ 9. LIMITS ============================ -->
+  <!-- ============================ 9. QUESTIONS ============================ -->
+  <section id="questions">
+    <div class="wrap-wide">
+      <h2><span class="num">9</span>Seven questions beyond the paper</h2>
+      <!-- questions:intro -->
+
+      <div class="qpick" id="qPick" role="tablist" aria-label="Choose a question">
+        <button type="button" role="tab" id="qtab-mnist" data-q="mnist" aria-controls="qboard-mnist" aria-selected="false"><b>MNIST</b><span class="vt" data-vt="mnist"></span></button>
+        <button type="button" role="tab" id="qtab-cmnist" data-q="cmnist" aria-controls="qboard-cmnist" aria-selected="false"><b>Colored MNIST</b><span class="vt" data-vt="cmnist"></span></button>
+        <button type="button" role="tab" id="qtab-inpaint" data-q="inpaint" aria-controls="qboard-inpaint" aria-selected="false"><b>Inpainting</b><span class="vt" data-vt="inpaint"></span></button>
+        <button type="button" role="tab" id="qtab-physics" data-q="physics" aria-controls="qboard-physics" aria-selected="false"><b>Physical dynamics</b><span class="vt" data-vt="physics"></span></button>
+        <button type="button" role="tab" id="qtab-ecology" data-q="ecology" aria-controls="qboard-ecology" aria-selected="false"><b>Fish, ants, bees</b><span class="vt" data-vt="ecology"></span></button>
+        <button type="button" role="tab" id="qtab-life" data-q="life" aria-controls="qboard-life" aria-selected="false"><b>Game of Life</b><span class="vt" data-vt="life"></span></button>
+        <button type="button" role="tab" id="qtab-lenia" data-q="lenia" aria-controls="qboard-lenia" aria-selected="false"><b>Lenia creatures</b><span class="vt" data-vt="lenia"></span></button>
+      </div>
+
+      <div class="board" id="qboard-mnist" data-board="mnist" role="tabpanel" aria-labelledby="qtab-mnist" hidden>
+        <!-- board:mnist -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Classify a handwritten digit</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:mnist -->
+      </div>
+
+      <div class="board" id="qboard-cmnist" data-board="cmnist" role="tabpanel" aria-labelledby="qtab-cmnist" hidden>
+        <!-- board:cmnist -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Classify when colour lies</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:cmnist -->
+      </div>
+
+      <div class="board" id="qboard-inpaint" data-board="inpaint" role="tabpanel" aria-labelledby="qtab-inpaint" hidden>
+        <!-- board:inpaint -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Restore what was erased</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:inpaint -->
+      </div>
+
+      <div class="board" id="qboard-physics" data-board="physics" role="tabpanel" aria-labelledby="qtab-physics" hidden>
+        <!-- board:physics -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Follow a physical law</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:physics -->
+      </div>
+
+      <div class="board" id="qboard-ecology" data-board="ecology" role="tabpanel" aria-labelledby="qtab-ecology" hidden>
+        <!-- board:ecology -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Behave like a population</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:ecology -->
+      </div>
+
+      <div class="board" id="qboard-life" data-board="life" role="tabpanel" aria-labelledby="qtab-life" hidden>
+        <!-- board:life -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Run a life-like CA</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:life -->
+      </div>
+
+      <div class="board" id="qboard-lenia" data-board="lenia" role="tabpanel" aria-labelledby="qtab-lenia" hidden>
+        <!-- board:lenia -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Hold a moving creature</h3>
+            <span class="badge live">Live &mdash; built for this page</span>
+          </div>
+          <div class="boardlive"></div>
+        </div>
+        <!-- /board:lenia -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 10. LIMITS ============================ -->
   <section id="limits">
     <div class="wrap">
-      <h2><span class="num">9</span>What this does not settle</h2>
+      <h2><span class="num">10</span>What this does not settle</h2>
       <p class="lede">The claims above are bounded by the design in specific ways. These are the paper's own,
         set out so they can be weighed directly.</p>
 
@@ -1194,10 +1297,10 @@ saturated once &sigma; &gt; 4</div>
     </div>
   </section>
 
-  <!-- ============================ 10. CITE ============================ -->
+  <!-- ============================ 11. CITE ============================ -->
   <section id="cite">
     <div class="wrap">
-      <h2><span class="num">10</span>Cite this work</h2>
+      <h2><span class="num">11</span>Cite this work</h2>
 
       <p class="lede">Published open access in <i>Journal of Imaging</i> 2026, 12(10), 496, on
         9&nbsp;October&nbsp;2026 (received 11&nbsp;August, revised 15&nbsp;September, accepted
@@ -1277,6 +1380,14 @@ saturated once &sigma; &gt; 4</div>
 
   <script src="assets/data/runs.js?v=2"></script>
   <script src="app.js?v=3"></script>
+  <script src="boards/core.js?v=1"></script>
+  <script src="boards/mnist.js?v=1"></script>
+  <script src="boards/cmnist.js?v=1"></script>
+  <script src="boards/inpaint.js?v=1"></script>
+  <script src="boards/physics.js?v=1"></script>
+  <script src="boards/ecology.js?v=1"></script>
+  <script src="boards/life.js?v=1"></script>
+  <script src="boards/lenia.js?v=1"></script>
 </body>
 
 </html>
