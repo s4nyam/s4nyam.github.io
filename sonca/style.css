@@ -379,7 +379,11 @@ table.data caption { text-align: left; padding-bottom: 8px; }
 .readnum div { font-size: 13px; color: var(--text-soft); }
 .readnum b { display: block; font-size: 19px; color: var(--text); font-weight: 700; font-family: 'Barlow Semi Condensed', sans-serif; }
 
-.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.presetrows { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: start; margin-bottom: 10px; }
+.presetrows .ctl-label { padding-top: 5px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.presetnote { margin: 0 0 14px; min-height: 2.9em; max-width: none; }
+.slider.off label, .slider.off output { opacity: .45; }
 .presets button {
   font: inherit; font-size: 13px; font-weight: 700; padding: 4px 11px; border-radius: 999px;
   border: 1px solid var(--rule-strong); background: var(--panel); color: var(--text-soft); cursor: pointer;
@@ -491,6 +495,8 @@ footer p { max-width: 46em; }
 @media (max-width: 560px) {
   .triptych { grid-template-columns: 1fr; }
   .labviews { grid-template-columns: 1fr; }
+  .presetrows { grid-template-columns: 1fr; gap: 6px; }
+  .presetrows .ctl-label { padding-top: 4px; }
   .runpick { grid-template-columns: repeat(6, 1fr); }
   .anims { grid-template-columns: 1fr; }
   .figpair { grid-template-columns: 1fr; }

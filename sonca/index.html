@@ -27,7 +27,7 @@
   <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2609.19902">
 
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="style.css?v=2" rel="stylesheet">
+  <link href="style.css?v=3" rel="stylesheet">
 
   <script>
     // Resolve the theme before paint. Shares the 'theme' key with the main site,
@@ -371,10 +371,16 @@ y = W&#8322;h + b&#8322;</div>
         <div class="panel-head">
           <h3>Substrate lab</h3>
           <span class="badge live">Live &mdash; running in your browser</span>
-          <span class="hint">Pick a preset, or move the sliders. Drag on the &alpha; view to wound the grid and watch it heal.</span>
+          <span class="hint">Pick a regime or a starting pattern, or move the sliders. Drag on the &alpha; view to wound the grid and watch it heal.</span>
         </div>
 
-        <div class="presets" id="labPresets" role="group" aria-label="Parameter presets"></div>
+        <div class="presetrows">
+          <span class="ctl-label">Regimes</span>
+          <div class="presets" id="labPresets" role="group" aria-label="Parameter presets"></div>
+          <span class="ctl-label">Starting patterns</span>
+          <div class="presets" id="labPatterns" role="group" aria-label="Starting-pattern presets"></div>
+        </div>
+        <p class="note presetnote" id="labPresetNote" aria-live="polite"></p>
 
         <div class="lab">
           <div>
@@ -501,6 +507,15 @@ y = W&#8322;h + b&#8322;</div>
           PyTorch module per pixel, and its grids are smaller than the paper's 200&nbsp;&times;&nbsp;200 so a
           generation fits in a frame. The presets are named for what they show rather than after numbered
           experiments. Numbers taken from the paper appear in section&nbsp;6, drawn from the published runs.</p>
+
+        <p class="note">The starting patterns are this page&rsquo;s, not the paper&rsquo;s: <span class="mono">nca.py</span>
+          always scatters its founders at random, and scatters enough of them that it does not matter that most
+          die. A pattern built on one or two founders would usually leave an empty grid &mdash; a lone random
+          founder dies out in most runs &mdash; so pattern founders are screened. A genome is redrawn, up to forty times, until a
+          lone copy of it survives its first step and still has living descendants after 40 generations on a
+          32&nbsp;&times;&nbsp;32 scratch grid, under the settings in force. The lattice&rsquo;s thirty-six
+          founders only have to survive their first step. Nothing about the rule changes, and the wound
+          pattern is not screened at all: it is a plain random scatter.</p>
       </div>
     </div>
   </section>
@@ -1303,7 +1318,7 @@ ER  -
   <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
 
   <script src="assets/data/runs.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 
 </html>

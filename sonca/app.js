@@ -75,6 +75,16 @@
 
   function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
 
+  // a founder's genome: xavier_uniform weights, zero biases (nn.init.zeros_)
+  function xavier(g, base) {
+    var k;
+    for (k = 0; k < 36; k++) g[base + k] = (Math.random() * 2 - 1) * XA1;
+    for (k = 36; k < 38; k++) g[base + k] = 0;
+    for (k = 38; k < 42; k++) g[base + k] = (Math.random() * 2 - 1) * XA2;
+    for (k = 42; k < 44; k++) g[base + k] = 0;
+    return g;
+  }
+
   // One deterministic bit per rounded weight. nca.py uses Python's hash() of
   // the rounded, scaled value; any deterministic per-value bit preserves what
   // GHC measures, so a small integer hash stands in for it here.
@@ -108,9 +118,22 @@
       s.loci = [0, 0, 0];
     };
 
-    s.seed = function (initProb) {
-      var i, k, n = s.N;
-      s.st.fill(0); s.nx.fill(0); s.g.fill(0); s.has.fill(0); s.bud.fill(0);
+    // one founder at idx: both channels at full value, as random_tensor is
+    // torch.ones, and either fresh xavier weights or a copy of `genome`
+    s.found = function (idx, genome) {
+      var n = s.N, base = idx * P, k;
+      var v = s.alpha + (1 - s.alpha) * 1;
+      s.has[idx] = 1; s.bud[idx] = 0;
+      s.st[idx] = v; s.st[n + idx] = v;
+      if (genome) for (k = 0; k < P; k++) s.g[base + k] = genome[k];
+      else xavier(s.g, base);
+    };
+
+    // nca.py scatters founders uniformly at random. A `layout` function, if
+    // given, places them instead; the rule that runs afterwards is the same.
+    s.seed = function (initProb, layout) {
+      var n = s.N;
+      s.st.fill(0); s.nx.fill(0); s.g.fill(0); s.has.fill(0); s.bud.fill(0); s.inh.fill(0);
       s.gen = 0;
       // three weight indices fixed for the whole run, as RWSP requires
       var pick = [];
@@ -119,19 +142,14 @@
         if (pick.indexOf(c) < 0) pick.push(c);
       }
       s.loci = pick;
+      if (layout) { layout(s); return s; }
       // founders are placed uniformly at random and given xavier weights
       var want = Math.max(1, Math.round(n * initProb));
       var placed = 0, guard = 0;
       while (placed < want && guard++ < n * 40) {
         var idx = (Math.random() * n) | 0;
         if (s.has[idx]) continue;
-        s.has[idx] = 1;
-        var v = s.alpha + (1 - s.alpha) * 1;      // random_tensor is torch.ones
-        s.st[idx] = v; s.st[n + idx] = v;
-        var base = idx * P;
-        for (k = 0; k < 36; k++) s.g[base + k] = (Math.random() * 2 - 1) * XA1;
-        for (k = 38; k < 42; k++) s.g[base + k] = (Math.random() * 2 - 1) * XA2;
-        // biases stay zero, as nn.init.zeros_ leaves them
+        s.found(idx);
         placed++;
       }
       return s;
@@ -280,6 +298,49 @@
     s.resize(opts.W || 96);
     s.seed(opts.init === undefined ? 0.08 : opts.init);
     return s;
+  }
+
+  /* Founders for the lab's starting patterns. nca.py never screens its
+     founders: it scatters hundreds, and it does not matter that most of them
+     die. A pattern built on one or two founders would usually leave an empty
+     grid, so its genomes are redrawn until they pass a screen. 'solo' asks
+     only that a lone founder's first output survive the threshold and the
+     one-decimal budget check; 'trial' also asks that the lone founder still
+     have living descendants after 40 generations on a 32 x 32 scratch grid,
+     under the settings the real grid is about to run with. */
+
+  function soloSurvives(g, act, alpha) {
+    var f = act === 'tanh' ? Math.tanh : sigmoid;
+    // alone on the grid, a founder sees only itself: the centre of both channels
+    var h0 = f(g[36] + g[4] + g[13]), h1 = f(g[37] + g[22] + g[31]);
+    var y = f(g[42] + g[38] * h0 + g[39] * h1);
+    return Math.round(y * 10) / 10 > alpha;
+  }
+
+  var _trial = null;
+  function trialSurvives(g, s) {
+    if (!_trial) _trial = NCA({ W: 32, init: 0, ip: 0, ppp: 0, budget: Infinity });
+    var t = _trial, gen, i;
+    t.act = s.act; t.alpha = s.alpha; t.ip = s.ip; t.ppp = s.ppp; t.budget = s.budget;
+    t.seed(0, function (tt) { tt.found((tt.W >> 1) * tt.W + (tt.W >> 1), g); });
+    for (gen = 0; gen < 40; gen++) {
+      t.step();
+      for (i = 0; i < t.N; i++) if (t.st[i] > t.alpha) break;
+      if (i === t.N) return false;
+    }
+    return true;
+  }
+
+  // a screened founder genome for the grid s; settings under which nothing
+  // passes get the last draw rather than an endless search
+  function founderGenome(s, screen) {
+    var g = new Float32Array(P), r;
+    for (r = 0; r < 40; r++) {
+      xavier(g, 0);
+      if (!soloSurvives(g, s.act, s.alpha)) continue;
+      if (screen !== 'trial' || trialSurvives(g, s)) break;
+    }
+    return g;
   }
 
   // magma, sampled at 12 stops — the colormap the paper's grids are drawn in
@@ -783,18 +844,100 @@
     var playBtn = $('#labPlay');
     var W = 860, H = 240, L = 54, R = 118, T = 16, B = 40;
 
+    // Regimes change the parameters and keep nca.py's random scatter.
+    // Each note says what to watch for; every claim in them was checked
+    // against this port at the default 112 x 112 grid.
     var PRESETS = [
-      { id: 'dyn', name: 'Sparse and dynamic', init: 0.02, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid' },
-      { id: 'full', name: 'No mortality', init: 0.02, ip: 0.10, ppp: 0.02, budget: Infinity, act: 'sigmoid' },
-      { id: 'churn', name: 'High inheritance', init: 0.02, ip: 0.50, ppp: 0.02, budget: 4, act: 'sigmoid' },
-      { id: 'tanh', name: 'tanh substrate', init: 0.08, ip: 0.10, ppp: 0.02, budget: Infinity, act: 'tanh' },
-      { id: 'lo', name: 'Low mutation', init: 0.08, ip: 0.20, ppp: 0.02, budget: 8, act: 'sigmoid' },
-      { id: 'hi', name: 'High mutation', init: 0.08, ip: 0.20, ppp: 0.80, budget: 8, act: 'sigmoid' }
+      { id: 'dyn', name: 'Sparse and dynamic', init: 0.02, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid',
+        note: 'Experiment 1&rsquo;s parameters. A budget of 4 kills every cell after four generations, so '
+          + 'space keeps reopening and occupancy settles near a fifth of the grid. Every reopened cell is a '
+          + 'birth &mdash; the only event that makes a new genome &mdash; so the genomes keep turning over.' },
+      { id: 'full', name: 'No mortality', init: 0.02, ip: 0.10, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'Experiment 17&rsquo;s parameters. With no budget the grid fills within a hundred or so '
+          + 'generations. After that few cells die, so few new genomes form, and the GHC count falls back '
+          + 'from its peak: mutation happens only at birth.' },
+      { id: 'churn', name: 'High inheritance', init: 0.02, ip: 0.50, ppp: 0.02, budget: 4, act: 'sigmoid',
+        note: 'Experiment 9&rsquo;s parameters, which die out within a few tens of generations in the '
+          + 'paper. In this port the population survives and loses genotypic variety instead &mdash; '
+          + '&ldquo;Two things this port does not reproduce&rdquo;, below the lab, explains why.' },
+      { id: 'tanh', name: 'tanh substrate', init: 0.08, ip: 0.10, ppp: 0.02, budget: Infinity, act: 'tanh',
+        note: 'Experiment 20&rsquo;s parameters. Under tanh the live states sit on (0,&nbsp;1], so ten '
+          + 'rounded types are possible instead of five and the entropy is normalised by '
+          + '|&Sigma;|&nbsp;=&nbsp;11.' },
+      { id: 'lo', name: 'Low mutation', init: 0.08, ip: 0.20, ppp: 0.02, budget: 8, act: 'sigmoid',
+        note: '<span class="mono">ppp</span>&nbsp;=&nbsp;0.02, the rate of every long run. One side of '
+          + 'section&nbsp;7&rsquo;s trade-off: fewer genomes than at high mutation, while no single type '
+          + 'takes over and GEP keeps climbing.' },
+      { id: 'hi', name: 'High mutation', init: 0.08, ip: 0.20, ppp: 0.80, budget: 8, act: 'sigmoid',
+        note: '<span class="mono">ppp</span>&nbsp;=&nbsp;0.80, the top of the small-run sweep. Nearly '
+          + 'every birth is a new genome, so the GHC and RWSP counts almost meet &mdash; while GEP falls '
+          + 'as one rounded type spreads to most of the living cells. The other side of the trade-off.' }
     ];
 
-    var cfg = { W: 112, init: 0.08, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid' };
+    // Starting patterns change where life begins. nca.py has none of them:
+    // it always scatters founders at random. The rule that runs afterwards
+    // is unchanged, and the parameter sliders still apply.
+    var PATTERNS = [
+      { id: 'one', name: 'Single founder', layout: 'centre', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'One founder in the centre of an empty grid, so every genome that ever appears descends '
+          + 'from it and both genotype views start at a single colour. With no mortality the colony grows '
+          + 'out from that one cell until it fills the grid. GHC soon counts hundreds of genomes and several '
+          + 'times as many as RWSP, which still draws the lineage as large single-colour patches.' },
+      { id: 'two', name: 'Two lineages', layout: 'pair', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'Two unrelated founders, a quarter of the way in from either side. Their colonies grow, meet '
+          + 'and hold a frontier: once the grid is full, a cell changes lineage only when it copies a '
+          + 'neighbour across the line, and the split between the two barely moves. When the founders&rsquo; '
+          + 'outputs differ, the frontier shows even in the &alpha; channel.' },
+      { id: 'clone', name: 'Clonal colony', layout: 'clone', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'A disc of cells that all carry one genome, so GHC and RWSP both start at one colour. '
+          + 'Mutation happens only at birth, and with no mortality the only births are at the advancing '
+          + 'rim &mdash; so that is where every new colour appears, while the core often keeps the founding '
+          + 'genome for hundreds of generations.' },
+      { id: 'lattice', name: 'Founder lattice', layout: 'lattice', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'Thirty-six unrelated founders on a regular 6&nbsp;&times;&nbsp;6 lattice. Each grows into a '
+          + 'territory until the territories tile the grid, a mosaic RWSP draws as large single-colour '
+          + 'patches and GHC breaks into many genomes. A founder that fails leaves its slot to its '
+          + 'neighbours.' },
+      { id: 'wound', name: 'Wound and heal', init: 0.08, ip: 0.10, ppp: 0.02, budget: Infinity, act: 'sigmoid', woundAt: 60,
+        note: 'Experiment 19&rsquo;s parameters fill the grid; at generation 60 a disc covering about a sixth '
+          + 'of it is annihilated, state and agent together &mdash; the paper&rsquo;s proposed annihilation '
+          + 'kernel. A dead cell can be reborn only from a living neighbour, so the hole closes from its rim '
+          + 'inward, recolonised by the lineages around it. Drag on the &alpha; view to wound it again.' }
+    ];
+
+    var DEFAULT_NOTE = 'Founders scattered uniformly at random at <span class="mono">init_prob</span>, each '
+      + 'with its own Xavier-initialised genome &mdash; how <span class="mono">nca.py</span> seeds every run. '
+      + 'Pick a regime to change the parameters, or a starting pattern to change where life begins.';
+
+    function mid(s) { return (s.W >> 1) * s.W + (s.W >> 1); }
+    var LAYOUTS = {
+      centre: function (s) { s.found(mid(s), founderGenome(s, 'trial')); },
+      pair: function (s) {
+        var r = (s.W >> 1) * s.W;
+        s.found(r + (s.W >> 2), founderGenome(s, 'trial'));
+        s.found(r + ((3 * s.W) >> 2), founderGenome(s, 'trial'));
+      },
+      clone: function (s) {
+        var g = founderGenome(s, 'trial'), m = s.W >> 1, R = Math.max(3, Math.round(s.W / 14)), i, j;
+        for (i = -R; i <= R; i++) {
+          for (j = -R; j <= R; j++) if (i * i + j * j <= R * R) s.found((m + i) * s.W + (m + j), g);
+        }
+      },
+      // thirty-six founders: the cheaper screen keeps a reseed instant, and a
+      // gap left by one that fails is filled by its neighbours
+      lattice: function (s) {
+        var k = 6, a, b;
+        for (a = 0; a < k; a++) {
+          for (b = 0; b < k; b++) {
+            s.found(Math.floor((a + 0.5) * s.W / k) * s.W + Math.floor((b + 0.5) * s.W / k), founderGenome(s, 'solo'));
+          }
+        }
+      }
+    };
+
+    var cfg = { W: 112, init: 0.08, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid', layout: null, woundAt: 0 };
     var sim = NCA(cfg);
-    var hist = { gep: [], gcvp: [], clogv: [], ghc: [], rwsp: [], occ: [] };
+    var hist = { gen: [], gep: [], gcvp: [], clogv: [], ghc: [], rwsp: [], occ: [] };
     var running = !reduceMotion, raf = null, last = 0;
     var show = { gep: true, gcvp: true, clogv: true, ghc: true, rwsp: true };
 
@@ -803,9 +946,17 @@
       sim.alpha = cfg.act === 'sigmoid' ? 0.5 : 0;
       sim.ip = cfg.ip; sim.ppp = cfg.ppp; sim.budget = cfg.budget;
       if (sim.W !== cfg.W) sim.resize(cfg.W);
-      sim.seed(cfg.init);
-      hist = { gep: [], gcvp: [], clogv: [], ghc: [], rwsp: [], occ: [] };
-      render(); drawChart();
+      sim.seed(cfg.init, cfg.layout ? LAYOUTS[cfg.layout] : null);
+      hist = { gen: [], gep: [], gcvp: [], clogv: [], ghc: [], rwsp: [], occ: [] };
+      render(); measure(); drawChart();
+    }
+
+    // one generation, plus the wound a preset may have scheduled
+    function advance() {
+      sim.step();
+      if (cfg.woundAt && sim.gen === cfg.woundAt) {
+        sim.wound(sim.W >> 1, sim.H >> 1, Math.round(sim.W * 0.22));
+      }
     }
 
     function measure() {
@@ -820,6 +971,7 @@
       hist.clogv.push(clogvFrom(hh, vals, n, sim.W, sim.H));
       hist.ghc.push(g); hist.rwsp.push(r);
       hist.occ.push(alive / sim.N);
+      hist.gen.push(sim.gen);
       if (hist.gep.length > 420) {
         Object.keys(hist).forEach(function (k) { hist[k].shift(); });
       }
@@ -865,9 +1017,9 @@
       svg.appendChild(el('line', { x1: L, x2: L, y1: T, y2: T + ih, class: 'axisline' }));
       svg.appendChild(el('line', { x1: L, x2: L + iw, y1: T + ih, y2: T + ih, class: 'axisline' }));
       svg.appendChild(el('text', { x: L, y: H - 8, class: 'ticktext' },
-        n ? 'generation ' + Math.max(0, sim.gen - n + 1) : 'generation'));
+        n ? 'generation ' + hist.gen[0] : 'generation'));
       svg.appendChild(el('text', { x: L + iw, y: H - 8, class: 'ticktext', 'text-anchor': 'end' },
-        'generation ' + sim.gen));
+        'generation ' + (n ? hist.gen[n - 1] : sim.gen)));
       svg.appendChild(el('text', {
         x: 13, y: T + ih / 2, class: 'ticktext', 'text-anchor': 'middle',
         transform: 'rotate(-90 13 ' + (T + ih / 2) + ')'
@@ -915,31 +1067,64 @@
       raf = requestAnimationFrame(loop);
       if (!running || t - last < 70) return;
       last = t;
-      sim.step(); render();
+      advance(); render();
       if (sim.gen % 2 === 0) { measure(); drawChart(); }
     }
 
-    // presets
-    var pres = $('#labPresets');
-    PRESETS.forEach(function (p, i) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.textContent = p.name;
-      b.setAttribute('aria-pressed', i === 0 ? 'false' : 'false');
-      b.addEventListener('click', function () {
-        $$('button', pres).forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
-        cfg.init = p.init; cfg.ip = p.ip; cfg.ppp = p.ppp; cfg.budget = p.budget; cfg.act = p.act;
-        $('#labInit').value = p.init; $('#oLabInit').textContent = fmt(p.init, 3);
-        $('#labIp').value = p.ip; $('#oLabIp').textContent = fmt(p.ip, 2);
-        $('#labPpp').value = p.ppp; $('#oLabPpp').textContent = fmt(p.ppp, 2);
-        $('#labBudget').value = isFinite(p.budget) ? p.budget : 21;
-        $('#oLabBudget').textContent = isFinite(p.budget) ? p.budget : '∞';
-        $$('button[data-act]').forEach(function (o) {
-          o.setAttribute('aria-pressed', o.getAttribute('data-act') === p.act);
-        });
-        reseed();
+    // presets: one pressed at a time across both rows, its note shown below them
+    var labEl = $('#lab'), noteEl = $('#labPresetNote');
+    var initRow = $('#labInit').closest('.slider');
+    var current = null;
+
+    function choose(p, b) {
+      $$('.presets button', labEl).forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
+      current = p;
+      if (p.init !== undefined) cfg.init = p.init;
+      cfg.ip = p.ip; cfg.ppp = p.ppp; cfg.budget = p.budget; cfg.act = p.act;
+      cfg.layout = p.layout || null; cfg.woundAt = p.woundAt || 0;
+      $('#labInit').value = cfg.init; $('#oLabInit').textContent = fmt(cfg.init, 3);
+      $('#labIp').value = p.ip; $('#oLabIp').textContent = fmt(p.ip, 2);
+      $('#labPpp').value = p.ppp; $('#oLabPpp').textContent = fmt(p.ppp, 2);
+      $('#labBudget').value = isFinite(p.budget) ? p.budget : 21;
+      $('#oLabBudget').textContent = isFinite(p.budget) ? p.budget : '∞';
+      $$('button[data-act]').forEach(function (o) {
+        o.setAttribute('aria-pressed', o.getAttribute('data-act') === p.act);
       });
-      pres.appendChild(b);
-    });
+      // a starting pattern places its own founders, so init_prob sits idle
+      initRow.classList.toggle('off', !!cfg.layout);
+      noteEl.innerHTML = p.note;
+      reseed();
+    }
+
+    function release() {
+      $$('.presets button', labEl).forEach(function (o) { o.setAttribute('aria-pressed', 'false'); });
+      current = null; cfg.layout = null; cfg.woundAt = 0;
+      initRow.classList.remove('off');
+      noteEl.innerHTML = DEFAULT_NOTE;
+    }
+
+    // A preset stays pressed only while the grid runs what its note describes.
+    // Regimes, and the scheduled wound, describe parameters, so any parameter
+    // that moves releases them. Layouts describe where founders go, so only
+    // init_prob — the random scatter's own knob — releases those.
+    function paramMoved(key) {
+      if (!current) return;
+      if (current.layout && key !== 'init') return;
+      release();
+    }
+
+    function addPresets(list, host) {
+      list.forEach(function (p) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = p.name;
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', function () { choose(p, b); });
+        host.appendChild(b);
+      });
+    }
+    addPresets(PRESETS, $('#labPresets'));
+    addPresets(PATTERNS, $('#labPatterns'));
+    noteEl.innerHTML = DEFAULT_NOTE;
 
     // ip, ppp and the budget take effect on the running grid; init_prob and the
     // grid size cannot, so those reseed — on 'change', not on every drag frame.
@@ -947,6 +1132,7 @@
       var inp = $(id), o = $(out);
       inp.addEventListener('input', function () {
         var v = parseFloat(inp.value);
+        if (key !== 'W') paramMoved(key);
         if (key === 'budget') {
           cfg.budget = v >= 21 ? Infinity : v;
           o.textContent = v >= 21 ? '∞' : v;
@@ -966,14 +1152,14 @@
     bind('#labBudget', '#oLabBudget', 'budget', function (v) { return v; });
     bind('#labSize', '#oLabSize', 'W', function (v) { return v; }, true);
 
-    group(document, 'data-act', function (v) { cfg.act = v; reseed(); });
+    group(document, 'data-act', function (v) { cfg.act = v; paramMoved('act'); reseed(); });
 
     playBtn.addEventListener('click', function () {
       running = !running;
       playBtn.textContent = running ? 'Pause' : 'Play';
     });
     $('#labStep').addEventListener('click', function () {
-      sim.step(); render(); measure(); drawChart();
+      advance(); render(); measure(); drawChart();
     });
     $('#labReset').addEventListener('click', reseed);
 
@@ -1020,7 +1206,7 @@
           + (s.axis === 'r' ? Math.round(val).toLocaleString() : fmt(val, 3)) + '</div>';
       }).join('');
       tipAt(tip, svg, W, H, L + (W - L - R) * i / (n - 1), T,
-        '<b>generation ' + (sim.gen - n + 1 + i) + '</b>' + rows);
+        '<b>generation ' + hist.gen[i] + '</b>' + rows);
     });
     svg.addEventListener('pointerleave', function () { hideTip(tip); });
   })();
