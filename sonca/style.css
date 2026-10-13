@@ -452,18 +452,6 @@ table.data caption { text-align: left; padding-bottom: 8px; }
 /* ---------- cite ---------- */
 
 pre.bib { background: var(--bg-sunk); border: 1px solid var(--rule); padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
-pre.bib[hidden] { display: none; }
-pre.bib.flow { white-space: pre-wrap; word-break: break-word; }
-
-/* citation format switcher */
-.citetabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
-.citetab {
-  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
-  padding: 5px 13px; border-radius: 999px; border: 1px solid var(--rule-strong);
-  background: var(--panel); color: var(--text-soft);
-}
-.citetab:hover { border-color: var(--navy); color: var(--navy); }
-.citetab[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: var(--bg); }
 
 /* a run panel that cannot be loaded, in place of a broken image */
 .shotmiss {
