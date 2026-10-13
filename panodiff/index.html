@@ -472,8 +472,9 @@
       </div>
 
       <h3>What each stage costs</h3>
-      <p>The split is only worth making if it is cheaper, so the paper measures it. Both stages were profiled back
-        to back on the same single 47&nbsp;GB GPU.</p>
+      <p>The split is only worth making if it is cheaper, so the paper measures it. The training figures refer to
+        a single RTX 6000 Ada GPU with 47&nbsp;GB of memory; the inference times were measured for both stages back
+        to back on the GPU used for the comparisons of &sect;<a href="#baselines">10</a>.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -504,8 +505,7 @@
         </div>
         <div class="takeaway">
           <span class="statnum">1 GPU</span>
-          <p>Everything in this paper &mdash; both trainings and all 7243 generated radiographs &mdash; ran on one
-            RTX 6000 Ada.</p>
+          <p>Both trainings and the generation of all 7243 radiographs ran on one RTX 6000 Ada.</p>
         </div>
       </div>
     </div>
@@ -562,8 +562,8 @@
       <figure class="fig">
         <img loading="lazy" decoding="async" src="assets/img/tsne_sources.png" alt="t-SNE of 500 random images from each of the five source datasets, forming distinguishable clusters">
         <figcaption><b>Five devices, five neighbourhoods.</b> t-SNE of 500 random images per source dataset.
-          The clusters separate, which is exactly why the paper later stratifies its FID by device
-          (&sect;<a href="#baselines">10</a>) rather than reporting one pooled number and stopping.</figcaption>
+          The clusters separate, which is exactly why the paper later compares the synthetic set with each device
+          separately (&sect;<a href="#baselines">10</a>) rather than reporting one pooled number and stopping.</figcaption>
       </figure>
 
       <div class="panel">
@@ -750,8 +750,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           reach a somewhat higher precision (0.43 against 0.28), but they cover almost none of the real
           distribution (recall 0.015 against 0.22) &mdash; the limited diversity adversarial training is known for,
           measured rather than assumed (&sect;<a href="#metrics">6</a>). The two models were trained under their own
-          recommended settings, so this does not equalise parameter count, training iterations or compute; the
-          controlled version of that question is in &sect;<a href="#baselines">10</a>.</p>
+          recommended settings, so this does not equalise parameter count, training iterations or compute;
+          &sect;<a href="#baselines">10</a> compares generators trained under a comparable training budget.</p>
       </div>
     </div>
   </section>
@@ -807,7 +807,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       <div class="panel">
         <div class="panel-head">
           <h3>Super-resolution ablation</h3>
-          <span class="badge repo">Full sweep behind paper &sect;3.4</span>
+          <span class="badge repo">Repository ablation</span>
           <span class="hint">Switch the metric. Bars are scaled within each metric.</span>
         </div>
         <div class="controls">
@@ -825,6 +825,10 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
             is LPIPS that agrees with what the crops below look like. Fine-tuning takes LPIPS from 0.274 to
             0.116; the last of that comes from weight averaging.</p>
         </div>
+        <p class="note" style="margin-top:10px">The paper reports the effect of fine-tuning on held-out images
+          (paper &sect;3.4): on the 185 radiographs of the DENTEX validation and test sets that are not in the
+          training corpus, downsampled fourfold and restored, fine-tuning lowers LPIPS from 0.310 with the
+          released HAT weights to 0.137.</p>
       </div>
 
       <figure class="fig">
@@ -837,36 +841,14 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
       <h3>HAT against SwinIR</h3>
       <p>Both upscalers start from weights pre-trained on natural images and were fine-tuned on the same 7243
-        radiograph pairs. On generated seeds HAT-SR brings both generators closer to the real radiographs than
-        SwinIR does (&sect;<a href="#metrics">6</a>), and the reason is visible in the arm viewer below: the
+        radiographs, each with the objective and degradations of its original training recipe: a pixel loss on
+        fixed fourfold downsampling for SwinIR, and pixel, perceptual and adversarial losses on varied
+        degradations for HAT-SR. HAT-SR brings both generators closer to the real radiographs than SwinIR does
+        on FID and KID (&sect;<a href="#metrics">6</a>), and the reason is visible in the arm viewer below: the
         fine-tuned SwinIR returns something close to a smooth enlargement of its input. Measured with a Laplacian
         filter over all 7243 images, PanoDiff's samples keep about 4% of the high-frequency energy of real
-        radiographs after SwinIR, against about 80% after HAT-SR.</p>
-      <p>Restoring real radiographs shows where that comes from. The test uses the 185 radiographs of the DENTEX
-        validation and test sets that are not in the training corpus (the other 115 of those 300 are
-        pixel-identical to DENTEX training images), prepared exactly as the corpus was, downsampled fourfold and
-        restored. With their released natural-image weights the two networks are perceptually close (LPIPS 0.310
-        against 0.291). Fine-tuning separates them in opposite directions: SwinIR becomes the best of the four on
-        PSNR and SSIM, HAT-SR the best on LPIPS, and each ordering holds on all 185 images.</p>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Restoring 185 held-out radiographs</h3>
-          <span class="badge paper">Paper Table 10</span>
-        </div>
-        <div class="tablewrap">
-          <table class="data" id="swinTable">
-            <thead><tr><th>Variant</th><th>PSNR &uarr;</th><th>SSIM &uarr;</th><th>LPIPS &darr;</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <p class="note">Winning on the distortion measures while losing on the perceptual one is the
-          perception&ndash;distortion trade-off, and it has been reported for dental radiographs too. Two things
-          drive it here. SwinIR was fine-tuned with a pixel loss alone, which favours smooth averages, and HAT-SR
-          with pixel, perceptual and adversarial terms. And SwinIR was fine-tuned on exactly this fixed fourfold
-          downsampling, HAT-SR on varied blur, noise and compression, so the table measures restoration from
-          this one degradation rather than super-resolution in general.</p>
-      </div>
+        radiographs after SwinIR, against about 80% after HAT-SR; for FastGAN's samples the shares are about 8%
+        and 60%.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -1007,8 +989,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         (KID) say how far apart two sets are; KID is unbiased, so it depends less on the number of images.
         Precision and recall say where a distance comes from: <b>precision</b> is the share of generated images
         that lie close to real ones (fidelity), <b>recall</b> the share of real images that lie close to generated
-        ones (coverage). Both generators were trained from scratch on the 7243 real radiographs, and both
-        upscalers fine-tuned on the same 7243, so every arm has seen the same data.</p>
+        ones (coverage). Both generators were trained from randomly initialised weights on the 7243 real
+        radiographs, and both upscalers were fine-tuned on the same 7243.</p>
 
       <div class="panel">
         <div class="panel-head">
@@ -1024,13 +1006,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         </div>
         <p class="note" style="margin-top:8px">Numbers are the source indices of the paper's Table 8. KID is the mean
           &plusmn; sd over 100 subsets of 1000 images. Precision and recall use the same Inception features with
-          k&nbsp;=&nbsp;3 nearest neighbours. PanoDiff with HAT-SR is the closest generated arm to the real
-          radiographs on all four measures, each by a wide margin. The last two rows apply the same upscalers to
-          the <em>real</em> low-resolution images, which isolates the upscaling step: both land far closer to the
-          real set than any generated arm, so most of the remaining distance comes from the generator. There the
-          order reverses &mdash; with a real input the correct output exists, a pixel-loss network returns a smooth
-          estimate that stays close to it, and a network trained with adversarial terms resynthesises detail that
-          is plausible but not this radiograph's. On generated seeds there is no true detail to stay close to.</p>
+          k&nbsp;=&nbsp;3 nearest neighbours. At full resolution, PanoDiff with HAT-SR is the closest of the four
+          combinations to the real radiographs on all four measures, each by a wide margin.</p>
       </div>
 
       <figure class="fig">
@@ -1039,9 +1016,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           feature space, out to its third-nearest neighbour in its own set. Top row: for each generated image, its
           distance to the nearest real image in units of that neighbourhood; images left of the dashed line lie
           inside a real neighbourhood, and their share is the precision. Bottom row: the same for each real image
-          against the generated set; the share inside is the recall. FastGAN's curve sits slightly further inside
-          than PanoDiff's in the top row and almost entirely outside in the bottom row: realistic-looking samples
-          that cover almost none of the real distribution.
+          against the generated set; the share inside is the recall. At low resolution, FastGAN has a higher
+          precision than PanoDiff but a very low recall, which shows the limited diversity that adversarial
+          training is known for.
           <span class="note">Paper Figure 17.</span></figcaption>
       </figure>
 
@@ -1062,8 +1039,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           coverage. Inception score never looks at the real data at all &mdash; it rewards an ImageNet classifier
           being confident and varied, which is why a model can improve on IS while drifting away from the
           distribution it is supposed to be modelling. That happens twice on this page: in the diffusion ablation,
-          and with the SwinIR arms, which score above real radiographs. None of these metrics was designed for
-          radiographs, and none knows what a mandible is. That is what the next sections are for.</p>
+          and with PanoDiff's samples after SwinIR, which score above the real radiographs. None of these metrics
+          was designed for radiographs, and none knows what a mandible is. That is what the next sections are
+          for.</p>
       </div>
     </div>
   </section>
@@ -1279,10 +1257,12 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
       <figure class="fig">
         <img loading="lazy" decoding="async" src="assets/img/attn_process.png" alt="How the attention statistics are computed: a radiograph, its attention map, the anatomical templates, and the distributions over the held-out set">
-        <figcaption><b>How the attention statistics are computed.</b> A held-out radiograph (1), the
-          attention-rollout map the real-versus-synthetic ViT produces for it (2), and the fixed anatomical templates
-          (3); three numbers follow for every image. Bottom (4): their distributions over the 1449 real and 1449
-          synthetic held-out radiographs. The entropy separates the two classes; the anatomical shares barely do.
+        <figcaption><b>Attention statistics.</b> A held-out radiograph (1), the corresponding
+          attention-rollout map from the real-versus-synthetic ViT (2), and the fixed anatomical templates
+          (3). For every image, the share of attention inside the teeth template, inside the jaw template, and
+          the entropy of the map were calculated. Bottom (4): their distributions over the 1449 real and 1449
+          synthetic held-out radiographs. The entropy separates the two classes, whereas the anatomical shares
+          overlap considerably.
           <span class="note">Paper Figure 14.</span></figcaption>
       </figure>
     </div>
@@ -1292,17 +1272,17 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
   <section id="medsam">
     <div class="wrap">
       <h2><span class="num">9</span>A segmentation model that has never seen the data</h2>
-      <p class="lede">The classifier above was trained to find differences. MedSAM was not. Prompted identically on
-        real and synthetic radiographs, it segments synthetic teeth exactly as it segments real ones.</p>
+      <p class="lede">MedSAM was trained on neither set. Prompted identically on real and synthetic radiographs,
+        it segments synthetic teeth as readily as real ones.</p>
 
       <p>MedSAM is a general medical segmentation model, fine-tuned from SAM on over 1.5 million image&ndash;mask
-        pairs from various imaging modalities and organs. Given a box around an object it returns a mask and a score for how
+        pairs from various imaging modalities and organs, none of them a real or synthetic image used in this
+        study. Given a box around an object it returns a mask and a score for how
         good it believes that mask to be. If synthetic teeth look like real teeth to such a model, it should segment
         them with the same confidence and accuracy. It was run on all 7243 synthetic radiographs and on the 2697
         real radiographs that have a manual tooth mask: 500 ADLD, 634 DENTEX, 598 TSXK and 1000 TUFTS, less 35 with
-        an empty mask. The real radiographs were prepared exactly as the training corpus was, so both sets are
-        framed alike &mdash; straight from the source files, their dentition would cover a quarter less of the
-        image, and every measure would read that as anatomy. Every image received the same two kinds of box prompt: a <em>fixed</em> box at the same
+        an empty mask. The real radiographs were prepared exactly as the training corpus was. Every image
+        received the same two kinds of box prompt: a <em>fixed</em> box at the same
         position in every image and a <em>dentition</em> box around the tooth region, found by a U-Net trained on
         the manual masks.</p>
 
@@ -1335,12 +1315,13 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       </figure>
 
       <div class="callout">
-        <p><b>MedSAM cannot tell them apart.</b> Under both prompts its predicted quality is almost the same
-          on both sets &mdash; 0.464 against 0.466 with the fixed box and 0.480 against 0.472 with the dentition
-          box &mdash; both differences negligible (|r|&nbsp;&le;&nbsp;0.08), and not even in a consistent
-          direction. The real devices differ from each other by more than that. A classifier trained on the two
-          classes separates them at 97.5% (&sect;<a href="#attention">8</a>); a general segmentation model does
-          not, so what separates them is a signature a detector can learn, not a property such a model relies on.
+        <p><b>MedSAM treats the two sets almost the same.</b> Under both prompts its predicted quality differs
+          little between them: 0.464 against 0.466 with the fixed box and 0.480 against 0.472 with the dentition
+          box. Both differences are negligible (|r|&nbsp;&le;&nbsp;0.08), and not even in a consistent
+          direction. The real devices differ from each other by more than that. In concrete terms, a segmentation
+          model that was trained on neither set segments the teeth of a synthetic radiograph as readily as those
+          of a real one, which indicates that the dental anatomy in the synthetic images is realistic enough for
+          an off-the-shelf medical imaging model to process.
           The reference regions come from the authors' own U-Net, used identically on both sets.</p>
       </div>
     </div>
@@ -1350,19 +1331,20 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
   <section id="baselines">
     <div class="wrap">
       <h2><span class="num">10</span>Is the two-stage split actually the right call?</h2>
-      <p class="lede">Six models trained from scratch at full resolution on the same 7243 radiographs under a
-        comparable budget, to test the premise the whole pipeline rests on. The answer is not a clean win.</p>
+      <p class="lede">Six models trained from randomly initialised weights at full resolution on the same 7243
+        radiographs under a comparable budget, to test the premise the whole pipeline rests on. The answer is not
+        a clean win.</p>
 
-      <p>The main purpose of PanoDiff-SR is efficient synthesis, which is why the rest of the paper compares it with
-        FastGAN, a GAN built for low training cost that fits the same small-generator-plus-upscaler setting. Generating
-        directly at 1024&nbsp;&times;&nbsp;512 is the control that has to be run once: StyleGAN2-ADA, StyleGAN3,
-        FastGAN-HR, ADM, LDM and PanoDiff-HR &mdash; the same model as PanoDiff but trained at full resolution &mdash;
-        all on the same data and with comparable iterations and training budget.</p>
+      <p>Generating directly at 1024&nbsp;&times;&nbsp;512 is the alternative to the two-stage design. Six
+        generators were trained that way: StyleGAN2-ADA, StyleGAN3, FastGAN-HR, ADM, LDM and PanoDiff-HR, a
+        variant of PanoDiff in which the U-Net was widened to operate at full resolution. All were trained on the
+        same data, with comparable iterations and training budget, and are compared with the two-stage pipeline
+        on the metrics of &sect;<a href="#metrics">6</a>.</p>
 
       <div class="panel">
         <div class="panel-head">
           <h3>Direct high-resolution synthesis against the two-stage pipeline</h3>
-          <span class="badge paper">Paper Table 11</span>
+          <span class="badge paper">Paper Table 10</span>
           <span class="hint">Hover a point. Down and left is better on both axes.</span>
         </div>
         <div class="chartbox">
@@ -1377,82 +1359,88 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         </div>
         <div class="tablewrap" style="margin-top:14px">
           <table class="data" id="hrTable">
-            <thead><tr><th>Model</th><th>Family</th><th>FID &darr;</th><th>IS &uarr;</th><th>Precision % &uarr;</th><th>Recall % &uarr;</th><th>ViT detect % &darr;</th><th>Cost (acc.-h)</th></tr></thead>
+            <thead><tr><th>Model</th><th>Family</th><th>FID &darr;</th><th>IS &uarr;</th><th>Precision % &uarr;</th><th>Recall % &uarr;</th><th>ViT detect % &darr;</th><th>Cost (GPU-h)</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="note" style="margin-top:8px">&dagger; The two-stage rows were timed per training step on the same
-          accelerator as the other rows and multiplied by their number of steps; the SR stage is 61.5 of these hours.
+        <p class="note" style="margin-top:8px">Training cost is in GPU-hours, all on the same type of GPU.
+          &dagger; For the two-stage rows it is the measured time per training step of each stage multiplied by
+          its number of steps; the SR stage is 61.5 of these hours.
           Precision (fidelity) and recall (coverage) are computed image by image as in Paper Figure 17, with k = 3.</p>
         <div class="callout">
           <p><b>Four things this table settles, one of them against the paper.</b></p>
           <ul>
-            <li><b>The split works.</b> PanoDiff-HR &mdash; the identical model trained directly at full
-              resolution &mdash; scores FID 155.4 against the two-stage pipeline's 40.5, and costs more to train
-              (120 against 82 accelerator-hours). Generating small and upscaling is not a compromise here, it is
-              the thing that makes the model work at all.</li>
+            <li><b>The split works.</b> PanoDiff-HR, the variant of PanoDiff with a U-Net widened to
+              operate at full resolution, scores FID 155.4 against the two-stage pipeline's 40.5 and
+              needs more training (120 against 82 GPU-hours). ADM and LDM also fall behind the two-stage
+              pipeline, and FastGAN followed by HAT-SR is about twice as close to the real data as FastGAN
+              trained directly at full resolution. In both families, generating on a small grid and adding
+              resolution in a single pass gives better images at this data scale.</li>
             <li><b>The two StyleGANs beat it on FID.</b> 23.5 and 19.4 against 40.5, and the real-versus-synthetic
               classifier finds them harder to spot (89.6% and 77.9% against 97.6%). They are also the most
-              expensive models here, at 441 and 572 accelerator-hours against 82.</li>
+              expensive models here, at 441 and 572 GPU-hours against 82, so PanoDiff-SR is five to seven times
+              cheaper to train. Of the direct high-resolution models, only the LDM and FastGAN-HR, both far
+              behind on FID, are cheaper to train than PanoDiff-SR.</li>
             <li><b>Their lead is fidelity, not coverage.</b> The StyleGANs put more of their images close to real
               radiographs (precision 61.1% and 67.3% against 56.2%), but PanoDiff-SR covers more of the real
               radiographs than any other model: recall 28.8% against 21.9% and 25.5% (paired McNemar tests on the
-              same 7243 real images, p &lt; 10<sup>&minus;6</sup>; the lead holds in 10 of 10 resamplings against
-              StyleGAN2-ADA and 8 of 10 against StyleGAN3).</li>
-            <li><b>No model memorised its training set.</b> For every model, the median distance from a generated
-              image to its nearest training radiograph exceeds the distance between a real radiograph and its
-              closest real neighbour (0.093; StyleGANs 0.105 and 0.102).</li>
+              same 7243 real images, p &lt; 10<sup>&minus;6</sup>). The same holds on ten random subsets of 5000
+              generated images per model: recall (mean &plusmn; standard deviation) is 29.6 &plusmn; 0.7% for
+              PanoDiff-SR, against 24.4 &plusmn; 0.5% for StyleGAN2-ADA (p &lt; 0.001, Welch's t-test) and
+              28.6 &plusmn; 0.7% for StyleGAN3 (p = 0.005), and precision is 56.1 &plusmn; 0.3%, against
+              60.9 &plusmn; 0.3% and 67.3 &plusmn; 0.3%.</li>
+            <li><b>No model copied its training images.</b> In the Inception feature space, the median distance
+              from a generated radiograph to its nearest training image exceeds the median distance between a
+              real radiograph and its nearest real neighbour, for every model in the table.</li>
           </ul>
         </div>
         <div class="callout" style="margin-top:12px">
-          <p><b>Why the six dentists were not shown the GAN arms.</b> Every published expert evaluation of GAN-generated
-            panoramic radiographs we found reports that clinicians could tell them apart or rated them unrealistic:
-            78.2% sensitivity for StyleGAN2-ADA PRs (Schoenhof et al., 2024), 82.3% for StyleGAN3 PRs with jaw cysts
-            (Fukuda et al., 2024), 81.6% mean accuracy by four dental radiologists on conditional-GAN PRs, one of them
-            without error (Fu et al., 2026), and realism scores of 2.44&ndash;2.72 out of five (Pedersen et al., 2025).
-            Where GANs and diffusion were compared directly, the GAN gave poor results and the diffusion images were
-            hard to tell from real ones (Adnan et al., 2026; Kirkwood et al., 2025). The paper therefore reads the GANs'
-            lower FID as a distributional match, not as clinical realism.</p>
+          <p><b>In summary.</b> The two-stage pipeline outperforms the direct high-resolution diffusion models and
+            is broadly on par with the two StyleGANs: these are ahead on FID and precision and are harder for the
+            classifier to detect, whereas PanoDiff-SR is ahead on recall and training cost. The observer study was
+            not repeated for these models, so a direct comparison by clinical readers is not available at this
+            point, and the value of either approach for downstream tasks remains to be determined.</p>
         </div>
       </div>
 
       <h3>Does it look like a jaw?</h3>
-      <p>FID and IS have no idea what a mandible is, so four global anatomical measures were computed over 1500
-        images per model: bilateral symmetry, the periodicity of the tooth row, the number of distinct enamel
-        crowns, and occlusal separation. All four are computed automatically from pixel intensities, in the same
+      <p>FID and IS have no idea what a mandible is, so three anatomical measures were computed over 1500
+        images per model: bilateral symmetry, the periodicity of the tooth row, and occlusal separation. All
+        three are computed automatically from pixel intensities, in the same
         way for every model and for the real images, in fixed regions built from the TUFTS expert masks: the tooth
         region, made up of the pixels marked as tooth in more than 35% of the 968 non-empty teeth masks, and the
         jaw region, made up of the pixels marked as jaw in more than half of the 1000 jaw masks. Symmetry is the
         correlation between the jaw region and its left&ndash;right mirror image; periodicity is the share of the
         brightness variation along the tooth row that repeats every 20 to 60 pixels, the spacing of individual
-        teeth at 1024&nbsp;&times;&nbsp;512; the crown count is the number of separate blobs formed by the tooth
-        region's brightest pixels (above its 88th percentile); and occlusal separation is how much darker the line
+        teeth at 1024&nbsp;&times;&nbsp;512; and occlusal separation is how much darker the line
         between the upper and lower tooth rows is than the fainter of the two rows.</p>
 
       <div class="panel">
         <div class="panel-head">
           <h3>Anatomical plausibility</h3>
-          <span class="badge paper">Paper Table 12</span>
-          <span class="hint">The real column is the target, not a winner.</span>
+          <span class="badge paper">Paper Table 11</span>
+          <span class="hint">The real row is the target, not a winner.</span>
         </div>
         <div class="tablewrap">
           <table class="data" id="anatTable"><thead></thead><tbody></tbody></table>
         </div>
-        <p class="note">* differs from real at p &lt; 0.05, ** at p &lt; 10<sup>&minus;4</sup> (Mann&ndash;Whitney
-          U). The last row is the fraction of images falling outside the central 98% of real radiographs on any of
-          the four measures, so the real column's 7.3% is what a generator matching the real distribution would
-          score. LDM's 53.9% and its 26.1 enamel crowns are the signature of the repeated tooth rows visible in the
-          figure below. These measures reject noise-like output reliably; they are global, and they say nothing
-          about crown-to-root proportion or root morphology.</p>
+        <p class="note">The three measures are given as mean &plusmn; standard deviation. * differs from real at
+          p &lt; 0.05, ** at p &lt; 10<sup>&minus;4</sup> (Mann&ndash;Whitney
+          U). The last column is the fraction of images falling outside the central 95% of real radiographs (the
+          2.5th to 97.5th percentile) on any of the three measures, so the real row's 14.4% is what a generator
+          matching the real distribution would score. The models rank in the same order with the central 98% or
+          99%. StyleGAN2-ADA, StyleGAN3 and PanoDiff-SR match the real images the most, while ADM, LDM and
+          particularly PanoDiff-HR do worse. Bold marks, in each column, the model closest to the real row.</p>
       </div>
 
       <figure class="fig">
-        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Examples from each direct high-resolution baseline alongside real radiographs and the two-stage pipeline">
-        <figcaption><b>One row per model.</b> Examples from each direct high-resolution model, with real radiographs
-          and the two-stage pipeline for reference. The PanoDiff-SR panels are synthetic radiographs that a majority of
-          the six dentists judged real; the other rows show the examples that best meet one anatomical criterion applied
-          to every row. PanoDiff-HR, which differs from PanoDiff-SR only in generating at full resolution, is
-          blurred and sparse, and the latent model repeats tooth rows.<span class="note"> Paper Figure 19.</span></figcaption>
+        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Three randomly drawn examples of real radiographs, of the two-stage pipeline and of five direct high-resolution baselines">
+        <figcaption><b>One row per model.</b> Randomly drawn examples of real radiographs, the two-stage pipeline
+          (PanoDiff-SR) and the direct high-resolution models except FastGAN-HR. The examples were not selected by
+          hand: every row shows the first three images of the random sample of 1500 images behind the table above.
+          The block of horizontal streaks at the left border of one LDM image is present in fewer than 1% of the
+          real radiographs but in about half of the LDM samples. The samples of PanoDiff-HR, the variant of PanoDiff widened to operate at full resolution,
+          are visibly blurred and low in contrast.<span class="note"> Paper Figure 19.</span></figcaption>
       </figure>
 
       <h3>Is the model closer to one device than another?</h3>
@@ -1462,7 +1450,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
       <div class="panel">
         <div class="panel-head">
-          <h3>Device-stratified FID</h3>
+          <h3>FID per source device</h3>
           <span class="badge paper">Paper &sect;4.5.3</span>
           <span class="hint">Hover a pair of bars.</span>
         </div>
@@ -1474,10 +1462,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           <span><i class="swatch" style="background:var(--synth)"></i>to the synthetic set</span>
           <span><i class="swatch" style="background:var(--real)"></i>to the pooled real corpus</span>
         </div>
-        <p class="note" style="margin-top:10px">Each device set was cropped and resized exactly as the training corpus
-          was. The synthetic set is 71.5 (TUFTS) to 102.0 (TSXK) from the five devices, a spread of 1.43&times;, while the
-          devices are 61.7 to 117.0 from one another, a spread of 1.90&times;, so the generator does not favour one
-          device beyond how much the devices already differ. The device it matches least, TSXK, is also the one most
+        <p class="note" style="margin-top:10px">The synthetic set is 71.5 (TUFTS) to 102.0 (TSXK) from the five devices, a spread of 1.43&times;, while the
+          devices are 61.7 to 117.0 from one another, a spread of 1.90&times;, so the generator does not strongly
+          favour one device. The device it matches least, TSXK, is also the one most
           distinct from the other four (mean FID 97.1, against 74.2&ndash;95.2 for the rest); five devices are too few to
           make that relation significant (Pearson r = 0.76, p = 0.13). For scale, two random halves of the real corpus
           give 37.8 at n&nbsp;=&nbsp;500.</p>
@@ -1499,14 +1486,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
             (Karras et al., 2022).</p>
         </div>
         <div class="card">
-          <h4>Separate architecture from objective</h4>
-          <p>HAT and SwinIR were fine-tuned with different losses and degradations. Fine-tuning SwinIR with HAT's
-            recipe would show how much of the difference is the architecture.</p>
-        </div>
-        <div class="card">
           <h4>Harmonise the devices</h4>
           <p>The five sources occupy different regions of feature space. Harmonising them, or conditioning the
-            generator on the device, could remove this source of variation (Guan &amp; Liu, 2022).</p>
+            generator on the device, could reduce this source of variation (Guan &amp; Liu, 2022).</p>
         </div>
         <div class="card">
           <h4>A larger reader panel</h4>
@@ -1515,13 +1497,15 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
         </div>
         <div class="card">
           <h4>Patch-level memorisation</h4>
-          <p>The memorisation test compares whole images. Diffusion models can copy training images in part
-            (Carlini et al., 2023; Somepalli et al., 2023), so a patch-level test should precede any public release.</p>
+          <p>Possible memorisation should be assessed in more depth. Diffusion models can copy training images in
+            whole or in part (Carlini et al., 2023; Somepalli et al., 2023), so a patch-level test should precede
+            any public release.</p>
         </div>
         <div class="card">
-          <h4>Synthesise lesions</h4>
-          <p>Conditioning the generator on caries or fractures would supply rare cases for detection models, as
-            synthetic lesions have done in other imaging tasks (Frid-Adar et al., 2018).</p>
+          <h4>Condition on lesions or anatomy</h4>
+          <p>The generator can be conditioned on lesions such as caries or fractures, or take an anatomical mask
+            as input. This would make synthetic data easier to use for training classification or segmentation
+            models.</p>
         </div>
       </div>
 
@@ -1535,7 +1519,7 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
   <section id="code">
     <div class="wrap">
       <h2><span class="num">12</span>Code, models and citation</h2>
-      <p class="lede">Both stages, the six baselines of Table 11, every analysis script of the paper, the
+      <p class="lede">Both stages, the six baselines of Table 10, every analysis script of the paper, the
         observer-study application the dentists actually used, and the checkpoints behind every figure on this page.</p>
 
       <div class="panel">
@@ -1625,9 +1609,9 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
   <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-  <script src="assets/data/data.js?v=3"></script>
-  <script src="app.js?v=4"></script>
-  <script src="assets/data/challenge.js?v=2"></script>
+  <script src="assets/data/data.js?v=4"></script>
+  <script src="app.js?v=5"></script>
+  <script src="assets/data/challenge.js?v=3"></script>
   <script type="module" src="challenge.js?v=2"></script>
 </body>
 

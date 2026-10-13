@@ -28,13 +28,13 @@ window.PDS_CHALLENGE = {
   "sg2ada": {
    "name": "StyleGAN2-ADA",
    "family": "GAN",
-   "about": "Trained from scratch directly at 1024 x 512 (Karras et al., 2020).",
+   "about": "Trained from randomly initialised weights directly at 1024 x 512 (Karras et al., 2020).",
    "n": 16
   },
   "sg3": {
    "name": "StyleGAN3",
    "family": "GAN",
-   "about": "Alias-free StyleGAN3-T, trained from scratch at 1024 x 512 (Karras et al., 2021).",
+   "about": "Alias-free StyleGAN3-T, trained from randomly initialised weights at 1024 x 512 (Karras et al., 2021).",
    "n": 32
   },
   "adm": {

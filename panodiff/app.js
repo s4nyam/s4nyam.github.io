@@ -536,24 +536,6 @@
     draw();
   })();
 
-  /* ---------------- 5c. SwinIR table ---------------- */
-
-  (function () {
-    var tb = $('#swinTable tbody');
-    var bestP = Math.max.apply(null, D.swinir.map(function (r) { return r.psnr; }));
-    var bestS = Math.max.apply(null, D.swinir.map(function (r) { return r.ssim; }));
-    var bestL = Math.min.apply(null, D.swinir.map(function (r) { return r.lpips; }));
-    D.swinir.forEach(function (r) {
-      var tr = document.createElement('tr');
-      if (r.name.indexOf('HAT-SR') === 0) tr.className = 'ours';
-      tr.innerHTML = '<td>' + r.name + '</td>' +
-        '<td class="' + (r.psnr === bestP ? 'best' : '') + '">' + fmt(r.psnr, 2) + '</td>' +
-        '<td class="' + (r.ssim === bestS ? 'best' : '') + '">' + fmt(r.ssim, 3) + '</td>' +
-        '<td class="' + (r.lpips === bestL ? 'best' : '') + '">' + fmt(r.lpips, 3) + '</td>';
-      tb.appendChild(tr);
-    });
-  })();
-
   /* ---------------- 5d. SR arms ---------------- */
 
   (function () {
@@ -825,7 +807,7 @@
     var note = document.createElement('p');
     note.className = 'note';
     note.style.marginTop = '6px';
-    note.innerHTML = 'The dashed outline on every bar is 78.2%, the accuracy readers reached against ' +
+    note.innerHTML = 'The dashed outline on every bar is 78.2%, the sensitivity readers reached against ' +
       'StyleGAN2-ADA radiographs (Schoenhof et al., 2024) &mdash; the benchmark this paper’s central claim ' +
       'rests on being below.';
     root.appendChild(note);
@@ -1072,10 +1054,9 @@
     var tb = $('#armsTable tbody');
     if (!tb) return;
     var rows = D.arms.toReal;
-    ['lr', 'hr', 'real'].forEach(function (res) {
+    ['lr', 'hr'].forEach(function (res) {
       var grp = rows.filter(function (r) { return r.res === res; });
       if (!grp.length) return;
-      var scale = res === 'real';          // real inputs give the scale; no bold there
       var bF = Math.min.apply(null, grp.map(function (r) { return r.fid; }));
       var bK = Math.min.apply(null, grp.map(function (r) { return r.kid; }));
       var bP = Math.max.apply(null, grp.map(function (r) { return r.p; }));
@@ -1083,13 +1064,12 @@
       var h = document.createElement('tr');
       h.innerHTML = '<td colspan="5" class="note" style="text-align:left;font-style:italic">' +
         (res === 'lr' ? 'Low resolution (256 × 128), against the 7243 real LR radiographs'
-         : res === 'hr' ? 'Full resolution (1024 × 512), against the 7243 real HR radiographs'
-         : 'For scale: the same upscalers on the real low-resolution images') + '</td>';
+         : 'Full resolution (1024 × 512), against the 7243 real HR radiographs') + '</td>';
       tb.appendChild(h);
       grp.forEach(function (r) {
         var tr = document.createElement('tr');
         if (r.ours) tr.className = 'ours';
-        var b = function (hit) { return hit && !scale ? 'best' : ''; };
+        var b = function (hit) { return hit ? 'best' : ''; };
         tr.innerHTML = '<td style="text-align:left">' + r.b + '</td>' +
           '<td class="' + b(r.fid === bF) + '">' + fmt(r.fid, 1) + '</td>' +
           '<td class="' + b(r.kid === bK) + '">' + fmt(r.kid, 1) + ' <span class="note">± ' + fmt(r.kidsd, 1) + '</span></td>' +
@@ -1158,7 +1138,7 @@
           tipAt(tip, svg, W, H, X(m.vit), Y(m.fid) - 12,
             '<b>' + m.name + '</b><div class="row"><i style="background:' + c + '"></i>' + m.family +
             ' at ' + m.res + '</div><div class="row">FID ' + fmt(m.fid, 2) + ' &middot; IS ' + fmt(m.is, 2) +
-            ' &middot; ViT ' + fmt(m.vit, 1) + '%</div><div class="row">Precision ' + fmt(m.prec, 1) + '% &middot; recall ' + fmt(m.rec, 1) + '%' + (m.cost ? ' &middot; ' + m.cost + ' acc.-h' : '') + '</div>');
+            ' &middot; ViT ' + fmt(m.vit, 1) + '%</div><div class="row">Precision ' + fmt(m.prec, 1) + '% &middot; recall ' + fmt(m.rec, 1) + '%' + (m.cost ? ' &middot; ' + m.cost + ' GPU-h' : '') + '</div>');
         });
         dot.addEventListener('mouseleave', function () { hideTip(tip); });
         g.appendChild(dot);
@@ -1198,30 +1178,26 @@
 
   (function () {
     var thead = $('#anatTable thead'), tbody = $('#anatTable tbody');
-    var cols = D.anatomy.cols;
-    thead.innerHTML = '<tr><th>Measure</th>' + cols.map(function (c, i) {
-      return '<th' + (i === 0 ? ' style="color:var(--real)"' : '') + '>' + c + '</th>';
-    }).join('') + '</tr>';
-    D.anatomy.rows.forEach(function (r) {
+    var cols = D.anatomy.cols, rows = D.anatomy.rows;
+    thead.innerHTML = '<tr><th>Images</th>' + cols.map(function (c) { return '<th>' + c + '</th>'; }).join('') +
+      '<th>Outside real range</th></tr>';
+    // distance of each mean from the real row, so "closest to real" is visible without arithmetic
+    var ref = rows[0];
+    var bestIdx = cols.map(function (c, j) {
+      var devs = rows.slice(1).map(function (r) { return Math.abs(r.v[j] - ref.v[j]); });
+      return 1 + devs.indexOf(Math.min.apply(null, devs));
+    });
+    var bestOut = Math.min.apply(null, rows.slice(1).map(function (r) { return r.outside; }));
+    rows.forEach(function (r, i) {
       var tr = document.createElement('tr');
-      // distance from the real column, so "closest to real" is visible without arithmetic
-      var ref = r.v[0];
-      var devs = r.v.map(function (v) { return Math.abs(v - ref) / Math.abs(ref); });
-      var bestIdx = 1 + devs.slice(1).indexOf(Math.min.apply(null, devs.slice(1)));
-      tr.innerHTML = '<td>' + r.name + '</td>' + r.v.map(function (v, i) {
-        var d = v >= 10 ? 1 : 3;
-        return '<td class="' + (i === bestIdx ? 'best' : '') + '"' + (i === 0 ? ' style="color:var(--real)"' : '') + '>' +
-          fmt(v, d) + '<span class="sig">' + r.sig[i] + '</span></td>';
-      }).join('');
+      var real = i === 0 ? ' style="color:var(--real)"' : '';
+      tr.innerHTML = '<td' + real + '>' + r.name + '</td>' + r.v.map(function (v, j) {
+        return '<td class="' + (i === bestIdx[j] ? 'best' : '') + '"' + real + '>' + fmt(v, 3) +
+          ' <span class="note">± ' + fmt(r.sd[j], 3) + '</span><span class="sig">' + r.sig[j] + '</span></td>';
+      }).join('') +
+        '<td class="' + (i > 0 && r.outside === bestOut ? 'best' : '') + '"' + real + '>' + fmt(r.outside, 1) + '%</td>';
       tbody.appendChild(tr);
     });
-    var tr = document.createElement('tr');
-    var best = Math.min.apply(null, D.anatomy.outside.slice(1));
-    tr.innerHTML = '<td><b>Outside real range</b></td>' + D.anatomy.outside.map(function (v, i) {
-      return '<td class="' + (i > 0 && v === best ? 'best' : '') + '"' + (i === 0 ? ' style="color:var(--real)"' : '') +
-        '>' + fmt(v, 1) + '%</td>';
-    }).join('');
-    tbody.appendChild(tr);
   })();
 
   /* ---------------- 9c. device bars ---------------- */
