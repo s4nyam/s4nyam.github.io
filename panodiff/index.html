@@ -1434,12 +1434,13 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
       </div>
 
       <figure class="fig">
-        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Three randomly drawn examples of real radiographs, of the two-stage pipeline and of five direct high-resolution baselines">
-        <figcaption><b>One row per model.</b> Randomly drawn examples of real radiographs, the two-stage pipeline
-          (PanoDiff-SR) and the direct high-resolution models except FastGAN-HR. The examples were not selected by
-          hand: every row shows the first three images of the random sample of 1500 images behind the table above.
-          The block of horizontal streaks at the left border of one LDM image is present in fewer than 1% of the
-          real radiographs but in about half of the LDM samples. The samples of PanoDiff-HR, the variant of PanoDiff widened to operate at full resolution,
+        <img loading="lazy" decoding="async" src="assets/img/directhr.jpg" alt="Three hand-picked examples of real radiographs, of the two-stage pipeline and of five direct high-resolution baselines">
+        <figcaption><b>One row per model.</b> Examples of real radiographs, the two-stage pipeline
+          (PanoDiff-SR) and the direct high-resolution models except FastGAN-HR. The three examples of each row were
+          chosen by hand and are not a random sample. None shows extensive crown or bridge work, and none shows the
+          block of horizontal streaks at the image border that occurs in fewer than 1% of the real radiographs, in
+          about 3% of the PanoDiff-SR samples and in more than half of the LDM samples; the rows therefore show the
+          cleaner images of each set. The samples of PanoDiff-HR, the variant of PanoDiff widened to operate at full resolution,
           are visibly blurred and low in contrast.<span class="note"> Paper Figure 19.</span></figcaption>
       </figure>
 
