@@ -23,7 +23,8 @@
   if (!S || !section) return;
   var $ = S.$, $$ = S.$$;
 
-  var inits = {}, boards = {}, current = null, onScreen = false, raf = null;
+  var inits = {}, boards = {}, current = null, onScreen = false, near = false, raf = null;
+  var VERSION = 1, requested = {};
 
   /* ---------------- the kit every board gets ---------------- */
 
@@ -239,6 +240,18 @@
     inits[key] = init;
     if (current === key) open(key);
   };
+
+  // a board's script loads the first time its tab is picked while the section
+  // is near the screen, so the page does not pay for seven boards up front
+  function need(key) {
+    if (inits[key] || requested[key] || !near) return;
+    requested[key] = true;
+    kit.load('boards/' + key + '.js?v=' + VERSION, function (err) {
+      if (!err) return;
+      var live = $('[data-board="' + key + '"] .boardlive', section);
+      if (live) live.innerHTML = '<p class="note">This board could not be loaded. Reload the page to try again.</p>';
+    });
+  }
   S.kit = kit;
 
   var pick = $('#qPick');
@@ -267,6 +280,7 @@
     });
     $$('[data-board]', section).forEach(function (p) { p.hidden = p.getAttribute('data-board') !== key; });
     if (!quiet) { try { history.replaceState(null, '', '#q-' + key); } catch (e) { } }
+    need(key);
     open(key);
   }
 
@@ -302,8 +316,12 @@
       onScreen = es[es.length - 1].isIntersecting;
       loop();
     }, { rootMargin: '120px 0px' }).observe(section);
+    new IntersectionObserver(function (es) {
+      near = es[es.length - 1].isIntersecting;
+      if (near && current) need(current);
+    }, { rootMargin: '900px 0px' }).observe(section);
   } else {
-    onScreen = true;
+    onScreen = near = true;
   }
   document.addEventListener('visibilitychange', loop);
 
@@ -315,5 +333,18 @@
 
   var want = /^#q-([a-z]+)$/.exec(location.hash);
   select(want && $('[data-board="' + want[1] + '"]', section) ? want[1] : tabs[0].getAttribute('data-q'), false, true);
-  if (want) setTimeout(function () { section.scrollIntoView(); }, 0);
+
+  // A deep link lands before the figures above have their height, so keep the
+  // section at the top while the layout settles, until the visitor scrolls.
+  if (want) {
+    var stop = false, t0 = Date.now();
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (ev) {
+      window.addEventListener(ev, function () { stop = true; }, { once: true, passive: true });
+    });
+    (function settle() {
+      if (stop || Date.now() - t0 > 5000) return;
+      if (Math.abs(section.getBoundingClientRect().top - 56) > 4) section.scrollIntoView({ behavior: 'instant', block: 'start' });
+      setTimeout(settle, 150);
+    })();
+  }
 })();

@@ -488,9 +488,9 @@ footer p { max-width: 46em; }
 
 canvas.cv {
   width: 100%; aspect-ratio: 1; display: block; background: var(--void);
-  border: 1px solid var(--rule-strong); image-rendering: pixelated; touch-action: none;
+  border: 1px solid var(--rule-strong); image-rendering: pixelated;
 }
-canvas.cv.draw { cursor: crosshair; }
+canvas.cv.draw { cursor: crosshair; touch-action: none; }
 .cvrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .cvfig { margin: 0; min-width: 0; }
 .cvfig figcaption {

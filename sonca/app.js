@@ -54,6 +54,12 @@
     tip.classList.add('on');
   }
   function hideTip(tip) { tip.classList.remove('on'); }
+  // cb(true/false) as el comes on or goes off screen, so a live grid can stop
+  // stepping while nobody can see it
+  function onScreen(el, cb) {
+    if (!el || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function (es) { cb(es[es.length - 1].isIntersecting); }, { rootMargin: '80px 0px' }).observe(el);
+  }
   // '#rrggbb' -> 'rgba(...)'. Needed because a CSS custom property cannot be
   // alpha-adjusted directly, and the min-max bands are translucent.
   function rgba(hex, a) {
@@ -528,7 +534,8 @@
     var cvA = $('#heroAlpha'), cvG = $('#heroGhc'), cvR = $('#heroRwsp');
     var genOut = $('#heroGen'), playBtn = $('#heroPlay');
     var sim = NCA({ W: 120, init: 0.06, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid' });
-    var running = !reduceMotion, last = 0, raf = null;
+    var running = !reduceMotion, last = 0, raf = null, heroOn = true;
+    onScreen($('.triptych'), function (v) { heroOn = v; });
 
     function draw() {
       paint(cvA, sim, 'alpha'); paint(cvG, sim, 'ghc'); paint(cvR, sim, 'rwsp');
@@ -536,7 +543,7 @@
     }
     function loop(t) {
       raf = requestAnimationFrame(loop);
-      if (!running || t - last < 90) return;
+      if (!running || !heroOn || t - last < 90) return;
       last = t;
       // a long-dead grid is not worth watching; restart it
       var alive = 0, i;
@@ -1068,8 +1075,9 @@
     var cfg = { W: 112, init: 0.08, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid', layout: null, woundAt: 0 };
     var sim = NCA(cfg);
     var hist = { gen: [], gep: [], gcvp: [], clogv: [], ghc: [], rwsp: [], occ: [] };
-    var running = !reduceMotion, raf = null, last = 0;
+    var running = !reduceMotion, raf = null, last = 0, labOn = true;
     var show = { gep: true, gcvp: true, clogv: true, ghc: true, rwsp: true };
+    onScreen($('#lab'), function (v) { labOn = v; });
 
     function reseed() {
       sim.act = cfg.act;
@@ -1195,7 +1203,7 @@
 
     function loop(t) {
       raf = requestAnimationFrame(loop);
-      if (!running || t - last < 70) return;
+      if (!running || !labOn || t - last < 70) return;
       last = t;
       advance(); render();
       if (sim.gen % 2 === 0) { measure(); drawChart(); }
