@@ -481,6 +481,7 @@ footer p { max-width: 46em; }
 .vt.no { color: var(--gcvp); }
 
 .board[hidden] { display: none; }
+.qprose p { max-width: 46em; }
 .qverdict { font-size: 18px; line-height: 1.45; margin: 4px 0 10px; max-width: 46em; }
 .qverdict b, .qverdict strong { font-family: 'Barlow Semi Condensed', sans-serif; font-size: 21px; }
 .board .verdict { font-size: 22px; font-weight: 700; line-height: 1.2; margin: 0 0 8px; }
