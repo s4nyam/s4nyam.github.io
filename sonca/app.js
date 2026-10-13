@@ -508,31 +508,10 @@
     });
   })();
 
-  /* ---------------- citation formats ---------------- */
-
-  (function () {
-    var tabs = $('#citeTabs');
-    if (!tabs) return;
-    tabs.addEventListener('click', function (e) {
-      var b = e.target.closest('.citetab');
-      if (!b) return;
-      var want = b.getAttribute('data-cite');
-      $$('.citetab', tabs).forEach(function (t) {
-        t.setAttribute('aria-pressed', String(t === b));
-      });
-      $$('.citebody').forEach(function (pre) {
-        pre.hidden = pre.getAttribute('data-cite') !== want;
-      });
-    });
-  })();
-
-  function visibleCite() {
-    var shown = $$('.citebody').filter(function (pre) { return !pre.hidden; })[0];
-    return (shown || $('#bibtex')).textContent;
-  }
+  /* ---------------- citation ---------------- */
 
   $('#copyBib').addEventListener('click', function () {
-    var txt = visibleCite(), msg = $('#copiedMsg');
+    var txt = $('#bibtex').textContent, msg = $('#copiedMsg');
     function done() { msg.classList.add('on'); setTimeout(function () { msg.classList.remove('on'); }, 1600); }
     if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(done, done); }
     else {
