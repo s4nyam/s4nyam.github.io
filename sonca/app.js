@@ -850,7 +850,14 @@
       { id: 'hi', name: 'High mutation', init: 0.08, ip: 0.20, ppp: 0.80, budget: 8, act: 'sigmoid',
         note: '<span class="mono">ppp</span>&nbsp;=&nbsp;0.80, the top of the small-run sweep. Nearly '
           + 'every birth is a new genome, so the GHC and RWSP counts almost meet &mdash; while GEP falls '
-          + 'as one rounded type spreads to most of the living cells. The other side of the trade-off.' }
+          + 'as one rounded type spreads to most of the living cells. The other side of the trade-off.' },
+      { id: 'voter', name: 'Coarsening', init: 0.30, ip: 0.80, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: '<span class="mono">nca.py</span>&rsquo;s random scatter at the lab&rsquo;s densest setting, with '
+          + 'inheritance at 0.80 and no mortality. The grid is full within about twenty generations; after that '
+          + 'almost nothing dies, so almost nothing is born and new genomes all but stop appearing. What is left '
+          + 'is each cell copying a random living neighbour, a discrete-time voter model (Clifford &amp; Sudbury, '
+          + '1973; Holley &amp; Liggett, 1975). Territories merge but their borders stay ragged: GHC falls from '
+          + 'about 730 colours at generation&nbsp;10 to about 165 at 100 and about 20 at 1000.' }
     ];
 
     // Starting patterns change where life begins. nca.py has none of them:
@@ -881,8 +888,117 @@
         note: 'Experiment 19&rsquo;s parameters fill the grid; at generation 60 a disc covering about a sixth '
           + 'of it is annihilated, state and agent together &mdash; the paper&rsquo;s proposed annihilation '
           + 'kernel. A dead cell can be reborn only from a living neighbour, so the hole closes from its rim '
-          + 'inward, recolonised by the lineages around it. Drag on the &alpha; view to wound it again.' }
+          + 'inward, recolonised by the lineages around it. Drag on the &alpha; view to wound it again.' },
+      { id: 'mixed', name: 'Range expansion', layout: 'mixed', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'The clonal colony&rsquo;s disc, except that every founder &mdash; 197 of them on the default '
+          + '112&nbsp;&times;&nbsp;112 grid &mdash; has its own genome. Nearly half the founding lineages are gone '
+          + 'within three generations as the crowded disc settles. After that the colony advances at its rim, '
+          + 'where each newborn copies a random living neighbour, so chance decides which lineages keep a '
+          + 'foothold: by the time the rim nears the edge only 8 to 12 hold it, each a widening sector. This is '
+          + 'the sectoring Hallatschek and colleagues photographed in bacterial colonies grown from a mixed drop '
+          + '(PNAS, 2007). RWSP shows the sectors best; GHC splits each one into many shades as mutants ride the rim.' },
+      { id: 'line', name: 'Founder line', layout: 'line', ip: 0.20, ppp: 0.02, budget: Infinity, act: 'sigmoid',
+        note: 'A full row of founders across the middle (112 on the default grid), each with its own genome. '
+          + 'Two fronts march away from it, and a lineage drops off a front whenever the sectors beside it close '
+          + 'over it: about 18 lineages still touch a front ten rows out, and about 6 fifty rows out. Unlike the '
+          + 'range expansion, a straight front makes no room for the survivors, so the count keeps falling. '
+          + 'Watch it in RWSP.' },
+      { id: 'waves', name: 'Target waves', layout: 'centre', ip: 0.80, ppp: 0.02, budget: 12, act: 'sigmoid',
+        note: 'One founder, inheritance at 0.80 and a budget of 12. Each cell lives its twelve generations, dies, '
+          + 'and is usually reborn two generations later from a neighbour that is still alive, so the colony beats '
+          + 'with a period near fourteen and sends rounded-square rings outward, about seven cells apart. Every '
+          + 'late rebirth knocks a cell out of step, and the rings fade over a few hundred generations &mdash; '
+          + 'sooner if you reseed at a shorter budget. The rings echo excitable media such as the '
+          + 'Belousov&ndash;Zhabotinsky reaction, by a different mechanism.' }
     ];
+
+    // Genomes for the "One rule everywhere" row, taken unchanged from section 9:
+    // the two gliders from the Lenia board's random search, Life and Maze from the
+    // Game of Life board's chemistry-clock construction. Gliders are sensitive to
+    // rounding, so the weights keep their full float32 values.
+    var RULES = {
+      spear: {
+        act: 'sigmoid', b: 12,
+        cells: [[-3, -1], [-3, 0], [-3, 1], [-2, -3], [-2, 2], [-1, -1], [-1, 0], [0, -1], [0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, -1], [2, 1], [2, 2]],
+        genome: [
+          0.13095399737358093, -0.5135033130645752, 0.31737565994262695, -0.45669060945510864, -0.03022291511297226, 0.40143880248069763,
+          0.2847193479537964, 0.021542688831686974, -0.33366698026657104, 0.2952452003955841, 0.4864162802696228, -0.3961203396320343,
+          0.4882192015647888, 0.14685648679733276, -0.3624744117259979, -0.3673238456249237, 0.5183289051055908, 0.22163356840610504,
+          -0.07793359458446503, 0.5242310166358948, -0.32981035113334656, -0.34760165214538574, -0.1982053518295288, 0.0022672018967568874,
+          -0.02957955002784729, 0.15812242031097412, -0.17502185702323914, -0.3084765672683716, -0.21973884105682373, -0.1525343358516693,
+          -0.09754057973623276, -0.33817508816719055, -0.10364082455635071, -0.06686634570360184, 0.4515705108642578, -0.2552752196788788,
+          0, 0, 1.199352502822876, -1.0031272172927856, 0.24496465921401978, -0.07486943155527115,
+          0, 0
+        ]
+      },
+      comb: {
+        act: 'tanh', b: 3,
+        cells: [[-3, -3], [-3, -2], [-3, -1], [-3, 2], [-2, -2], [-1, -2], [-1, 0], [-1, 2], [0, -3], [0, -2], [0, -1], [0, 0], [0, 1], [1, -3], [1, 0], [2, -3], [2, -2], [2, -1], [2, 0], [2, 1]],
+        genome: [
+          0.4997366964817047, -0.1922578513622284, 0.37409743666648865, 0.35125696659088135, -0.06919856369495392, 0.18467476963996887,
+          0.27287739515304565, 0.45417478680610657, 0.42075982689857483, -0.24596849083900452, -0.5216618180274963, -0.25341781973838806,
+          0.4857909381389618, -0.3649244010448456, -0.10167299211025238, 0.29358622431755066, -0.09424426406621933, -0.4229849576950073,
+          0.3330347537994385, -0.25721290707588196, -0.31929540634155273, -0.15132761001586914, -0.4967666566371918, -0.5286818146705627,
+          0.162529855966568, -0.4087866246700287, -0.4569617807865143, -0.10346950590610504, 0.5337624549865723, -0.5080828070640564,
+          0.0042184703052043915, 0.38793355226516724, 0.4221537411212921, -0.4642857313156128, -0.15731768310070038, -0.0814020186662674,
+          0, 0, -0.5530034303665161, -1.0461254119873047, 1.2002179622650146, 0.7837856411933899,
+          0, 0
+        ]
+      },
+      life: [
+        0.1841224, 0.1841224, 0.1841224, 0.1841224, 0.09206119, 0.1841224,
+        0.1841224, 0.1841224, 0.1841224, -0.1841224, -0.1841224, -0.1841224,
+        -0.1841224, -40.09206, -0.1841224, -0.1841224, -0.1841224, -0.1841224,
+        0.846246, 0.846246, 0.846246, 0.846246, 0.423123, 0.846246,
+        0.846246, 0.846246, 0.846246, -0.846246, -0.846246, -0.846246,
+        -0.846246, 39.57688, -0.846246, -0.846246, -0.846246, -0.846246,
+        0, 0, -660.9745, 459.0102, 60, -20,
+        0, 0
+      ],
+      maze: [
+        0.170176, 0.170176, 0.170176, 0.170176, -0.1821354, 0.170176,
+        0.170176, 0.170176, 0.170176, -0.170176, -0.170176, -0.170176,
+        -0.170176, -38.64195, -0.170176, -0.170176, -0.170176, -0.170176,
+        0.8824087, 0.8824087, 0.8824087, 0.8824087, 0.4363058, 0.8824087,
+        0.8824087, 0.8824087, 0.8824087, -0.8824087, -0.8824087, -0.8824087,
+        -0.8824087, 38.38778, -0.8824087, -0.8824087, -0.8824087, -0.8824087,
+        0, 0, -148.3862, 100.3716, 64.07191, -20,
+        0, 0
+      ]
+    };
+
+    // Rules run with one genome in every founder, inheritance 1 and mutation 0,
+    // which makes the substrate a deterministic automaton. lockAct: their
+    // genomes mean nothing under the other activation, so switching it releases them.
+    var ONE_RULE = [
+      { id: 'spear', name: 'Spear glider', layout: 'spear', ip: 1, ppp: 0, budget: 12, act: 'sigmoid', lockAct: true,
+        note: 'A 104-cell glider found by random search on <a href="#q-lenia">section&nbsp;9&rsquo;s Lenia board</a>: '
+          + 'one genome in every founder, inheritance 1, mutation 0 and a budget of 12, so the substrate becomes a '
+          + 'deterministic automaton. It condenses out of a 17-cell seed in about fifty generations, then slides '
+          + 'diagonally at half a cell per generation along each axis, the fastest anything travels here. Lower '
+          + '<span class="mono">ip</span> to 0.9 and it spreads into waves; raise <span class="mono">ppp</span> to '
+          + '0.02 and it fills the grid. Its live states sit just above threshold, so it is brightest in the GHC view.' },
+      { id: 'comb', name: 'Comb glider', layout: 'comb', ip: 1, ppp: 0, budget: 3, act: 'tanh', lockAct: true,
+        note: 'A 39-cell tanh glider with a period of 24 generations, from the same search, at a budget of 3. '
+          + 'It takes about 160 generations to condense out of its 20-cell seed, then changes shape through its '
+          + 'period while moving half a cell per generation. Lower <span class="mono">ip</span> to 0.9 or raise '
+          + '<span class="mono">ppp</span> to 0.02 and it breaks into waves. Follow it in the GHC view.' },
+      { id: 'life', name: 'Game of Life', layout: 'life', ip: 1, ppp: 0, budget: Infinity, act: 'sigmoid', lockAct: true,
+        note: 'Conway&rsquo;s Life, run exactly by the unmodified substrate from a random half-filled square. '
+          + 'Every founder carries one hand-built genome that uses chemistry as a clock: on one step live cells '
+          + 'hold still while their dead neighbours inherit the genome, on the next every cell applies '
+          + 'Life&rsquo;s rule. One Life generation takes two steps, and the &alpha; view matches Life cell for '
+          + 'cell (checked over 400 Life generations from three soups on this grid); the chemistry view flickers '
+          + 'with the clock. The genome was designed, not evolved: move <span class="mono">ip</span> or '
+          + '<span class="mono">ppp</span> and Life breaks within a few generations. '
+          + '<a href="#q-life">Section&nbsp;9</a> explains how.' },
+      { id: 'maze', name: 'Maze', layout: 'maze', ip: 1, ppp: 0, budget: Infinity, act: 'sigmoid', lockAct: true,
+        note: 'The same clock carries other life-like rules. This genome runs Maze, B3/S12345: a cell is born '
+          + 'with exactly three living neighbours and survives with one to five. A random square of it grows '
+          + 'corridors over about half the grid, matching the rule exactly for 300 rule generations from three '
+          + 'soups here, at two substrate steps per generation.' }
+    ];
+
 
     var DEFAULT_NOTE = 'Founders scattered uniformly at random at <span class="mono">init_prob</span>, each '
       + 'with its own Xavier-initialised genome &mdash; how <span class="mono">nca.py</span> seeds every run. '
@@ -911,8 +1027,43 @@
             s.found(Math.floor((a + 0.5) * s.W / k) * s.W + Math.floor((b + 0.5) * s.W / k), founderGenome(s, 'solo'));
           }
         }
-      }
+      },
+      // the clonal colony's disc, every cell its own genome
+      mixed: function (s) {
+        var m = s.W >> 1, R = Math.max(3, Math.round(s.W / 14)), i, j;
+        for (i = -R; i <= R; i++) {
+          for (j = -R; j <= R; j++) if (i * i + j * j <= R * R) s.found((m + i) * s.W + (m + j), founderGenome(s, 'solo'));
+        }
+      },
+      // one full row across the middle, every cell its own genome
+      line: function (s) {
+        var r = (s.W >> 1) * s.W, j;
+        for (j = 0; j < s.W; j++) s.found(r + j, founderGenome(s, 'solo'));
+      },
+      spear: seedCells(RULES.spear),
+      comb: seedCells(RULES.comb),
+      life: soup(RULES.life),
+      maze: soup(RULES.maze)
     };
+
+    // a creature's seed, centred, with its genome in every seed cell
+    function seedCells(spec) {
+      return function (s) {
+        var m = s.W >> 1;
+        spec.cells.forEach(function (q) {
+          s.found(((m + q[0] + s.W) % s.W) * s.W + ((m + q[1] + s.W) % s.W), spec.genome);
+        });
+      };
+    }
+    // a half-filled square in the middle of the grid, one genome throughout
+    function soup(genome) {
+      return function (s) {
+        var q = s.W >> 2, i, j;
+        for (i = q; i < s.W - q; i++) {
+          for (j = q; j < s.W - q; j++) if (Math.random() < 0.5) s.found(i * s.W + j, genome);
+        }
+      };
+    }
 
     var cfg = { W: 112, init: 0.08, ip: 0.10, ppp: 0.02, budget: 4, act: 'sigmoid', layout: null, woundAt: 0 };
     var sim = NCA(cfg);
@@ -1085,10 +1236,11 @@
     // A preset stays pressed only while the grid runs what its note describes.
     // Regimes, and the scheduled wound, describe parameters, so any parameter
     // that moves releases them. Layouts describe where founders go, so only
-    // init_prob — the random scatter's own knob — releases those.
+    // init_prob — the random scatter's own knob — releases those, plus the
+    // activation for the one-rule presets, whose genomes are tied to it.
     function paramMoved(key) {
       if (!current) return;
-      if (current.layout && key !== 'init') return;
+      if (current.layout && key !== 'init' && !(current.lockAct && key === 'act')) return;
       release();
     }
 
@@ -1103,6 +1255,7 @@
     }
     addPresets(PRESETS, $('#labPresets'));
     addPresets(PATTERNS, $('#labPatterns'));
+    addPresets(ONE_RULE, $('#labRules'));
     noteEl.innerHTML = DEFAULT_NOTE;
 
     // ip, ppp and the budget take effect on the running grid; init_prob and the

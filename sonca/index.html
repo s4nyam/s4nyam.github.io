@@ -390,6 +390,8 @@ y = W&#8322;h + b&#8322;</div>
           <div class="presets" id="labPresets" role="group" aria-label="Parameter presets"></div>
           <span class="ctl-label">Starting patterns</span>
           <div class="presets" id="labPatterns" role="group" aria-label="Starting-pattern presets"></div>
+          <span class="ctl-label">One rule everywhere</span>
+          <div class="presets" id="labRules" role="group" aria-label="Presets that give every cell one fixed genome"></div>
         </div>
         <p class="note presetnote" id="labPresetNote" aria-live="polite"></p>
 
@@ -444,12 +446,12 @@ y = W&#8322;h + b&#8322;</div>
             </div>
             <div class="slider">
               <label for="labIp">ip &mdash; inheritance</label>
-              <input type="range" id="labIp" min="0" max="0.8" step="0.01" value="0.10">
+              <input type="range" id="labIp" min="0" max="1" step="0.01" value="0.10">
               <output id="oLabIp">0.10</output>
             </div>
             <div class="slider">
               <label for="labPpp">ppp &mdash; mutation</label>
-              <input type="range" id="labPpp" min="0.01" max="0.80" step="0.01" value="0.02">
+              <input type="range" id="labPpp" min="0" max="0.80" step="0.01" value="0.02">
               <output id="oLabPpp">0.02</output>
             </div>
             <div class="slider">
@@ -526,7 +528,9 @@ y = W&#8322;h + b&#8322;</div>
           lone copy of it survives its first step and still has living descendants after 40 generations on a
           32&nbsp;&times;&nbsp;32 scratch grid, under the settings in force. The lattice&rsquo;s thirty-six
           founders only have to survive their first step. Nothing about the rule changes, and the wound
-          pattern is not screened at all: it is a plain random scatter.</p>
+          pattern is not screened at all: it is a plain random scatter. The third row is not screened either:
+          its genomes are fixed ones found or built for section&nbsp;9, and they hold only at the
+          <span class="mono">ip</span>, <span class="mono">ppp</span> and activation their preset sets.</p>
       </div>
     </div>
   </section>
@@ -1118,16 +1122,96 @@ saturated once &sigma; &gt; 4</div>
   <section id="questions">
     <div class="wrap-wide">
       <h2><span class="num">9</span>Seven questions beyond the paper</h2>
-      <!-- questions:intro -->
+      <p class="lede">The paper measures diversity; it never asks the substrate to do anything. These seven
+        boards do. Each takes a task that trained neural cellular automata are known for and asks how far this
+        untrained substrate, with its 44 parameters per cell, gets on it.</p>
+
+      <div class="wrap" style="padding:0">
+        <p>&ldquo;Solve&rdquo; is asked at three levels, because the substrate can fail at each for a different
+          reason.</p>
+        <div class="levels">
+          <div class="level"><span class="kicker">As it is</span>
+            <p>The substrate of sections 1&ndash;3, unchanged: no objective, no training. What does it already do
+              that bears on the task?</p></div>
+          <div class="level"><span class="kicker">With its own adaptation</span>
+            <p>Keep clone-and-mutate and viability selection, but make survival depend on the task, so a cell
+              that gets it wrong dies. Can the substrate&rsquo;s own mechanism find a solution?</p></div>
+          <div class="level"><span class="kicker">The best its agent can do</span>
+            <p>One genome shared by every cell &mdash; the same 44-parameter agent, biases still zero &mdash;
+              found by an evolution strategy or built by hand. This separates what the agent cannot represent
+              from what the substrate cannot find.</p></div>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data verdicts">
+            <caption class="note">The answers at a glance. Pick a question to open its board.</caption>
+            <thead>
+              <tr><th>Question</th><th>As it is</th><th>With its own adaptation</th><th>The best its agent can do</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="#q-mnist" data-open="mnist">MNIST</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">No. Seeded on a digit, the grid loses its shape within five generations.</td>
+                <td class="wide">Only 0&nbsp;vs&nbsp;1, by memorising where each digit puts its ink.</td>
+                <td class="wide">0&nbsp;vs&nbsp;1 on 84&ndash;91% of test digits, below ink count alone (93%); ten classes 16% (chance 11%).</td>
+              </tr>
+              <tr>
+                <td><a href="#q-cmnist" data-open="cmnist">Colored MNIST</a><br><span class="vt no">No</span></td>
+                <td class="wide">No.</td>
+                <td class="wide">Takes the colour shortcut: 10&ndash;27% once the colours flip.</td>
+                <td class="wide">Takes the colour shortcut: 84.8% on training colours, 10.4% flipped.</td>
+              </tr>
+              <tr>
+                <td><a href="#q-inpaint" data-open="inpaint">Inpainting</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">Refills every wound from its rim, but restores a lineage only where it also lives outside the wound.</td>
+                <td class="wide">No, with the couplings tried.</td>
+                <td class="wide">Exact repair of four simple textures; no rule found for shapes or digits.</td>
+              </tr>
+              <tr>
+                <td><a href="#q-physics" data-open="physics">Physical dynamics</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">Solves no equation, but grows fronts that roughen like simple growth models.</td>
+                <td class="wide">No diffuser found.</td>
+                <td class="wide">A built genome tracks the heat equation to 10<sup>&minus;5</sup> after one step over a narrow range, never exactly; heat leaks away.</td>
+              </tr>
+              <tr>
+                <td><a href="#q-ecology" data-open="ecology">Fish, ants, bees</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">A renewable stock with a maximum sustainable yield, though not Schaefer&rsquo;s; nothing to forage.</td>
+                <td class="wide">Settles on food but never chooses a path; no evolved tolerance of fishing.</td>
+                <td class="wide">Weights are not the limit; one genome keeps 87% of its colony on food.</td>
+              </tr>
+              <tr>
+                <td><a href="#q-life" data-open="life">Game of Life</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">No.</td>
+                <td class="wide">No: it settles on &ldquo;never give birth&rdquo;.</td>
+                <td class="wide">Exact Life at half speed, with a designed genome that uses chemistry as a clock.</td>
+              </tr>
+              <tr>
+                <td><a href="#q-lenia" data-open="lenia">Lenia creatures</a><br><span class="vt partly">Partly</span></td>
+                <td class="wide">With mutation off, small lattice gliders from about one tanh founder in seventeen; none with the lab&rsquo;s stochastic inheritance.</td>
+                <td class="wide">No: at <span class="mono">ip</span>&nbsp;=&nbsp;1 a mutant is never inherited.</td>
+                <td class="wide">Gliders, never faster than half a cell per generation; an external search finds dozens.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <p><b>Built for this page, not in the paper.</b> Every offline number on these boards was measured
+            with this page&rsquo;s own engine code &mdash; the same <span class="mono">app.js</span> the boards
+            run &mdash; over several seeds, and then re-run independently. The boards replay those results and
+            run everything else live. Where a board changes the rule, by clamping a channel, killing cells that
+            get a task wrong or adding food to the ground, it says so.</p>
+        </div>
+      </div>
 
       <div class="qpick" id="qPick" role="tablist" aria-label="Choose a question">
-        <button type="button" role="tab" id="qtab-mnist" data-q="mnist" aria-controls="qboard-mnist" aria-selected="false"><b>MNIST</b><span class="vt" data-vt="mnist"></span></button>
-        <button type="button" role="tab" id="qtab-cmnist" data-q="cmnist" aria-controls="qboard-cmnist" aria-selected="false"><b>Colored MNIST</b><span class="vt" data-vt="cmnist"></span></button>
-        <button type="button" role="tab" id="qtab-inpaint" data-q="inpaint" aria-controls="qboard-inpaint" aria-selected="false"><b>Inpainting</b><span class="vt" data-vt="inpaint"></span></button>
-        <button type="button" role="tab" id="qtab-physics" data-q="physics" aria-controls="qboard-physics" aria-selected="false"><b>Physical dynamics</b><span class="vt" data-vt="physics"></span></button>
-        <button type="button" role="tab" id="qtab-ecology" data-q="ecology" aria-controls="qboard-ecology" aria-selected="false"><b>Fish, ants, bees</b><span class="vt" data-vt="ecology"></span></button>
-        <button type="button" role="tab" id="qtab-life" data-q="life" aria-controls="qboard-life" aria-selected="false"><b>Game of Life</b><span class="vt" data-vt="life"></span></button>
-        <button type="button" role="tab" id="qtab-lenia" data-q="lenia" aria-controls="qboard-lenia" aria-selected="false"><b>Lenia creatures</b><span class="vt" data-vt="lenia"></span></button>
+        <button type="button" role="tab" id="qtab-mnist" data-q="mnist" aria-controls="qboard-mnist" aria-selected="false"><b>MNIST</b><span class="vt partly" data-vt="mnist">Partly</span></button>
+        <button type="button" role="tab" id="qtab-cmnist" data-q="cmnist" aria-controls="qboard-cmnist" aria-selected="false"><b>Colored MNIST</b><span class="vt no" data-vt="cmnist">No</span></button>
+        <button type="button" role="tab" id="qtab-inpaint" data-q="inpaint" aria-controls="qboard-inpaint" aria-selected="false"><b>Inpainting</b><span class="vt partly" data-vt="inpaint">Partly</span></button>
+        <button type="button" role="tab" id="qtab-physics" data-q="physics" aria-controls="qboard-physics" aria-selected="false"><b>Physical dynamics</b><span class="vt partly" data-vt="physics">Partly</span></button>
+        <button type="button" role="tab" id="qtab-ecology" data-q="ecology" aria-controls="qboard-ecology" aria-selected="false"><b>Fish, ants, bees</b><span class="vt partly" data-vt="ecology">Partly</span></button>
+        <button type="button" role="tab" id="qtab-life" data-q="life" aria-controls="qboard-life" aria-selected="false"><b>Game of Life</b><span class="vt partly" data-vt="life">Partly</span></button>
+        <button type="button" role="tab" id="qtab-lenia" data-q="lenia" aria-controls="qboard-lenia" aria-selected="false"><b>Lenia creatures</b><span class="vt partly" data-vt="lenia">Partly</span></button>
       </div>
 
       <div class="board" id="qboard-mnist" data-board="mnist" role="tabpanel" aria-labelledby="qtab-mnist" hidden>
