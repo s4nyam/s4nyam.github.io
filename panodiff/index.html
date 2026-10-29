@@ -16,7 +16,7 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="style.css?v=4" rel="stylesheet">
+  <link href="style.css?v=5" rel="stylesheet">
 
   <script>
     // Resolve the theme before paint. Shares the 'theme' key with the main site,
@@ -1032,6 +1032,33 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
           <span class="note">Paper Figure 16.</span></figcaption>
       </figure>
 
+      <div class="panel" id="tsneExplore">
+        <div class="panel-head">
+          <h3>Explore the feature space</h3>
+          <span class="hint">Point at a filled dot (or tap it) to see that radiograph. Click a model in the legend to hide or show it.</span>
+        </div>
+        <div class="controls">
+          <div class="switch" role="group" aria-label="Panel" id="tsnePanel">
+            <button type="button" data-panel="0" aria-pressed="false">(a) Low resolution</button>
+            <button type="button" data-panel="1" aria-pressed="false">(b) Super-resolution</button>
+            <button type="button" data-panel="2" aria-pressed="true">(c) Full resolution</button>
+          </div>
+        </div>
+        <div class="tsne-wrap">
+          <div class="chartbox tsne-box"><canvas id="tsneCanvas" role="img" aria-label="Interactive t-SNE of the generative models; point at a dot to see its radiograph"></canvas></div>
+          <div class="tsne-preview">
+            <div class="tsne-preview-img"><img id="tsneImg" alt=""></div>
+            <div class="tsne-preview-cap" id="tsneCap" aria-live="polite">Point at a filled dot.</div>
+          </div>
+        </div>
+        <div class="legend" id="tsneLegend"></div>
+        <p class="note" style="margin-top:10px">The same t-SNE as the figure above, computed from the same Inception features (1500
+          images per model) with the same settings; a newer version of the t-SNE library places the clusters slightly
+          differently. Faint dots: 600 of the 1500 images of each model. Filled dots: 50 images per model, drawn at random,
+          whose radiograph appears when you point at them. Crosses mark the centroids. Images are shown at 512&times;256;
+          the low-resolution sets at their own size of 256&times;128, enlarged.</p>
+      </div>
+
       <div class="callout">
         <p><b>What these metrics can and cannot say.</b> FID compares the mean and covariance of Inception
           features between two sets; it is sensitive to sample size, so numbers are only comparable within a
@@ -1612,6 +1639,8 @@ img.crop((127, 64, w - 127, h - 90)).resize((1024, 512), LANCZOS)</pre>
 
   <script src="assets/data/data.js?v=4"></script>
   <script src="app.js?v=5"></script>
+  <script src="assets/data/tsne.js?v=1"></script>
+  <script src="tsne.js?v=1"></script>
   <script src="assets/data/challenge.js?v=3"></script>
   <script type="module" src="challenge.js?v=2"></script>
 </body>

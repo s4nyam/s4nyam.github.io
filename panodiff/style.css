@@ -757,3 +757,17 @@ h3.subhead { margin-top: 34px; font-size: 18px; color: var(--text-soft); }
   .badge.live.on .dot, table.data.lb tr.fresh { animation: none; }
   .progress .pfill { transition: none; }
 }
+
+/* ---------- interactive t-SNE (#tsneExplore) ---------- */
+.tsne-wrap { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.tsne-box { background: var(--bg); border: 1px solid var(--rule); }
+.tsne-box canvas { display: block; cursor: crosshair; touch-action: manipulation; }
+.tsne-preview { position: sticky; top: 64px; }
+.tsne-preview-img { background: var(--film); border: 1px solid var(--rule); aspect-ratio: 2 / 1; overflow: hidden; }
+.tsne-preview-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.tsne-preview-cap { font-size: 13.5px; color: var(--text-soft); margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .tsne-wrap { grid-template-columns: 1fr; }
+  .tsne-preview { position: static; }
+}
+
